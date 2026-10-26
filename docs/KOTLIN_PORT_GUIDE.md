@@ -1724,3 +1724,8 @@ Run each item on the TECNO BG6 for both apps and keep the numbers in one table.
   `CompiledModel`.
 - Separate `applicationId` (`com.yoloc.app.kt`) so both apps can be installed together.
 - Debug builds of the Kotlin app also have no INTERNET permission (there is no Metro).
+- LiteRT 2.3.0 adds permissions to the merged manifest: FOREGROUND_SERVICE and
+  FOREGROUND_SERVICE_DATA_SYNC (`litert-api`), plus WAKE_LOCK, ACCESS_NETWORK_STATE and
+  RECEIVE_BOOT_COMPLETED (`androidx.work:work-runtime`, pulled in by LiteRT). None grants network
+  access; kept for now (2026-10-26). Removing them with `tools:node="remove"` needs a test on the
+  phone first.
