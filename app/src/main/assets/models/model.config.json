@@ -1,0 +1,17 @@
+{
+  "id": "yolo-c-v2-640",
+  "displayName": "YOLO-C v2 (640)",
+  "file": "yolo_c_v2_640_fp32.tflite",
+  "inputSize": 640,
+  "classes": ["early_stage", "fully_infected_pod", "healthy_pod"],
+  "confThreshold": 0.25,
+  "iouThreshold": 0.45,
+  "lowConfidenceThreshold": 0.4,
+  "letterboxPadValue": 114,
+  "metrics": {
+    "valMap50": 0.746,
+    "testMap50": 0.727,
+    "earlyStageTestMap50": 0.614,
+    "earlyStageRecall": 0.596
+  }
+}
