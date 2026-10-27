@@ -1,0 +1,140 @@
+{
+  "source": "Colab expected_tflite.json, 2026-10-15. Both provided files were byte-identical, so which model produced them is not confirmed.",
+  "args": {
+    "conf": 0.25,
+    "iou": 0.45,
+    "imgsz": 640
+  },
+  "images": [
+    {
+      "file": "golden_01.jpg",
+      "originalName": "1-s2-0-S0261219417300200-gr21_jpg.rf.c0f7048ba047166a595460fa56d0a023.jpg",
+      "width": 1024,
+      "height": 1024,
+      "detections": [
+        {
+          "classId": 0,
+          "className": "early_stage",
+          "confidence": 0.9064,
+          "x": 0.6779,
+          "y": 0.2147,
+          "w": 0.1908,
+          "h": 0.5639
+        },
+        {
+          "classId": 0,
+          "className": "early_stage",
+          "confidence": 0.7624,
+          "x": 0.0754,
+          "y": 0.2148,
+          "w": 0.2233,
+          "h": 0.5314
+        }
+      ]
+    },
+    {
+      "file": "golden_02.jpg",
+      "originalName": "11_png.rf.20438d470ad521eee1b47ed5731e4c6d.jpg",
+      "width": 1024,
+      "height": 1024,
+      "detections": [
+        {
+          "classId": 1,
+          "className": "fully_infected_pod",
+          "confidence": 0.8403,
+          "x": 0.321,
+          "y": 0.2311,
+          "w": 0.3601,
+          "h": 0.4977
+        },
+        {
+          "classId": 2,
+          "className": "healthy_pod",
+          "confidence": 0.4951,
+          "x": 0.7489,
+          "y": 0.8474,
+          "w": 0.0894,
+          "h": 0.1015
+        }
+      ]
+    },
+    {
+      "file": "golden_03.jpg",
+      "originalName": "1515671450y_pod_rot_cacao_Mycologia_alme_et_al_jpg.rf.86e5e9384188c1143fa44a81ff569a95.jpg",
+      "width": 1024,
+      "height": 1024,
+      "detections": [
+        {
+          "classId": 0,
+          "className": "early_stage",
+          "confidence": 0.9043,
+          "x": 0.2181,
+          "y": 0.3071,
+          "w": 0.2757,
+          "h": 0.4582
+        },
+        {
+          "classId": 1,
+          "className": "fully_infected_pod",
+          "confidence": 0.8454,
+          "x": 0.4706,
+          "y": 0.281,
+          "w": 0.317,
+          "h": 0.3332
+        }
+      ]
+    },
+    {
+      "file": "golden_04.jpg",
+      "originalName": "2026-10-06-164013_png.rf.1998f18a846e9e09a4faeaac010166ac.jpg",
+      "width": 1024,
+      "height": 1024,
+      "detections": [
+        {
+          "classId": 1,
+          "className": "fully_infected_pod",
+          "confidence": 0.7317,
+          "x": 0.3796,
+          "y": 0.2463,
+          "w": 0.1862,
+          "h": 0.5191
+        },
+        {
+          "classId": 0,
+          "className": "early_stage",
+          "confidence": 0.3914,
+          "x": 0.4167,
+          "y": 0.8471,
+          "w": 0.1894,
+          "h": 0.1526
+        }
+      ]
+    },
+    {
+      "file": "golden_05.jpg",
+      "originalName": "327991_1_En_3_Fig6_HTMLl_jpg.rf.8ced2ad61dc17ec3883d4bc71adee6ec.jpg",
+      "width": 1024,
+      "height": 1024,
+      "detections": [
+        {
+          "classId": 0,
+          "className": "early_stage",
+          "confidence": 0.9133,
+          "x": 0.4593,
+          "y": 0.3631,
+          "w": 0.2745,
+          "h": 0.5614
+        },
+        {
+          "classId": 0,
+          "className": "early_stage",
+          "confidence": 0.7817,
+          "x": 0.3107,
+          "y": 0.3605,
+          "w": 0.1885,
+          "h": 0.3105
+        }
+      ]
+    }
+  ]
+}

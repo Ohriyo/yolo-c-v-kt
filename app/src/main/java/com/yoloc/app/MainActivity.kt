@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.yoloc.app.screens.dev.InferenceScreen
 import com.yoloc.app.theme.YolocTheme
 
 class MainActivity : ComponentActivity() {
@@ -20,10 +21,16 @@ class MainActivity : ComponentActivity() {
         setContent {
             YolocTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                    // Until Step 5 adds YoloCRoot and navigation, debug builds open the Model test
+                    // screen directly (pipeline first, verified by the golden test, before screens).
+                    if (BuildConfig.DEBUG) {
+                        InferenceScreen(Modifier.padding(innerPadding))
+                    } else {
+                        Greeting(
+                            name = "Android",
+                            modifier = Modifier.padding(innerPadding)
+                        )
+                    }
                 }
             }
         }
