@@ -23,7 +23,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.core.view.WindowCompat
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
@@ -34,18 +33,22 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.yoloc.app.BuildConfig
 import com.yoloc.app.R
 import com.yoloc.app.components.AppTabBar
 import com.yoloc.app.components.AppText
-import com.yoloc.app.components.ButtonSize
 import com.yoloc.app.components.IconName
 import com.yoloc.app.components.ScreenContainer
 import com.yoloc.app.components.TabBarItem
 import com.yoloc.app.components.Tone
-import com.yoloc.app.components.YButton
 import com.yoloc.app.screens.dev.InferenceScreen
-import com.yoloc.app.screens.onboarding.OnboardingViewModel
+import com.yoloc.app.screens.home.HomeScreen
+import com.yoloc.app.screens.learn.LearnScreen
+import com.yoloc.app.screens.learn.LearnTopicScreen
+import com.yoloc.app.screens.learn.learnTopicTitle
+import com.yoloc.app.screens.onboarding.PermissionsScreen
+import com.yoloc.app.screens.onboarding.WelcomeScreen
 import com.yoloc.app.theme.Motion
 import com.yoloc.app.theme.TypeVariant
 import com.yoloc.app.theme.YoloCTheme
@@ -105,13 +108,20 @@ fun YoloCNavHost(onboardingDone: Boolean) {
             exitTransition = { if (initialState.isTab() && targetState.isTab()) ExitTransition.None else fadeOut(tween(Motion.BASE)) },
         ) {
             navigation<OnboardingGraph>(startDestination = Welcome) {
-                composable<Welcome> { WelcomePlaceholder() }
-                composable<Permissions> { Placeholder(null) }
+                composable<Welcome> { WelcomeScreen(onToPrimer = { nav.navigate(Permissions) }) }
+                composable<Permissions> { PermissionsScreen() }
             }
             navigation<MainGraph>(startDestination = Home) {
-                composable<Home> { Placeholder(stringResource(R.string.tabs_home)) }
+                composable<Home> {
+                    HomeScreen(
+                        onScan = { nav.navigate(Camera) },
+                        onOpenScan = { id -> nav.navigate(ScanDetail(id)) },
+                        onOpenHistory = { nav.selectTab(History) },
+                        onOpenLearn = { nav.selectTab(Learn) },
+                    )
+                }
                 composable<History> { Placeholder(stringResource(R.string.tabs_history)) }
-                composable<Learn> { Placeholder(stringResource(R.string.tabs_learn)) }
+                composable<Learn> { LearnScreen(onOpenTopic = { topic -> nav.navigate(LearnTopic(topic.key)) }) }
                 composable<Settings> { Placeholder(stringResource(R.string.tabs_settings)) }
                 // The camera screens are dark in both themes, including during the fade.
                 composable<Camera> { CameraPlaceholder() }
@@ -120,7 +130,15 @@ fun YoloCNavHost(onboardingDone: Boolean) {
                 stack<Processing>(nav, R.string.processing_title)
                 stack<Result>(nav, R.string.result_title)
                 stack<ScanDetail>(nav, R.string.scan_detail_title)
-                stack<LearnTopic>(nav, R.string.learn_title)
+                composable<LearnTopic> { entry ->
+                    StackScreen(learnTopicTitle(entry.toRoute<LearnTopic>().topic), onBack = { nav.navigateUp() }) {
+                        LearnTopicScreen(
+                            onBack = { nav.navigateUp() },
+                            onOpenAbout = { nav.navigate(About) },
+                            onOpenSettings = { nav.selectTab(Settings) },
+                        )
+                    }
+                }
                 stack<About>(nav, R.string.about_title)
                 stack<Plots>(nav, R.string.plots_title)
                 if (BuildConfig.DEBUG) {
@@ -186,14 +204,5 @@ private fun Placeholder(title: String?) {
 private fun CameraPlaceholder() {
     Box(Modifier.fillMaxSize().background(YoloCTheme.colors.camera.screen).windowInsetsPadding(WindowInsets.safeDrawing)) {
         AppText(stringResource(R.string.placeholder), color = YoloCTheme.colors.camera.lensText)
-    }
-}
-
-/** Until Welcome is ported: finishing onboarding must still be possible on a first run. */
-@Composable
-private fun WelcomePlaceholder(vm: OnboardingViewModel = viewModel(factory = OnboardingViewModel.Factory)) {
-    ScreenContainer {
-        AppText(stringResource(R.string.placeholder), tone = Tone.Muted)
-        YButton(stringResource(R.string.onboarding_get_started), onClick = vm::complete, size = ButtonSize.Lg, fullWidth = true)
     }
 }

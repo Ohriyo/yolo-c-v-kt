@@ -68,6 +68,76 @@
     <string name="onboarding_aid_title">A screening aid, not a diagnosis</string>
     <string name="onboarding_aid_body">The app can miss early signs. Always check doubtful pods by eye.</string>
     <string name="onboarding_get_started">Get started</string>
+    <string name="onboarding_aid_detail">In tests it missed about %1$d in 10 early-stage pods.</string>
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_skip">Skip</string>
+    <string name="onboarding_permissions_title">Camera and photos</string>
+    <string name="onboarding_permissions_body">The app asks for the camera the first time you open Scan. You can also pick photos from your gallery.</string>
+    <string name="onboarding_permissions_location">Location stays off unless you turn it on in Settings.</string>
+    <string name="onboarding_continue">Continue</string>
+    <string name="onboarding_slide_counter">Step %1$d of %2$d</string>
+
+    <!-- home (RN: strings.home) -->
+    <string name="home_hero_title">Check your cacao pods</string>
+    <string name="home_scan_cta">Scan a pod</string>
+    <string name="home_recent_title">Recent scans</string>
+    <string name="home_see_all">See all</string>
+    <string name="home_no_scans_title">No saved scans yet</string>
+    <string name="home_no_scans_body">Scan a pod and save the result to see it here.</string>
+    <string name="home_counts_title">Last 30 days</string>
+    <string name="home_counts_subtitle">Saved scans by result. Tap to see them.</string>
+    <plurals name="home_count_a11y">
+        <item quantity="one">%1$s: %2$d scan in the last 30 days. Opens History.</item>
+        <item quantity="other">%1$s: %2$d scans in the last 30 days. Opens History.</item>
+    </plurals>
+    <string name="home_load_failed">Recent scans could not be loaded.</string>
+    <string name="home_tip_title">Photo tip</string>
+    <!-- Photography tips only; agronomic advice belongs to the classes table (CLAUDE.md 3.3). -->
+    <string-array name="home_tips">
+        <item>Photograph one pod at a time, in shade, filling most of the frame.</item>
+        <item>Wipe the camera lens before you start. Sap and dust blur the photo.</item>
+        <item>Keep the whole pod in the photo, from stalk to tip.</item>
+        <item>If a result says Uncertain, retake it from a different side.</item>
+    </string-array>
+    <string name="home_learn_more">Learn more</string>
+
+    <!-- learn (RN: strings.learn) -->
+    <string name="learn_subtitle">A short field guide. Works without internet.</string>
+    <string name="learn_draft_note">Disease information here is a draft and is still being checked by an agronomist.</string>
+    <string name="learn_topic_stages_title">Frosty Pod Rot stages</string>
+    <string name="learn_topic_stages_teaser">What healthy, early-stage and infected pods look like</string>
+    <string name="learn_topic_photos_title">How to photograph pods</string>
+    <string name="learn_topic_photos_teaser">Get a clear photo the detector can read</string>
+    <string name="learn_topic_how_title">How the app works</string>
+    <string name="learn_topic_how_teaser">What happens on your phone, and how far to trust it</string>
+    <string name="learn_stages_intro">TODO(verify with agronomist): Short introduction to Frosty Pod Rot and how it progresses on a pod.</string>
+    <string name="learn_signs_title">Signs to look for</string>
+    <string name="learn_actions_title">What to do</string>
+    <!-- Photography tips only (not agronomic advice), so they are final copy. Icons in LearnContent.kt. -->
+    <string name="learn_photo_tip_fill">Fill most of the photo with one pod.</string>
+    <string name="learn_photo_tip_shade">Stand in shade, or shade the pod with your body. Direct sun hides marks.</string>
+    <string name="learn_photo_tip_whole">Keep the whole pod in the photo, from stalk to tip.</string>
+    <string name="learn_photo_tip_closer">Move closer instead of zooming in. Zoom makes photos blurry.</string>
+    <string name="learn_photo_tip_still">Hold the phone still until the photo is taken.</string>
+    <string name="learn_photo_tip_lens">Wipe the lens first. Sap and dust blur the photo.</string>
+    <string name="learn_photo_tip_other_side">If a result says Uncertain, photograph the other side too.</string>
+    <string name="learn_how_photo_title">You take a photo</string>
+    <string name="learn_how_photo_body">Use the camera or pick a photo from the gallery.</string>
+    <string name="learn_how_phone_title">The phone looks for pods</string>
+    <string name="learn_how_phone_body">A detection model runs on this phone. Nothing is uploaded and no internet is needed.</string>
+    <string name="learn_how_label_title">Each pod gets a label</string>
+    <string name="learn_how_label_body">Healthy, early stage or infected, with a confidence score. Low scores are hidden.</string>
+    <string name="learn_how_verdict_title">The result shows the most serious label</string>
+    <string name="learn_how_verdict_body">One early-stage pod among healthy ones makes the result "early stage".</string>
+    <string name="learn_how_correct_title">You can correct it</string>
+    <string name="learn_how_correct_body">Fix a wrong label before or after saving. Your corrections help train a better model.</string>
+    <string name="learn_how_trust_title">How far to trust it</string>
+    <string name="learn_how_trust_body">In tests the model missed about %1$d in 10 early-stage pods. Treat it as a second pair of eyes, not a diagnosis.</string>
+    <string name="learn_see_accuracy">See accuracy details</string>
+    <string name="learn_threshold_link">Change the confidence threshold</string>
+
+    <!-- about (RN: strings.about), used by onboarding too -->
+    <string name="about_recall_a11y">%1$d of 10 early-stage pods found</string>
 
     <!-- result (RN: strings.result). Plural quantity follows the total number of pods. -->
     <plurals name="result_verdict_infected">
@@ -83,9 +153,17 @@
         <item quantity="other">No signs of Frosty Pod Rot on %d pods</item>
     </plurals>
 
+    <plurals name="result_pods_found">
+        <item quantity="one">%d pod found</item>
+        <item quantity="other">%d pods found</item>
+    </plurals>
+
     <!-- history (RN: strings.history) -->
     <string name="history_today">Today</string>
     <string name="history_yesterday">Yesterday</string>
+    <string name="history_no_pods_short">No pods found</string>
+    <string name="history_uncertain">Uncertain</string>
+    <string name="history_notes_a11y">Notes: %1$s</string>
     <string name="history_delete">Delete</string>
     <string name="history_deleted">Scan deleted</string>
     <string name="history_undo">Undo</string>

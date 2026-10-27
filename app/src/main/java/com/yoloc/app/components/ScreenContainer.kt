@@ -16,6 +16,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.yoloc.app.theme.Spacing
 import com.yoloc.app.theme.YoloCTheme
@@ -34,6 +35,8 @@ fun ScreenContainer(
     scroll: Boolean = true,
     insets: WindowInsets = WindowInsets.safeDrawing,
     contentPadding: PaddingValues = PaddingValues(Spacing.screen),
+    /** Gap between the screen's blocks (RN: contentStyle gap). */
+    spacing: Dp = Spacing.lg,
     footer: (@Composable ColumnScope.() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
@@ -42,7 +45,7 @@ fun ScreenContainer(
         val body = Modifier.weight(1f).fillMaxWidth()
         Column(
             modifier = (if (scroll) body.verticalScroll(rememberScrollState()) else body).padding(contentPadding),
-            verticalArrangement = Arrangement.spacedBy(Spacing.lg),
+            verticalArrangement = Arrangement.spacedBy(spacing),
             content = content,
         )
         if (footer != null) {
