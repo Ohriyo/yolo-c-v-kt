@@ -149,28 +149,31 @@ class LiveViewModel(
     }
 
     /**
-     * Called on the analyzer thread for each frame, upright. Blocks while the model runs, which is
-     * what makes CameraX drop the frames that arrive meanwhile. Does not keep the bitmap.
+     * Called on the analyzer thread for each frame. [frame] gives it upright, and is only called
+     * for a frame that will be run (a skipped frame is just counted). Blocks while the model runs,
+     * which is what makes CameraX drop the frames that arrive meanwhile. Does not keep the bitmap.
+     * The resize time includes getting the frame, as RN's resizer reads the camera frame itself.
      */
-    fun analyze(frame: Bitmap) {
+    fun analyze(frame: () -> Bitmap) {
         frameCount.incrementAndGet()
         val m = model ?: return
         // Battery throttle: a gap between the end of one run and the start of the next.
         if (clock() - lastRunEnd.get() < MIN_INTERVAL_MS) return
         try {
             val t0 = System.nanoTime()
-            val lb = frameLetterbox(frame.width, frame.height, m.spec.inputSize)
+            val bitmap = frame()
+            val lb = frameLetterbox(bitmap.width, bitmap.height, m.spec.inputSize)
             // The photo pipeline's own letterbox and pad value, so live boxes map back exactly.
-            val input = buildInputTensor(resizedPixels(frame, lb.resizedWidth, lb.resizedHeight), lb, config.letterboxPadValue, m.spec.inputLayout)
+            val input = buildInputTensor(resizedPixels(bitmap, lb.resizedWidth, lb.resizedHeight), lb, config.letterboxPadValue, m.spec.inputLayout)
             val t1 = System.nanoTime()
             val output = m.runner.run(input)
             val t2 = System.nanoTime()
             lastRunEnd.set(clock())
-            val detections = liveDetections(output, m.spec, frame.width, frame.height, settings.state.value.confThreshold, config.iouThreshold)
+            val detections = liveDetections(output, m.spec, bitmap.width, bitmap.height, settings.state.value.confThreshold, config.iouThreshold)
             val t3 = System.nanoTime()
             val at = clock()
             synchronized(stats) { stats.addSample(LiveSample(at, ms(t0, t1), ms(t1, t2), ms(t2, t3))) }
-            _state.update { it.copy(result = FrameResult(detections, frame.width, frame.height, at)) }
+            _state.update { it.copy(result = FrameResult(detections, bitmap.width, bitmap.height, at)) }
         } catch (e: Exception) {
             // One bad frame (or a backend that died) must not stop the preview; the next frame tries again.
             lastRunEnd.set(clock())

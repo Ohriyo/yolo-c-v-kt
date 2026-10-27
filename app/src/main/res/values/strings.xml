@@ -281,6 +281,39 @@
     <string name="settings_export_dialog_title">Share YOLO-C scans</string>
     <string name="settings_retrain_dialog_title">Share YOLO-C retraining data</string>
 
+    <!-- camera (RN: strings.camera) -->
+    <string name="camera_shutter">Take photo</string>
+    <string name="camera_close">Close camera</string>
+    <string name="camera_hint">Fill the frame with one pod, in shade.</string>
+    <string name="camera_gallery">Choose a photo from the gallery</string>
+    <string name="camera_flash">Flash</string>
+    <string name="camera_ask_title">Scan pods with your camera</string>
+    <string name="camera_ask_body">YOLO-C uses the camera to photograph pods. Photos stay on this phone.</string>
+    <string name="camera_allow">Allow camera</string>
+    <string name="camera_denied_title">Camera access needed</string>
+    <string name="camera_denied_body">YOLO-C needs the camera to photograph pods. Photos stay on this phone. You can also pick a photo with the gallery button.</string>
+    <string name="camera_blocked_body">Camera access is turned off for YOLO-C. Turn it on in your phone settings, or pick a photo with the gallery button.</string>
+    <string name="camera_open_settings">Open settings</string>
+    <string name="camera_gallery_failed">The gallery could not be opened. Try again.</string>
+    <string name="camera_unavailable_title">Camera not available</string>
+    <string name="camera_unavailable_body">The camera could not start. Close other camera apps and try again.</string>
+    <string name="camera_capture_failed">The photo could not be taken. Try again.</string>
+
+    <!-- live (RN: strings.live) -->
+    <string name="live_photo_mode">Photo</string>
+    <string name="live_live_mode">Live</string>
+    <string name="live_mode_label">Camera mode</string>
+    <string name="live_looking">Looking for pods</string>
+    <string name="live_preview_note">Live results are a preview. Capture to check the pod properly and save it.</string>
+    <string name="live_capture_a11y">Capture this view and analyze it</string>
+    <string name="live_starting">Starting the live detector</string>
+    <string name="live_load_failed_title">Live mode is not available</string>
+    <string name="live_load_failed_body">The live detector could not start on this phone. Use Photo mode instead.</string>
+    <string name="live_use_photo">Use Photo mode</string>
+    <string name="live_no_permission_body">Camera access is needed for live mode. Allow it in Photo mode first.</string>
+    <string name="live_capture_failed">The photo could not be taken. Try again.</string>
+    <string name="live_gpu_fallback">GPU not available on this phone; using the CPU.</string>
+
     <!-- preview (RN: strings.preview) -->
     <string name="preview_retake">Retake</string>
     <string name="preview_choose_another">Choose another</string>

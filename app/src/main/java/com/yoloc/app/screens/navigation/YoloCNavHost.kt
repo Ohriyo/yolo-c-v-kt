@@ -7,7 +7,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -53,6 +52,8 @@ import com.yoloc.app.screens.learn.LearnTopicScreen
 import com.yoloc.app.screens.learn.learnTopicTitle
 import com.yoloc.app.screens.onboarding.PermissionsScreen
 import com.yoloc.app.screens.onboarding.WelcomeScreen
+import com.yoloc.app.screens.scan.CameraScreen
+import com.yoloc.app.screens.scan.LiveScreen
 import com.yoloc.app.screens.scan.PreviewScreen
 import com.yoloc.app.screens.scan.ProcessingScreen
 import com.yoloc.app.screens.scan.ResultScreen
@@ -140,8 +141,24 @@ fun YoloCNavHost(onboardingDone: Boolean) {
                 composable<Learn> { entry -> LearnScreen(onOpenTopic = { topic -> entry.ifShown { nav.navigate(LearnTopic(topic.key)) } }) }
                 composable<Settings> { Placeholder(stringResource(R.string.tabs_settings)) }
                 // The camera screens are dark in both themes, including during the fade.
-                composable<Camera> { CameraPlaceholder() }
-                composable<Live> { CameraPlaceholder() }
+                // The photo reaches Preview from the ViewModel's state (after the picker or the
+                // capture), so these navigations are not gated on ifShown: a dropped one would
+                // leave the photo waiting with no screen.
+                composable<Camera> { entry ->
+                    CameraScreen(
+                        onClose = { entry.ifShown { nav.closeCamera() } },
+                        onOpenPreview = { nav.navigate(Preview) },
+                        onLive = { entry.ifShown { nav.switchToLive() } },
+                    )
+                }
+                composable<Live> { entry ->
+                    LiveScreen(
+                        onClose = { entry.ifShown { nav.closeCamera() } },
+                        onPhotoMode = { entry.ifShown { nav.switchToPhoto() } },
+                        onBack = { entry.ifShown { nav.closeCamera() } },
+                        onOpenPreview = { nav.liveToPreview() },
+                    )
+                }
                 composable<Preview> { entry ->
                     StackScreen(stringResource(R.string.preview_title), onBack = { entry.ifShown { nav.navigateUp() } }) {
                         PreviewScreen(
@@ -252,9 +269,3 @@ private fun Placeholder(title: String?) {
     }
 }
 
-@Composable
-private fun CameraPlaceholder() {
-    Box(Modifier.fillMaxSize().background(YoloCTheme.colors.camera.screen).windowInsetsPadding(WindowInsets.safeDrawing)) {
-        AppText(stringResource(R.string.placeholder), color = YoloCTheme.colors.camera.lensText)
-    }
-}
