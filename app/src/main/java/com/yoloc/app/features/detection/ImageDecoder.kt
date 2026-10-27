@@ -9,10 +9,12 @@ import java.io.File
 
 /**
  * Full-resolution bitmap with EXIF rotation/flip applied (RN: ImageManipulator.renderAsync), so
- * the caller can compute the letterbox from the upright size before resizing.
+ * the caller can compute the letterbox from the upright size before resizing. `sampleSize` > 1
+ * decodes at 1/n size (thumbnails); detection always decodes at full size.
  */
-fun decodeOriented(file: File): Bitmap {
-    val raw = BitmapFactory.decodeFile(file.path) ?: error("Could not decode ${file.name}")
+fun decodeOriented(file: File, sampleSize: Int = 1): Bitmap {
+    val options = BitmapFactory.Options().apply { inSampleSize = sampleSize }
+    val raw = BitmapFactory.decodeFile(file.path, options) ?: error("Could not decode ${file.name}")
     val exif = ExifInterface(file)
     val matrix = Matrix().apply {
         if (exif.isFlipped) postScale(-1f, 1f)

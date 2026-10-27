@@ -6,6 +6,11 @@ enum class Verdict(val key: String) {
     EarlyStage("early_stage"),
     Infected("infected"),
     NoPod("no_pod"),
+    ;
+
+    companion object {
+        fun fromKey(key: String): Verdict = entries.firstOrNull { it.key == key } ?: error("Unknown verdict $key")
+    }
 }
 
 data class VerdictInput(val severity: Int, val confidence: Double)
