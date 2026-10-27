@@ -76,6 +76,31 @@ All on golden_01, median of 5, debug build, 2026-10-27.
 RN's live mode uses the `android-gpu` delegate; Kotlin uses LiteRT's `CompiledModel` with
 `Accelerator.GPU` (the Interpreter GPU delegate is LiteRT v1 only).
 
+## Deliberate behaviour differences
+
+Places where the Kotlin port does not copy RN on purpose, because RN's behaviour is a bug or an
+edge case that would give a wrong result. Everything else follows RN commit `1e7aabe`.
+
+| Where (Kotlin) | RN | Kotlin | Why |
+| -------------- | -- | ------ | --- |
+| `AnalyzePhoto`, `correctResultDetection` (Step 4.2) | A class missing from the `classes` table counts as severity 0 (healthy) | Fails with an error | Only a mismatched model and database can cause it; calling an unknown pod healthy would hide a possible infection |
+| `rangeStart` for 7 / 30 days (Step 4.2) | Start of today minus 6 or 29 × 24 h | Start of today minus 6 or 29 calendar days | Right after a daylight-saving change the 24-hour version is off by a day |
+| `SettingsStore.hydrate` (Step 4.3) | A load overwrites every cached setting with what it read | A setting changed while the load ran keeps the newer value | Otherwise the screen shows the old value until the next launch; at startup the UI waits for the load, so only a retry can race |
+| `ScanSession.setResult` (Step 4.3) | Stores any result | Ignores a result for a photo the session no longer holds | A slow analysis finishing after Back or "Choose another" would show the wrong photo's pods |
+| `ScanLibrary.deleteScan` (Step 4.3) | Offers Undo even when no row was deleted | A scan that is already gone only refreshes the lists | A double tap would replace the real Undo with an empty one |
+| `HistoryViewModel` (Step 4.4) | Rows hidden by a delete reappear whenever the row list changes ("load more", or a reload started by another change) | A row stays hidden while its delete is still writing; the first reload after that shows the database | Otherwise the deleted row briefly comes back |
+| `HistoryViewModel` (Step 4.4) | A Home count chip opens History with that result over all time | Also sets "Last 30 days" | The chip counts the last 30 days; RN's own comment says the chip and the list should agree |
+| `HistoryViewModel.loadMore` (Step 4.4) | Appends the page even if a reload replaced the list meanwhile | Drops the page when the list no longer ends at its cursor | A scan saved during the load would otherwise make one row disappear from the list |
+| `HistoryViewModel` (Step 4.4) | "Clear filters" or a request from Home / Plots within 250 ms of typing re-applies the typed search | Clears the pending search | The new filter should be exactly what was asked for |
+| `ScanDetailViewModel` (Step 4.4) | Classes load once; a failure stays until the screen reopens | Retried on each reload (Retry) | Otherwise the labels and the Correct label sheet never fill in |
+| `LiveViewModel.analyze` (Step 4.4) | The GPU resizer pads live frames with black | Pads with `letterboxPadValue` (gray 114), like photos | Same input as the verified photo pipeline and the model's training; RN used black only because its resizer offers nothing else. Speed is unaffected |
+| `ResultViewModel` (Step 4.4) | Back during a save still offers Discard; the save finishes anyway and opens the scan | Back and Discard do nothing while a save is writing | A scan the user discarded would end up in History |
+| `CameraViewModel` (Step 4.4) | A capture and a gallery pick can run at once | One at a time | The second photo would replace (and delete) the first |
+| `SettingsViewModel.askClear` (Step 4.4) | If the storage counts are missing (still loading, or failed), Clear all data says "nothing to clear" | Failed counts still open the confirm dialog (without counts); while loading, nothing happens | After a failed count the user could never clear their data |
+| `PlotsViewModel.add` (Step 4.4) | A double tap, or Add before the list loads, can insert the same name twice | One add at a time, and only once the list (the duplicate check) has loaded | The table has no unique index; the screen is the only duplicate check |
+| `RetrainingExportViewModel` (Step 4.4) | A failed count leaves the sheet counting forever | Says the count failed (`sizingFailed`) | The user could not tell a failure from a slow count |
+| `refreshedNow` (RN `useNow`) (Step 4.4) | Ignores changes up to a minute | Also refreshes when the local day changed or the clock went back | "Today" labels after midnight |
+
 ## Step 6 measurements (filled in as the port progresses)
 
 | Measure                                                  | RN                                                    | Kotlin |
