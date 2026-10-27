@@ -19,6 +19,7 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -30,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -37,7 +39,6 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.role
-import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.toggleableState
 import androidx.compose.ui.state.ToggleableState
@@ -101,6 +102,7 @@ fun HistoryFilterBar(
     onPlotSheet: () -> Unit,
 ) {
     val colors = YoloCTheme.colors
+    val focus = LocalFocusManager.current
     var sheet by remember { mutableStateOf<Sheet?>(null) }
     LaunchedEffect(sheet) { if (sheet == Sheet.Plot) onPlotSheet() }
 
@@ -140,6 +142,8 @@ fun HistoryFilterBar(
                     cursorBrush = SolidColor(colors.focus),
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(autoCorrectEnabled = false, imeAction = ImeAction.Search),
+                    // RN: returnKeyType="search" blurs the field, so the keyboard stops covering the results.
+                    keyboardActions = KeyboardActions(onSearch = { focus.clearFocus() }),
                 )
             }
             if (searchText.isNotEmpty()) {
@@ -283,12 +287,7 @@ private fun Option(
             .toggleable(selected, interactionSource = press.source, indication = null, role = Role.Checkbox) { onClick() }
     } else {
         Modifier
-            .clearAndSetSemantics {
-                contentDescription = label
-                role = Role.RadioButton
-                this.selected = selected
-                onClick { onClick(); true }
-            }
+            .a11yAction(label, onClick, role = Role.RadioButton, selected = selected)
             .selectable(selected, interactionSource = press.source, indication = null, role = Role.RadioButton, onClick = onClick)
     }
     Row(

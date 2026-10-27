@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -116,7 +117,7 @@ fun ScanReport(
 ) {
     var selectedId by rememberSaveable { mutableStateOf<String?>(null) }
     var correcting by rememberSaveable { mutableStateOf<Int?>(null) }
-    val report = summarizeReport(detections, classes, modelClasses)
+    val report = remember(detections, classes, modelClasses) { summarizeReport(detections, classes, modelClasses) }
     val toggle = { id: String -> selectedId = if (selectedId == id) null else id }
     val podsFound = pluralStringResource(R.plurals.result_pods_found, totalPods, totalPods)
 

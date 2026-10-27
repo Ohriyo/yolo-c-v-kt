@@ -237,14 +237,24 @@ class HistoryViewModel(
 
     fun retry() = attempt.update { it + 1 }
 
-    /** The Status, Date and Plot pills, and Clear on the search field. */
-    fun setFilter(filter: HistoryFilter) {
-        val searchChanged = filter.search != inner.value.filter.search
-        // A search set from outside the field (cleared) replaces the typed text and any pending
-        // keystrokes; a pill change keeps them.
-        if (searchChanged) searchJob?.cancel()
-        inner.update { it.copy(filter = filter, searchText = if (searchChanged) filter.search else it.searchText) }
+    /** The Status and Date pills. */
+    fun setFilter(filter: HistoryFilter) = applyFilter(filter)
+
+    /**
+     * One state update per change, so a pill never shows one filter with another's plot name. A
+     * search set from outside the field ([resetText], or a changed search) replaces the typed text
+     * and any pending keystroke; a pill change keeps them.
+     */
+    private fun applyFilter(filter: HistoryFilter, plotName: String? = inner.value.plotName, resetText: Boolean = false) {
+        val replaceText = resetText || filter.search != inner.value.filter.search
+        if (replaceText) searchJob?.cancel()
+        inner.update {
+            it.copy(filter = filter, plotName = plotName, searchText = if (replaceText) filter.search else it.searchText)
+        }
     }
+
+    /** The search field's Clear: also while a keystroke is still waiting for its 250 ms. */
+    fun clearSearch() = applyFilter(inner.value.filter.copy(search = ""), resetText = true)
 
     fun setSearchText(text: String) {
         inner.update { it.copy(searchText = text) }
@@ -256,29 +266,16 @@ class HistoryViewModel(
     }
 
     /** The Plot sheet: Any (null name), "No plot", or one plot. */
-    fun selectPlot(plot: PlotFilter, name: String?) {
-        inner.update { it.copy(plotName = name) }
-        setFilter(inner.value.filter.copy(plot = plot))
-    }
+    fun selectPlot(plot: PlotFilter, name: String?) = applyFilter(inner.value.filter.copy(plot = plot), plotName = name)
 
     /** The filter bar's Clear filters: the pills only; the search stays (RN: HistoryFilterBar). */
-    fun clearPills() {
-        inner.update { it.copy(plotName = null) }
-        setFilter(inner.value.filter.copy(verdicts = emptyList(), range = DateRange.All, plot = PlotFilter.Any))
-    }
+    fun clearPills() = applyFilter(
+        inner.value.filter.copy(verdicts = emptyList(), range = DateRange.All, plot = PlotFilter.Any),
+        plotName = null,
+    )
 
     /** The no-match state's Clear filters. */
-    fun clearFilters() {
-        resetSearch()
-        inner.update { it.copy(plotName = null) }
-        setFilter(HistoryFilter())
-    }
-
-    /** A filter set from outside replaces any search still being typed. */
-    private fun resetSearch() {
-        searchJob?.cancel()
-        inner.update { it.copy(searchText = "") }
-    }
+    fun clearFilters() = applyFilter(HistoryFilter(), plotName = null, resetText = true)
 
     /** Called each time the Plot sheet opens (RN reloads plots whenever it becomes visible). */
     fun loadPlots() {
@@ -324,17 +321,12 @@ class HistoryViewModel(
     fun refreshNow() = inner.update { it.copy(now = refreshedNow(it.now)) }
 
     private fun apply(request: HistoryRequest) = when (request) {
-        is HistoryRequest.ByVerdict -> {
-            resetSearch()
-            inner.update { it.copy(plotName = null) }
-            // Home's chips count the last 30 days, so the list they open covers the same days.
-            setFilter(HistoryFilter(verdicts = listOf(request.verdict), range = DateRange.Month))
-        }
-        is HistoryRequest.ByPlot -> {
-            resetSearch()
-            inner.update { it.copy(plotName = request.name) }
-            setFilter(HistoryFilter(plot = PlotFilter.Id(request.id)))
-        }
+        // A filter set from outside replaces any search still being typed.
+        // Home's chips count the last 30 days, so the list they open covers the same days.
+        is HistoryRequest.ByVerdict ->
+            applyFilter(HistoryFilter(verdicts = listOf(request.verdict), range = DateRange.Month), plotName = null, resetText = true)
+        is HistoryRequest.ByPlot ->
+            applyFilter(HistoryFilter(plot = PlotFilter.Id(request.id)), plotName = request.name, resetText = true)
     }
 
     companion object {

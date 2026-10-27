@@ -17,6 +17,11 @@ class JsNumberTest {
             (121.0000049 to 5) to "121.00000",
             (-12.3456789 to 5) to "-12.34568",
             (0.0 to 1) to "0.0",
+            (-0.0 to 1) to "0.0",
+            (-0.000001 to 5) to "-0.00000",
+            (Double.NaN to 5) to "NaN",
+            (Double.POSITIVE_INFINITY to 5) to "Infinity",
+            (Double.NEGATIVE_INFINITY to 5) to "-Infinity",
         )
         for ((args, expected) in cases) assertEquals("toFixed$args", expected, toFixed(args.first, args.second))
     }

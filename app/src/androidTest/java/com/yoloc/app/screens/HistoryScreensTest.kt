@@ -189,7 +189,7 @@ class HistoryScreensTest {
     }
 
     private fun showDetail(id: String, onBack: () -> Unit = {}): ScanDetailViewModel {
-        val vm = ScanDetailViewModel(id, false, scans, classes, library, files, dayFormat)
+        val vm = ScanDetailViewModel(id, false, scans, classes, library, files, dayFormat, scope)
         compose.setContent { YoloCTheme { ScanDetailScreen(onBack = onBack, vm = vm) } }
         return vm
     }

@@ -140,15 +140,17 @@ fun YoloCNavHost(onboardingDone: Boolean) {
                 stack<Preview>(nav, R.string.preview_title)
                 stack<Processing>(nav, R.string.processing_title)
                 stack<Result>(nav, R.string.result_title)
-                composable<ScanDetail> {
-                    // RN: canGoBack() ? back() : navigate('/history').
-                    val back = { if (!nav.popBackStack()) nav.selectTab(History) }
+                composable<ScanDetail> { entry ->
+                    // RN: canGoBack() ? back() : navigate('/history'). Only from the shown screen, so a
+                    // second back (or one landing as a delete closes it) cannot pop the screen below.
+                    val back = { entry.ifShown { if (!nav.popBackStack()) nav.selectTab(History) } }
                     StackScreen(stringResource(R.string.scan_detail_title), onBack = back) { ScanDetailScreen(onBack = back) }
                 }
                 composable<LearnTopic> { entry ->
-                    StackScreen(learnTopicTitle(entry.toRoute<LearnTopic>().topic), onBack = { nav.navigateUp() }) {
+                    val back = { entry.ifShown { nav.navigateUp() } }
+                    StackScreen(learnTopicTitle(entry.toRoute<LearnTopic>().topic), onBack = back) {
                         LearnTopicScreen(
-                            onBack = { nav.navigateUp() },
+                            onBack = back,
                             onOpenAbout = { entry.ifShown { nav.navigate(About) } },
                             onOpenSettings = { nav.leaveForTab(Settings) },
                         )
@@ -159,8 +161,8 @@ fun YoloCNavHost(onboardingDone: Boolean) {
                 if (BuildConfig.DEBUG) {
                     composable<DevGallery> { Placeholder(null) }
                     stack<DevSeed>(nav, R.string.dev_seed_title)
-                    composable<DevInference> {
-                        StackScreen(stringResource(R.string.settings_dev_inference), onBack = { nav.navigateUp() }) {
+                    composable<DevInference> { entry ->
+                        StackScreen(stringResource(R.string.settings_dev_inference), onBack = { entry.ifShown { nav.navigateUp() } }) {
                             InferenceScreen(Modifier.windowInsetsPadding(WindowInsets.safeDrawing))
                         }
                     }
@@ -185,8 +187,8 @@ fun YoloCNavHost(onboardingDone: Boolean) {
 
 /** A stack screen with its header; the body is a placeholder until the screen is ported. */
 private inline fun <reified T : Any> androidx.navigation.NavGraphBuilder.stack(nav: NavHostController, title: Int) {
-    composable<T> {
-        StackScreen(stringResource(title), onBack = { nav.navigateUp() }) { Placeholder(null) }
+    composable<T> { entry ->
+        StackScreen(stringResource(title), onBack = { entry.ifShown { nav.navigateUp() } }) { Placeholder(null) }
     }
 }
 

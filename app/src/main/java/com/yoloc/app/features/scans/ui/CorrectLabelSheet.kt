@@ -19,11 +19,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.onClick
-import androidx.compose.ui.semantics.role
-import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.unit.dp
 import com.yoloc.app.R
 import com.yoloc.app.components.AppText
@@ -32,6 +27,7 @@ import com.yoloc.app.components.Icon
 import com.yoloc.app.components.IconName
 import com.yoloc.app.components.StatusChip
 import com.yoloc.app.components.Tone
+import com.yoloc.app.components.a11yAction
 import com.yoloc.app.components.rememberPress
 import com.yoloc.app.db.repositories.DetectionClass
 import com.yoloc.app.theme.Radii
@@ -77,12 +73,7 @@ fun CorrectLabelSheet(
                         .clip(shape)
                         .background(if (selected) colors.surfaceRaised else colors.surface)
                         .border(2.dp, if (selected) colors.text else colors.border, shape)
-                        .clearAndSetSemantics {
-                            contentDescription = if (isModel) "${c.displayName}, $modelSaid" else c.displayName
-                            role = Role.RadioButton
-                            this.selected = selected
-                            onClick { onSelect(c.id); true }
-                        }
+                        .a11yAction(if (isModel) "${c.displayName}, $modelSaid" else c.displayName, { onSelect(c.id) }, role = Role.RadioButton, selected = selected)
                         .selectable(selected, interactionSource = press.source, indication = null, role = Role.RadioButton) { onSelect(c.id) }
                         .padding(horizontal = Spacing.md, vertical = Spacing.xs),
                     horizontalArrangement = Arrangement.spacedBy(Spacing.sm),

@@ -131,7 +131,7 @@ fun HistoryScreen(
                         plots = s.plots,
                         plotsFailed = s.plotsFailed,
                         onSearchText = vm::setSearchText,
-                        onClearSearch = { vm.setFilter(s.filter.copy(search = "")) },
+                        onClearSearch = vm::clearSearch,
                         onFilter = vm::setFilter,
                         onPlot = vm::selectPlot,
                         onClearPills = vm::clearPills,
@@ -154,7 +154,16 @@ fun HistoryScreen(
                             action = StateAction(stringResource(R.string.home_scan_cta), onScan, IconName.Camera),
                         )
                     }
-                    else -> ScanList(s, vm, onOpenScan)
+                    else -> ScanList(
+                        items = s.items,
+                        loadingMore = s.loadingMore,
+                        hasMore = s.hasMore,
+                        onOpenScan = onOpenScan,
+                        onLoadMore = vm::loadMore,
+                        onOptions = vm::openOptions,
+                        onDelete = vm::delete,
+                        onClearFilters = vm::clearFilters,
+                    )
                 }
             }
         }
@@ -191,7 +200,16 @@ fun HistoryScreen(
 }
 
 @Composable
-private fun ScanList(s: HistoryViewModel.State, vm: HistoryViewModel, onOpenScan: (String) -> Unit) {
+private fun ScanList(
+    items: List<HistoryItem>,
+    loadingMore: Boolean,
+    hasMore: Boolean,
+    onOpenScan: (String) -> Unit,
+    onLoadMore: () -> Unit,
+    onOptions: (String) -> Unit,
+    onDelete: (String) -> Unit,
+    onClearFilters: () -> Unit,
+) {
     val list = rememberLazyListState()
     val dayFormat = rememberDayFormat()
     val focus = LocalFocusManager.current
@@ -200,8 +218,10 @@ private fun ScanList(s: HistoryViewModel.State, vm: HistoryViewModel, onOpenScan
     LaunchedEffect(list) {
         snapshotFlow { list.isScrollInProgress }.collect { if (it) focus.clearFocus() }
     }
-    LaunchedEffect(list) {
-        snapshotFlow { nearEnd(list) }.collect { if (it) vm.loadMore() }
+    // RN's onEndReached fires again when the content changes, so a dropped or failed page is asked
+    // for again even while the list stays near its end.
+    LaunchedEffect(list, items.size, loadingMore, hasMore) {
+        snapshotFlow { nearEnd(list) }.collect { if (it) onLoadMore() }
     }
     LazyColumn(
         state = list,
@@ -209,17 +229,17 @@ private fun ScanList(s: HistoryViewModel.State, vm: HistoryViewModel, onOpenScan
         // Room at the bottom so the Undo snackbar never covers the last row.
         contentPadding = PaddingValues(start = Spacing.screen, end = Spacing.screen, bottom = 96.dp),
     ) {
-        if (s.items.isEmpty()) {
+        if (items.isEmpty()) {
             item(key = "no-match") {
                 EmptyState(
                     IconName.Search,
                     stringResource(R.string.history_no_match_title),
                     body = stringResource(R.string.history_no_match_body),
-                    action = StateAction(stringResource(R.string.history_clear_filters), vm::clearFilters, IconName.X),
+                    action = StateAction(stringResource(R.string.history_clear_filters), onClearFilters, IconName.X),
                 )
             }
         }
-        items(s.items, key = { it.key }, contentType = { it.type }) { item ->
+        items(items, key = { it.key }, contentType = { it.type }) { item ->
             when (item) {
                 is HistoryItem.Day -> AppText(
                     item.label,
@@ -227,20 +247,20 @@ private fun ScanList(s: HistoryViewModel.State, vm: HistoryViewModel, onOpenScan
                     variant = TypeVariant.Label,
                 )
                 is HistoryItem.Scan -> Box(Modifier.padding(bottom = Spacing.xs)) {
-                    SwipeToDelete(rowKey = item.scan.id, onDelete = { vm.delete(item.scan.id) }) {
+                    SwipeToDelete(rowKey = item.scan.id, onDelete = { onDelete(item.scan.id) }) {
                         ScanRow(
                             item.scan,
                             formatTime(item.scan.createdAt, dayFormat),
                             onOpenScan,
-                            onLongPress = vm::openOptions,
+                            onLongPress = onOptions,
                             longPressLabel = optionsLabel,
-                            onDelete = vm::delete,
+                            onDelete = onDelete,
                         )
                     }
                 }
             }
         }
-        if (s.loadingMore) {
+        if (loadingMore) {
             item(key = "more") {
                 Box(Modifier.fillMaxWidth().padding(vertical = Spacing.lg), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator(Modifier.size(24.dp), color = YoloCTheme.colors.icon, strokeWidth = 2.dp)

@@ -19,6 +19,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
@@ -123,7 +124,7 @@ private fun Ready(scan: ScanWithDetections, s: ScanDetailViewModel.State, vm: Sc
                 image = vm.imageFile(scan),
                 imageWidth = summary.imageWidth,
                 imageHeight = summary.imageHeight,
-                detections = scan.detections.map { ReportDetection(it.classId, it.correctedClassId, it.confidence, it.x, it.y, it.w, it.h) },
+                detections = remember(scan) { scan.detections.map { ReportDetection(it.classId, it.correctedClassId, it.confidence, it.x, it.y, it.w, it.h) } },
                 verdict = summary.verdict,
                 totalPods = summary.totalPods,
                 lowConfidence = summary.lowConfidence,

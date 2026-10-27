@@ -45,6 +45,7 @@ class LibraryViewModelsTest {
     private val requests = HistoryRequests()
     private val config = TestDb.config
     private val dayFormat = DayFormat.forDevice(TestDb.context)
+    private val scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.IO)
 
     @Before
     fun open() = runBlocking { holder.get(); Unit }
@@ -143,7 +144,7 @@ class LibraryViewModelsTest {
     @Test
     fun scanDetailLoadsSavesNotesAndClosesAfterDelete() = runBlocking {
         val id = save(notes = "Tree 7")
-        val vm = ScanDetailViewModel(id, saved = true, scans, classes, library, files, dayFormat)
+        val vm = ScanDetailViewModel(id, saved = true, scans, classes, library, files, dayFormat, scope)
         assertEquals(ScanDetailViewModel.Toast.Saved, vm.state.value.toast)
         val ready = vm.state.await("detail ready") { it.load is ScanDetailViewModel.Load.Ready }
         assertEquals("Tree 7", ready.notes.text)
@@ -165,7 +166,7 @@ class LibraryViewModelsTest {
 
     @Test
     fun scanDetailReportsAMissingScan() = runBlocking {
-        val vm = ScanDetailViewModel("no-such-id", saved = false, scans, classes, library, files, dayFormat)
+        val vm = ScanDetailViewModel("no-such-id", saved = false, scans, classes, library, files, dayFormat, scope)
         vm.state.await("missing") { it.load == ScanDetailViewModel.Load.Missing }
         Unit
     }
