@@ -16,6 +16,7 @@ import com.yoloc.app.features.scans.TempImages
 import com.yoloc.app.features.scans.ThumbnailBackfill
 import com.yoloc.app.features.settings.FusedLocationSource
 import com.yoloc.app.features.settings.LocationSource
+import com.yoloc.app.store.HistoryRequests
 import com.yoloc.app.store.ScanLibrary
 import com.yoloc.app.store.ScanSession
 import com.yoloc.app.store.SettingsStore
@@ -52,4 +53,5 @@ class AppContainer(private val context: Context) {
     val settingsStore: SettingsStore by lazy { SettingsStore(settingsRepository, modelConfig, appScope) } // settingsStore.ts
     val scanLibrary: ScanLibrary by lazy { ScanLibrary(scanRepository) } // scanLibraryStore.ts
     val scanSession: ScanSession by lazy { ScanSession(tempImages) } // scanSessionStore.ts
+    val historyRequests: HistoryRequests by lazy { HistoryRequests() } // History's route params
 }

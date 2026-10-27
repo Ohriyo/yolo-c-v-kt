@@ -88,6 +88,7 @@ edge case that would give a wrong result. Everything else follows RN commit `1e7
 | `SettingsStore.hydrate` (Step 4.3) | A load overwrites every cached setting with what it read | A setting changed while the load ran keeps the newer value | Otherwise the screen shows the old value until the next launch; at startup the UI waits for the load, so only a retry can race |
 | `ScanSession.setResult` (Step 4.3) | Stores any result | Ignores a result for a photo the session no longer holds | A slow analysis finishing after Back or "Choose another" would show the wrong photo's pods |
 | `ScanLibrary.deleteScan` (Step 4.3) | Offers Undo even when no row was deleted | A scan that is already gone only refreshes the lists | A double tap would replace the real Undo with an empty one |
+| `HistoryViewModel` (Step 4.4) | Rows hidden by a delete in progress reappear whenever the row list changes, including after "load more" | They stay hidden until the next full reload | Loading the next page between the swipe and the reload would briefly show the deleted row again |
 
 ## Step 6 measurements (filled in as the port progresses)
 
