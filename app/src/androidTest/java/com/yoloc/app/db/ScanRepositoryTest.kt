@@ -29,7 +29,7 @@ import java.time.ZoneOffset
 
 /**
  * RN: __tests__/db.scans.test.ts, against the real Room database (in memory) on the phone.
- * Not ported yet: the dev fake-scan seeder and saveResult (both Step 4.2).
+ * The dev fake-scan seeder is in SeedFakeScansTest, saveResult in ScanFlowTest.
  */
 @RunWith(AndroidJUnit4::class)
 class ScanRepositoryTest {
