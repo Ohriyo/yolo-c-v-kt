@@ -1,4 +1,4 @@
-package com.yoloc.app.ui.theme
+package com.yoloc.app.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

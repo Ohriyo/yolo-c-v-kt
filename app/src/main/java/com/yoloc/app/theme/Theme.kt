@@ -1,4 +1,4 @@
-package com.yoloc.app.ui.theme
+package com.yoloc.app.theme
 
 import android.app.Activity
 import android.os.Build
