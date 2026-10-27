@@ -60,6 +60,21 @@ class ScanSessionTest {
     }
 
     @Test
+    fun ignoresALateResultForAPhotoTheSessionNoLongerHolds() {
+        val a = photo("a.jpg")
+        session.setPhoto(a)
+        val b = photo("b.jpg")
+        session.setPhoto(b) // the user picked another photo while A was analyzed
+        session.setResult(result(a))
+        assertNull(session.state.value.result)
+        assertEquals(b, session.state.value.photo)
+
+        session.clear() // the user went back while B was analyzed
+        session.setResult(result(b))
+        assertEquals(ScanSession.State(), session.state.value)
+    }
+
+    @Test
     fun clearDeletesTheTempPhotoUnlessAskedToKeepIt() {
         val a = photo("a.jpg")
         session.setPhoto(a)

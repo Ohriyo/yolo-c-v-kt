@@ -29,10 +29,13 @@ class ScanLibrary(private val scans: ScanRepository) {
 
     fun bump() = _revision.update { it + 1 }
 
-    /** Soft-deletes a scan and offers Undo. Throws if the database write fails. */
+    /**
+     * Soft-deletes a scan and offers Undo. Throws if the database write fails. A scan that was
+     * already gone (a stale row, a double tap) only refreshes the lists, so it cannot replace a
+     * real Undo offer with an empty one.
+     */
     suspend fun deleteScan(scanId: String) {
-        scans.softDeleteScan(scanId)
-        _pendingUndo.value = PendingUndo(scanId, nextToken.getAndIncrement())
+        if (scans.softDeleteScan(scanId)) _pendingUndo.value = PendingUndo(scanId, nextToken.getAndIncrement())
         bump()
     }
 

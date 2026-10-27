@@ -96,6 +96,20 @@ class StoresTest {
         assertNull(scans.getScan(second)) // dismissing never restores
     }
 
+    @Test
+    fun deletingAScanThatIsAlreadyGoneKeepsTheRealUndoOffer() = runBlocking {
+        val library = ScanLibrary(scans)
+        val first = save()
+        val second = save()
+        library.deleteScan(first)
+        library.deleteScan(second)
+        library.deleteScan(second) // a double tap or a stale row
+        assertEquals(second, library.pendingUndo.value?.scanId)
+        assertEquals(3, library.revision.value) // the lists still refresh
+        library.undoDelete()
+        assertNotNull(scans.getScan(second))
+    }
+
     // SettingsStore
 
     @Test

@@ -25,7 +25,11 @@ class ScanSession(private val temp: TempImages) {
         if (previous != null && previous.file != photo.file) temp.delete(previous.file)
     }
 
-    fun setResult(result: ScanResult) = _state.update { it.copy(result = result) }
+    /**
+     * Ignored when the result is for a photo the session no longer holds (cleared or replaced while
+     * it was analyzed), so a late result can never pair with the wrong photo.
+     */
+    fun setResult(result: ScanResult) = _state.update { if (it.photo == result.photo) it.copy(result = result) else it }
 
     /** Ends the session. Deletes the temp photo unless `keepPhoto` (e.g. it was just saved). */
     fun clear(keepPhoto: Boolean = false) {

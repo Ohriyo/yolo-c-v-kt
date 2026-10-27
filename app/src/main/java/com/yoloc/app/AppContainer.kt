@@ -44,8 +44,11 @@ class AppContainer(private val context: Context) {
         AnalyzePhoto(settingsRepository, classRepository, modelLoader, modelConfig) // analyzePhoto.ts
     }
 
-    /** Lives as long as the process; work here outlasts any one screen (RN: un-awaited promises). */
-    val appScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    /**
+     * Lives as long as the process; work here outlasts any one screen (RN: un-awaited promises).
+     * IO: what runs here opens the database and reads assets.
+     */
+    val appScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     val settingsStore: SettingsStore by lazy { SettingsStore(settingsRepository, modelConfig, appScope) } // settingsStore.ts
     val scanLibrary: ScanLibrary by lazy { ScanLibrary(scanRepository) } // scanLibraryStore.ts
     val scanSession: ScanSession by lazy { ScanSession(tempImages) } // scanSessionStore.ts

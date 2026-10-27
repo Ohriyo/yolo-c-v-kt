@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * RN: settingsStore.ts. Settings the UI reads often, cached here; the settings table stays the
@@ -49,6 +50,9 @@ class SettingsStore(
     private var hydrating: Deferred<Unit>? = null
     private val writeLock = Mutex()
 
+    /** How many times each setting key was set, so a load can tell which values went stale. */
+    private val edits = ConcurrentHashMap<String, Int>()
+
     /** Opens the database (migrating and seeding it) and loads settings. Safe to retry. */
     suspend fun hydrate() {
         // A second caller awaits the load already in flight instead of starting one.
@@ -63,15 +67,19 @@ class SettingsStore(
 
     private suspend fun load() {
         _state.update { it.copy(status = Status.Loading, error = null) }
+        val seen = edits.toMap()
         try {
             val s = settings.getSettings()
-            _state.update {
-                it.copy(
+            _state.update { now ->
+                // A setter that ran during the load is newer than what the load read; keep it.
+                // (RN overwrites it; at startup the UI is gated on Ready, so only a retry can race.)
+                fun <T> fresh(codec: SettingCodec<T>, table: T, cached: T) = if (edits[codec.key] == seen[codec.key]) table else cached
+                now.copy(
                     status = Status.Ready,
-                    onboardingDone = s.onboardingDone,
-                    theme = s.theme,
-                    confThreshold = s.confThreshold,
-                    gpsOptIn = s.gpsOptIn,
+                    onboardingDone = fresh(SettingCodecs.onboardingDone, s.onboardingDone, now.onboardingDone),
+                    theme = fresh(SettingCodecs.theme, s.theme, now.theme),
+                    confThreshold = fresh(SettingCodecs.confThreshold, s.confThreshold, now.confThreshold),
+                    gpsOptIn = fresh(SettingCodecs.gpsOptIn, s.gpsOptIn, now.gpsOptIn),
                 )
             }
         } catch (e: CancellationException) {
@@ -103,6 +111,7 @@ class SettingsStore(
      * slider) cannot leave an older value in the table even if their writes run out of order.
      */
     private suspend fun <T> set(codec: SettingCodec<T>, read: (State) -> T, change: (State) -> State) {
+        edits.merge(codec.key, 1, Int::plus)
         _state.update(change)
         scope.launch {
             try {
