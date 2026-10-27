@@ -125,8 +125,18 @@ class LiveViewModel(
     private suspend fun load(backend: Backend) {
         model = null
         _state.update { it.copy(loaded = false) }
+        // The CPU model comes first either way (it gives the tensor layout); if it fails, the GPU
+        // cannot help, so that is a load error, not a GPU fallback.
+        val cpu = try {
+            loader.loadCpu()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Log.w(TAG, "Live model failed to load", e)
+            _state.update { it.copy(loadError = true) }
+            return
+        }
         try {
-            val cpu = loader.loadCpu()
             val runner = if (backend == Backend.Gpu) loader.loadGpu().runner else cpu
             model = Model(runner, cpu.spec)
             _state.update { it.copy(loaded = true) }
@@ -134,11 +144,7 @@ class LiveViewModel(
             throw e
         } catch (e: Exception) {
             Log.w(TAG, "Live model failed on ${backend.key}", e)
-            if (backend == Backend.Gpu) {
-                _state.update { it.copy(notice = Notice.GpuFallback, backend = Backend.Cpu) }
-            } else {
-                _state.update { it.copy(loadError = true) }
-            }
+            _state.update { it.copy(notice = Notice.GpuFallback, backend = Backend.Cpu) }
         }
     }
 
@@ -199,16 +205,18 @@ class LiveViewModel(
         viewModelScope.launch {
             try {
                 session.setPhoto(photos.fromCamera(file))
-                _state.update { it.copy(openPreview = true) }
+                _state.update { it.copy(capturing = false, openPreview = true) }
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                onCaptureFailed(e)
+                onCaptureFailed(e) // fromCamera already deleted the file
             }
         }
     }
 
-    fun onCaptureFailed(error: Throwable) {
+    /** `file` is the one [startCapture] gave out; anything CameraX left in it is deleted. */
+    fun onCaptureFailed(error: Throwable, file: File? = null) {
+        file?.delete()
         Log.w(TAG, "Live capture failed", error)
         _state.update { it.copy(capturing = false, notice = Notice.CaptureFailed) }
     }

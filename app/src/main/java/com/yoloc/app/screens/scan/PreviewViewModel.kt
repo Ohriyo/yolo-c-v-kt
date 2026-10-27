@@ -12,6 +12,7 @@ import com.yoloc.app.features.scans.PendingPhoto
 import com.yoloc.app.screens.container
 import com.yoloc.app.store.ScanSession
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -40,6 +41,7 @@ class PreviewViewModel(private val session: ScanSession, private val photos: Cap
     )
 
     private val loadFailed = MutableStateFlow(false)
+    private var pickJob: Job? = null
 
     val state: StateFlow<State> = combine(session.state, loadFailed) { s, failed -> State(s.photo, failed) }
         .stateIn(viewModelScope, SharingStarted.Eagerly, State(session.state.value.photo))
@@ -61,7 +63,9 @@ class PreviewViewModel(private val session: ScanSession, private val photos: Cap
     /** Null is a cancelled pick: keep the current photo. */
     fun onGalleryResult(uri: Uri?) {
         if (uri == null) return
-        viewModelScope.launch {
+        // The newest pick wins; an older copy still running is cancelled.
+        pickJob?.cancel()
+        pickJob = viewModelScope.launch {
             try {
                 val next = photos.fromGallery(uri)
                 loadFailed.value = false

@@ -167,11 +167,14 @@ class ResultViewModel(
         }
     }
 
-    /** Discard, the no-pods Retake, and the leave dialog's Discard. */
-    fun discard() = _state.update { it.copy(confirmLeave = false, exit = it.exit ?: Exit.Discard) }
+    /**
+     * Discard, the no-pods Retake, and the leave dialog's Discard. Ignored while a save is
+     * writing: the scan would be saved anyway, behind the user's back.
+     */
+    fun discard() = _state.update { if (it.saving) it else it.copy(confirmLeave = false, exit = it.exit ?: Exit.Discard) }
 
-    /** Back (system or top bar) while guarded. */
-    fun onLeaveRequested() = _state.update { if (it.guarded) it.copy(confirmLeave = true) else it }
+    /** Back (system or top bar) while guarded; nothing while a save is writing. */
+    fun onLeaveRequested() = _state.update { if (it.guarded && !it.saving) it.copy(confirmLeave = true) else it }
 
     fun stay() = _state.update { it.copy(confirmLeave = false) }
 

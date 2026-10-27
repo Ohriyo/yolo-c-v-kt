@@ -60,6 +60,12 @@ class ProcessingViewModel(
         job = viewModelScope.launch {
             try {
                 session.setResult(analyze(photo))
+                // The session ignores a result for a photo it no longer holds; then analyze the
+                // current one (or report it missing) instead of opening Result without a result.
+                if (session.state.value.result?.photo != photo) {
+                    start()
+                    return@launch
+                }
                 _state.value = State.Done
             } catch (e: CancellationException) {
                 throw e

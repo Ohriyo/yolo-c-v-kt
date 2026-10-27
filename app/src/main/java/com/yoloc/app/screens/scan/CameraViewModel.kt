@@ -100,10 +100,13 @@ class CameraViewModel(
 
     fun toggleFlash() = _state.update { it.copy(flashOn = !it.flashOn) }
 
-    /** The file for the next capture, or null while one is running or the preview is not ready. */
+    /**
+     * The file for the next capture, or null while a capture or a gallery pick is running (one
+     * photo enters the session at a time) or the preview is not ready.
+     */
     fun startCapture(): File? {
         val s = _state.value
-        if (!s.ready || s.capturing) return null
+        if (!s.ready || s.capturing || s.picking) return null
         _state.update { it.copy(capturing = true, notice = null) }
         return photos.newCaptureFile()
     }
@@ -116,19 +119,21 @@ class CameraViewModel(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                onCaptureFailed(e)
+                onCaptureFailed(e) // fromCamera already deleted the file
             }
         }
     }
 
-    fun onCaptureFailed(error: Throwable) {
+    /** `file` is the one [startCapture] gave out; anything CameraX left in it is deleted. */
+    fun onCaptureFailed(error: Throwable, file: File? = null) {
+        file?.delete()
         Log.w(TAG, "Capture failed", error)
         _state.update { it.copy(capturing = false, notice = Notice.CaptureFailed) }
     }
 
-    /** True if the screen should launch the photo picker now. */
+    /** True if the screen should launch the photo picker now (not while a capture is running). */
     fun startGallery(): Boolean {
-        if (_state.value.picking) return false
+        if (_state.value.picking || _state.value.capturing) return false
         _state.update { it.copy(picking = true, notice = null) }
         return true
     }

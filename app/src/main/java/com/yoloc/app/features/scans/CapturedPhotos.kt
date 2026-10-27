@@ -23,10 +23,15 @@ class CapturedPhotos(context: Context) {
     /** Where CameraX writes the next photo. */
     fun newCaptureFile(): File = File(cacheDir, "capture-${uuid()}.jpg")
 
-    /** A photo CameraX wrote, with the upright size the pipeline will see. */
+    /** A photo CameraX wrote, with the upright size the pipeline will see. Deletes the file if it is not an image. */
     suspend fun fromCamera(file: File): PendingPhoto = withContext(Dispatchers.IO) {
-        val (width, height) = orientedSize(file)
-        PendingPhoto(file, width, height, ScanSource.Camera)
+        try {
+            val (width, height) = orientedSize(file)
+            PendingPhoto(file, width, height, ScanSource.Camera)
+        } catch (e: Throwable) {
+            file.delete()
+            throw e
+        }
     }
 
     /** Copies a photo picker result into the cache. Throws if it cannot be read. */
