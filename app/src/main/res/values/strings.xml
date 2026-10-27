@@ -37,6 +37,10 @@
     <string name="history_today">Today</string>
     <string name="history_yesterday">Yesterday</string>
 
+    <!-- settings (RN: strings.settings) -->
+    <string name="settings_export_dialog_title">Share YOLO-C scans</string>
+    <string name="settings_retrain_dialog_title">Share YOLO-C retraining data</string>
+
     <!-- processing (RN: strings.processing) -->
     <string name="processing_image_error_title">Photo could not be read</string>
     <string name="processing_image_error_body">The file may be damaged or in an unsupported format. Try another photo.</string>

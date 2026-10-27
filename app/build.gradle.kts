@@ -70,6 +70,8 @@ dependencies {
     implementation(libs.room3.runtime)
     ksp(libs.room3.compiler)
     implementation(libs.androidx.sqlite.bundled)
+    implementation(libs.play.services.location)
+    implementation(libs.kotlinx.coroutines.play.services)
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)

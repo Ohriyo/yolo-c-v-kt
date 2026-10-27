@@ -14,6 +14,8 @@ import com.yoloc.app.features.scans.AndroidScanFileStore
 import com.yoloc.app.features.scans.ScanFileStore
 import com.yoloc.app.features.scans.TempImages
 import com.yoloc.app.features.scans.ThumbnailBackfill
+import com.yoloc.app.features.settings.FusedLocationSource
+import com.yoloc.app.features.settings.LocationSource
 
 /**
  * Manual DI, built once in [YoloCApp.onCreate]. Plays the role of RN's module-level singletons
@@ -31,6 +33,7 @@ class AppContainer(private val context: Context) {
     val settingsRepository: SettingsRepository by lazy { SettingsRepository(database) }
     val devRepository: DevRepository by lazy { DevRepository(database) }
     val thumbnails: ThumbnailBackfill by lazy { ThumbnailBackfill(scanRepository, files) } // thumbnails.ts
+    val locationSource: LocationSource by lazy { FusedLocationSource(context) } // expo-location
     val analyzePhoto: AnalyzePhoto by lazy {
         AnalyzePhoto(settingsRepository, classRepository, modelLoader, modelConfig) // analyzePhoto.ts
     }

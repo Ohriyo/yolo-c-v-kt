@@ -10,11 +10,9 @@ import com.yoloc.app.db.dao.ScanRow
 import com.yoloc.app.features.detection.Verdict
 import com.yoloc.app.features.detection.VerdictInput
 import com.yoloc.app.features.detection.summarizeDetections
+import com.yoloc.app.util.isoString
 import com.yoloc.app.util.toJsString
 import com.yoloc.app.util.uuid
-import java.time.Instant
-import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
 
 enum class ScanSource(val key: String) {
     Camera("camera"),
@@ -323,7 +321,7 @@ class ScanRepository(private val database: AppDatabaseHolder) {
             )
         val lines = scans.map { s ->
             (
-                listOf<Any?>(s.id, ISO_MILLIS.format(Instant.ofEpochMilli(s.createdAt)), s.verdict, s.totalPods) +
+                listOf<Any?>(s.id, isoString(s.createdAt), s.verdict, s.totalPods) +
                     classes.map { countOf["${s.id}:${it.id}"] ?: 0 } +
                     listOf<Any?>(
                         s.lowConfidence, s.plotName, s.source, s.modelVersionId, s.inferenceMs,
@@ -349,11 +347,6 @@ class ScanRepository(private val database: AppDatabaseHolder) {
             dao.deleteAllPlots()
             n
         }
-    }
-
-    companion object {
-        /** JS Date.toISOString(): always milliseconds and a Z (Instant.toString() drops zero millis). */
-        private val ISO_MILLIS = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").withZone(ZoneOffset.UTC)
     }
 }
 
