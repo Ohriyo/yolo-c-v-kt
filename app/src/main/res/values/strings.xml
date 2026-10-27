@@ -8,6 +8,29 @@
 
     <!-- verdict (RN: strings.verdict) -->
     <string name="verdict_no_pod_title">No cacao pods found</string>
+    <string name="verdict_uncertain">Uncertain result: retake in better light</string>
+    <!-- Saved-scan verdicts as chip labels (History, Home, filters). -->
+    <string name="verdict_short_healthy">Healthy</string>
+    <string name="verdict_short_early_stage">Early stage</string>
+    <string name="verdict_short_infected">Infected</string>
+    <string name="verdict_short_no_pod">No pods</string>
+
+    <!-- detection (RN: strings.detection) -->
+    <string name="detection_corrected_from">Corrected from %1$s</string>
+    <string name="detection_pod_number">Pod %1$d</string>
+
+    <!-- image (RN: strings.image) -->
+    <string name="image_load_failed_title">Photo could not be shown</string>
+    <string name="image_load_failed_body">The image file may be missing or damaged.</string>
+
+    <!-- error (RN: strings.error) -->
+    <string name="error_default_title">Something went wrong</string>
+    <string name="error_retry">Try again</string>
+    <string name="error_back">Go back</string>
+
+    <!-- common (RN: strings.common) -->
+    <string name="common_close">Close</string>
+    <string name="common_confidence">%1$d%% confidence</string>
 
     <!-- onboarding (RN: strings.onboarding.slides) -->
     <string name="onboarding_scan_title">Check cacao pods in the field</string>
@@ -36,6 +59,10 @@
     <!-- history (RN: strings.history) -->
     <string name="history_today">Today</string>
     <string name="history_yesterday">Yesterday</string>
+    <string name="history_delete">Delete</string>
+    <string name="history_deleted">Scan deleted</string>
+    <string name="history_undo">Undo</string>
+    <string name="history_undo_failed">The scan could not be restored.</string>
 
     <!-- settings (RN: strings.settings) -->
     <string name="settings_export_dialog_title">Share YOLO-C scans</string>
