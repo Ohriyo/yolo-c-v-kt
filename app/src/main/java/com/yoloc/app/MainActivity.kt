@@ -12,14 +12,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.yoloc.app.screens.dev.InferenceScreen
-import com.yoloc.app.theme.YolocTheme
+import com.yoloc.app.theme.YoloCTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            YolocTheme {
+            YoloCTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     // Until Step 5 adds YoloCRoot and navigation, debug builds open the Model test
                     // screen directly (pipeline first, verified by the golden test, before screens).
@@ -48,7 +48,7 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
-    YolocTheme {
+    YoloCTheme {
         Greeting("Android")
     }
 }
