@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -69,6 +70,8 @@ fun HomeScreen(
     onScan: () -> Unit,
     onOpenScan: (String) -> Unit,
     onOpenHistory: () -> Unit,
+    /** A count chip: History filtered to that result (NavActions.openHistory). */
+    onOpenCount: (Verdict) -> Unit,
     onOpenLearn: () -> Unit,
     vm: HomeViewModel = viewModel(factory = HomeViewModel.Factory),
 ) {
@@ -97,10 +100,7 @@ fun HomeScreen(
                 Row(horizontalArrangement = Arrangement.spacedBy(Spacing.xs)) {
                     for (v in COUNT_VERDICTS) {
                         val count = (summary as? HomeViewModel.Summary.Ready)?.stats?.scansByVerdict?.get(v)
-                        CountChip(v, if (summary is HomeViewModel.Summary.Ready) count ?: 0 else null, Modifier.weight(1f)) {
-                            vm.openCount(v)
-                            onOpenHistory()
-                        }
+                        CountChip(v, if (summary is HomeViewModel.Summary.Ready) count ?: 0 else null, Modifier.weight(1f)) { onOpenCount(v) }
                     }
                 }
             }
@@ -134,7 +134,7 @@ fun HomeScreen(
                     } else {
                         Column(verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
                             for (scan in s.recent) {
-                                ScanRow(scan, formatShortWhen(scan.createdAt, now, dayFormat), onOpenScan)
+                                key(scan.id) { ScanRow(scan, formatShortWhen(scan.createdAt, now, dayFormat), onOpenScan) }
                             }
                         }
                     }
@@ -166,7 +166,8 @@ private fun CountChip(verdict: Verdict, count: Int?, modifier: Modifier, onClick
     val status = verdictStatus(verdict) ?: return
     val s = YoloCTheme.colors.status(status)
     val label = verdictShortName(verdict)
-    val a11y = pluralStringResource(R.plurals.home_count_a11y, count ?: 0, label, count ?: 0)
+    // While the count is loading or failed, only the result is spoken: "0 scans" would be wrong.
+    val a11y = if (count == null) label else pluralStringResource(R.plurals.home_count_a11y, count, label, count)
     val press = rememberPress()
     Column(
         modifier

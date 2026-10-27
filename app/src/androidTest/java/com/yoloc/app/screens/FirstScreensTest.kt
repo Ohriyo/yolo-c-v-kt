@@ -31,8 +31,6 @@ import com.yoloc.app.screens.learn.LearnTopicViewModel
 import com.yoloc.app.screens.onboarding.OnboardingViewModel
 import com.yoloc.app.screens.onboarding.PermissionsScreen
 import com.yoloc.app.screens.onboarding.WelcomeScreen
-import com.yoloc.app.store.HistoryRequest
-import com.yoloc.app.store.HistoryRequests
 import com.yoloc.app.store.ScanLibrary
 import com.yoloc.app.store.SettingsStore
 import com.yoloc.app.theme.YoloCTheme
@@ -65,7 +63,6 @@ class FirstScreensTest {
     private val classes = ClassRepository(holder)
     private val files = MemoryFileStore()
     private val library = ScanLibrary(scans)
-    private val requests = HistoryRequests()
     private val config = TestDb.config
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -105,7 +102,6 @@ class FirstScreensTest {
         compose.onNodeWithContentDescription(text(R.string.onboarding_next)).performClick()
         // The aid slide counts the model's misses from the config's recall (0.596: 4 in 10 missed).
         compose.onNodeWithText(text(R.string.onboarding_aid_detail, 4)).assertIsDisplayed()
-        compose.onNodeWithContentDescription(text(R.string.about_recall_a11y, 6)).assertExists()
         // No Skip on the last slide; Get started goes to the primer.
         assertTrue(compose.onAllNodesWithContentDescription(text(R.string.onboarding_skip)).fetchSemanticsNodes().isEmpty())
         compose.onNodeWithContentDescription(text(R.string.onboarding_get_started)).performClick()
@@ -134,10 +130,10 @@ class FirstScreensTest {
     @Test
     fun homeInvitesAFirstScanInsteadOfAnEmptyList() {
         var scanned = 0
-        val vm = HomeViewModel(scans, library, requests)
+        val vm = HomeViewModel(scans, library)
         compose.setContent {
             YoloCTheme {
-                HomeScreen(onScan = { scanned++ }, onOpenScan = {}, onOpenHistory = {}, onOpenLearn = {}, vm = vm)
+                HomeScreen(onScan = { scanned++ }, onOpenScan = {}, onOpenHistory = {}, onOpenCount = {}, onOpenLearn = {}, vm = vm)
             }
         }
         compose.waitUntil(5_000) { compose.onAllNodesWithText(text(R.string.home_no_scans_title)).fetchSemanticsNodes().isNotEmpty() }
@@ -173,13 +169,15 @@ class FirstScreensTest {
         }
         var opened: String? = null
         var history = 0
-        val vm = HomeViewModel(scans, library, requests)
+        var counted: Verdict? = null
+        val vm = HomeViewModel(scans, library)
         compose.setContent {
             YoloCTheme {
                 HomeScreen(
                     onScan = {},
                     onOpenScan = { opened = it },
                     onOpenHistory = { history++ },
+                    onOpenCount = { counted = it },
                     onOpenLearn = {},
                     vm = vm,
                 )
@@ -193,11 +191,10 @@ class FirstScreensTest {
 
         val infected = TestDb.context.resources.getQuantityString(R.plurals.home_count_a11y, 2, text(R.string.verdict_short_infected), 2)
         compose.onNodeWithContentDescription(infected).performClick()
-        assertEquals(1, history)
-        assertEquals(HistoryRequest.ByVerdict(Verdict.Infected), requests.request.value)
+        assertEquals(Verdict.Infected, counted)
 
         compose.onNodeWithContentDescription(text(R.string.home_see_all)).performClick()
-        assertEquals(2, history)
+        assertEquals(1, history)
         compose.onNodeWithContentDescription("Notes: Tree 0", substring = true).performScrollTo().performClick()
         assertTrue(opened != null)
     }

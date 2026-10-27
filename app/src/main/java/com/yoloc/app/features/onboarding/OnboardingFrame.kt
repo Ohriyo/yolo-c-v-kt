@@ -72,6 +72,7 @@ fun OnboardingFrame(
     extra: @Composable ColumnScope.() -> Unit = {},
 ) {
     val colors = YoloCTheme.colors
+    val reduceMotion = rememberReduceMotion()
     Column(Modifier.fillMaxSize().background(colors.background).windowInsetsPadding(WindowInsets.safeDrawing)) {
         Row(
             Modifier
@@ -115,7 +116,6 @@ fun OnboardingFrame(
                 .padding(start = Spacing.screen, end = Spacing.screen, bottom = Spacing.lg),
         ) {
             key(step) {
-                val reduceMotion = rememberReduceMotion()
                 val alpha = remember { Animatable(if (reduceMotion) 1f else 0f) }
                 LaunchedEffect(Unit) { alpha.animateTo(1f, tween(Motion.SLOW)) }
                 Column(Modifier.graphicsLayer { this.alpha = alpha.value }, verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {

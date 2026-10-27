@@ -9,15 +9,12 @@ import com.yoloc.app.db.repositories.ScanFilters
 import com.yoloc.app.db.repositories.ScanRepository
 import com.yoloc.app.db.repositories.ScanStats
 import com.yoloc.app.db.repositories.ScanSummary
-import com.yoloc.app.features.detection.Verdict
 import com.yoloc.app.features.scans.DAY_MS
 import com.yoloc.app.features.scans.DateRange
 import com.yoloc.app.features.scans.rangeStart
 import com.yoloc.app.features.scans.startOfDay
 import com.yoloc.app.screens.container
 import com.yoloc.app.screens.refreshedNow
-import com.yoloc.app.store.HistoryRequest
-import com.yoloc.app.store.HistoryRequests
 import com.yoloc.app.store.ScanLibrary
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -37,7 +34,6 @@ import kotlinx.coroutines.flow.update
 class HomeViewModel(
     private val scans: ScanRepository,
     library: ScanLibrary,
-    private val historyRequests: HistoryRequests,
 ) : ViewModel() {
     sealed interface Summary {
         data object Loading : Summary
@@ -84,15 +80,12 @@ class HomeViewModel(
     /** ON_RESUME (RN: useNow on focus), so a tab left open overnight relabels its days. */
     fun refreshNow() = _now.update { refreshedNow(it) }
 
-    /** A count chip: History opens filtered to that result (the screen then selects the tab). */
-    fun openCount(verdict: Verdict) = historyRequests.send(HistoryRequest.ByVerdict(verdict))
-
     companion object {
         private const val TAG = "home"
         const val RECENT_COUNT = 3
 
         val Factory = viewModelFactory {
-            initializer { HomeViewModel(container.scanRepository, container.scanLibrary, container.historyRequests) }
+            initializer { HomeViewModel(container.scanRepository, container.scanLibrary) }
         }
     }
 }

@@ -84,7 +84,7 @@ class LibraryViewModelsTest {
     @Test
     fun homeShowsTheLastThreeScansAndThirtyDayCountsAndReloadsOnRevision() = runBlocking {
         repeat(4) { save(createdAt = System.currentTimeMillis() - it * 1000L) }
-        val home = HomeViewModel(scans, library, requests)
+        val home = HomeViewModel(scans, library)
         val ready = home.summary.await("Home ready") { it is HomeViewModel.Summary.Ready } as HomeViewModel.Summary.Ready
         assertEquals(3, ready.recent.size)
         assertEquals(4, ready.stats.scansByVerdict[Verdict.Healthy])
@@ -92,9 +92,6 @@ class LibraryViewModelsTest {
         save(verdictClass = 1, createdAt = System.currentTimeMillis())
         library.bump()
         home.summary.await("Home reloaded") { (it as? HomeViewModel.Summary.Ready)?.stats?.totalScans == 5 }
-
-        home.openCount(Verdict.Infected)
-        assertEquals(HistoryRequest.ByVerdict(Verdict.Infected), requests.request.value)
     }
 
     @Test

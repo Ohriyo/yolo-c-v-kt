@@ -1,6 +1,9 @@
 package com.yoloc.app.screens.navigation
 
+import androidx.lifecycle.Lifecycle
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import androidx.navigation.NavDestination.Companion.hasRoute
 import com.yoloc.app.store.HistoryRequest
 import com.yoloc.app.store.HistoryRequests
 
@@ -19,6 +22,24 @@ fun NavController.selectTab(tab: Any) {
         launchSingleTop = true
         restoreState = true
     }
+}
+
+/**
+ * RN: router.navigate('/settings') from a screen over the tabs. The stack screens are popped
+ * first, so the tab they were opened from is saved (and later restored) without them; otherwise
+ * coming back to that tab would show a stack screen with no tab bar.
+ */
+fun NavController.leaveForTab(tab: Any) {
+    while (currentDestination?.let { d -> tabRoutes.any { d.hasRoute(it) } } == false && popBackStack()) Unit
+    selectTab(tab)
+}
+
+/**
+ * Runs a forward navigation only while this screen is the one shown (RESUMED), so a second tap
+ * during the transition cannot push the next screen twice.
+ */
+fun NavBackStackEntry.ifShown(action: () -> Unit) {
+    if (lifecycle.currentState == Lifecycle.State.RESUMED) action()
 }
 
 /** RN: Home chip / Plots row -> navigate('/history', params). History consumes the request. */

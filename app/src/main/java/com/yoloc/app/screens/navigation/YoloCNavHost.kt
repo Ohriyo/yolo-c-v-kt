@@ -42,6 +42,7 @@ import com.yoloc.app.components.IconName
 import com.yoloc.app.components.ScreenContainer
 import com.yoloc.app.components.TabBarItem
 import com.yoloc.app.components.Tone
+import com.yoloc.app.screens.appContainer
 import com.yoloc.app.screens.dev.InferenceScreen
 import com.yoloc.app.screens.home.HomeScreen
 import com.yoloc.app.screens.learn.LearnScreen
@@ -49,6 +50,7 @@ import com.yoloc.app.screens.learn.LearnTopicScreen
 import com.yoloc.app.screens.learn.learnTopicTitle
 import com.yoloc.app.screens.onboarding.PermissionsScreen
 import com.yoloc.app.screens.onboarding.WelcomeScreen
+import com.yoloc.app.store.HistoryRequest
 import com.yoloc.app.theme.Motion
 import com.yoloc.app.theme.TypeVariant
 import com.yoloc.app.theme.YoloCTheme
@@ -56,7 +58,7 @@ import com.yoloc.app.theme.YoloCTheme
 /** Not a tab: the center button opens the full-screen camera (CLAUDE.md 3.2). */
 private data object ScanButton
 
-private val tabRoutes = listOf(Home::class, History::class, Learn::class, Settings::class)
+internal val tabRoutes = listOf(Home::class, History::class, Learn::class, Settings::class)
 
 private fun NavDestination?.isTab() = this != null && tabRoutes.any { hasRoute(it) }
 
@@ -108,20 +110,22 @@ fun YoloCNavHost(onboardingDone: Boolean) {
             exitTransition = { if (initialState.isTab() && targetState.isTab()) ExitTransition.None else fadeOut(tween(Motion.BASE)) },
         ) {
             navigation<OnboardingGraph>(startDestination = Welcome) {
-                composable<Welcome> { WelcomeScreen(onToPrimer = { nav.navigate(Permissions) }) }
+                composable<Welcome> { entry -> WelcomeScreen(onToPrimer = { entry.ifShown { nav.navigate(Permissions) } }) }
                 composable<Permissions> { PermissionsScreen() }
             }
             navigation<MainGraph>(startDestination = Home) {
-                composable<Home> {
+                composable<Home> { entry ->
+                    val requests = appContainer().historyRequests
                     HomeScreen(
-                        onScan = { nav.navigate(Camera) },
-                        onOpenScan = { id -> nav.navigate(ScanDetail(id)) },
+                        onScan = { entry.ifShown { nav.navigate(Camera) } },
+                        onOpenScan = { id -> entry.ifShown { nav.navigate(ScanDetail(id)) } },
                         onOpenHistory = { nav.selectTab(History) },
+                        onOpenCount = { v -> nav.openHistory(requests, HistoryRequest.ByVerdict(v)) },
                         onOpenLearn = { nav.selectTab(Learn) },
                     )
                 }
                 composable<History> { Placeholder(stringResource(R.string.tabs_history)) }
-                composable<Learn> { LearnScreen(onOpenTopic = { topic -> nav.navigate(LearnTopic(topic.key)) }) }
+                composable<Learn> { entry -> LearnScreen(onOpenTopic = { topic -> entry.ifShown { nav.navigate(LearnTopic(topic.key)) } }) }
                 composable<Settings> { Placeholder(stringResource(R.string.tabs_settings)) }
                 // The camera screens are dark in both themes, including during the fade.
                 composable<Camera> { CameraPlaceholder() }
@@ -134,8 +138,8 @@ fun YoloCNavHost(onboardingDone: Boolean) {
                     StackScreen(learnTopicTitle(entry.toRoute<LearnTopic>().topic), onBack = { nav.navigateUp() }) {
                         LearnTopicScreen(
                             onBack = { nav.navigateUp() },
-                            onOpenAbout = { nav.navigate(About) },
-                            onOpenSettings = { nav.selectTab(Settings) },
+                            onOpenAbout = { entry.ifShown { nav.navigate(About) } },
+                            onOpenSettings = { nav.leaveForTab(Settings) },
                         )
                     }
                 }
@@ -159,7 +163,7 @@ fun YoloCNavHost(onboardingDone: Boolean) {
                 centerKey = ScanButton,
                 onSelect = { key ->
                     when {
-                        key == ScanButton -> nav.navigate(Camera)
+                        key == ScanButton -> entry?.ifShown { nav.navigate(Camera) }
                         key != activeTab -> nav.selectTab(key)
                     }
                 },
