@@ -20,32 +20,58 @@ Tolerance: IoU ≥ 0.9, |Δ confidence| ≤ 0.05, no extra boxes. Reference: `ex
 
 | Image     | RN (2026-10-15)                                                          | Kotlin | Notes |
 | --------- | ------------------------------------------------------------------------ | ------ | ----- |
-| golden_01 | PASS, IoU 0.995–0.997, confidence within 0.008                           |        |       |
-| golden_02 | FAIL, infected pod matches (IoU 0.981); small healthy pod 0.276 vs 0.495 |        |       |
-| golden_03 | PASS, IoU 0.998–1.000                                                    |        |       |
-| golden_04 | PASS, IoU 0.955–0.998, confidence within 0.026                           |        |       |
-| golden_05 | PASS, IoU 0.992–0.997, confidence within 0.035                           |        |       |
+| golden_01 | PASS, IoU 0.995–0.997, confidence within 0.008                           | PASS, 2/2 matched, worst IoU 0.996, 0 extra |  |
+| golden_02 | FAIL, infected pod matches (IoU 0.981); small healthy pod 0.276 vs 0.495 | PASS, 2/2 matched, worst IoU 0.998, 0 extra | RN failed this image; Kotlin passes |
+| golden_03 | PASS, IoU 0.998–1.000                                                    | PASS, 2/2 matched, worst IoU 0.999, 0 extra |  |
+| golden_04 | PASS, IoU 0.955–0.998, confidence within 0.026                           | PASS, 2/2 matched, worst IoU 0.994, 0 extra |  |
+| golden_05 | PASS, IoU 0.992–0.997, confidence within 0.035                           | PASS, 2/2 matched, worst IoU 0.998, 0 extra |  |
+
+Kotlin: debug build, 2026-10-27, CPU with default options. Same result against
+`expected_pt.json`. The screen shows the worst IoU only; confidence deltas are within the 0.05
+tolerance (all pairs passed) but were not recorded per image.
 
 Expected difference: Kotlin reads the resized bitmap directly instead of re-encoding a JPEG, so
 IoU and confidence deltas may differ slightly from RN.
 
 ## Performance on golden_01 (CPU, default options, median of 5)
 
-| Measure                          | RN (dev build, 2026-10-15)   | Kotlin |
-| -------------------------------- | ---------------------------- | ------ |
-| Model load                       | 4.1 s (downloaded from Metro) |        |
-| Inference (`run` only)           | 1375 ms                      |        |
-| Preprocess                       | 2.2–2.7 s                    |        |
-| Postprocess                      | about 15 ms                  |        |
-| End to end                       | 3.8 s                        |        |
+| Measure                          | RN (dev build, 2026-10-15)    | Kotlin (debug build, 2026-10-27) |
+| -------------------------------- | ----------------------------- | -------------------------------- |
+| Model load                       | 4.1 s (downloaded from Metro) | 261 ms (memory-mapped from the APK) |
+| Inference (`run` only)           | 1375 ms                       | **2168 ms** (2171, 2168, 2174, 2168, 2167) |
+| Preprocess                       | 2.2–2.7 s                     | 33–40 ms warm (341 ms on the first run after launch) |
+| Postprocess                      | about 15 ms                   | about 7.7 ms warm (89 ms on the first run) |
+| End to end                       | 3.8 s                         | **2210 ms** median total |
+
+The first run after launch is slower (preprocess 341 ms, postprocess 89 ms, total 2607 ms) while the
+debug build's code warms up; later runs settle at the numbers above. Inference across the golden
+images: 2166–2190 ms.
+
+Findings so far:
+- Kotlin preprocessing is about 2.2 s faster (it reads the bitmap directly; RN re-encodes a JPEG and
+  decodes it in JS), so end to end Kotlin is faster: 2.2 s vs 3.8 s.
+- Kotlin CPU inference is about 800 ms slower than RN on the same model and phone (2168 vs 1375 ms).
+  Setting 4 threads changes nothing (below), so thread count is not the cause. Still open: what
+  react-native-fast-tflite configures that the LiteRT `Interpreter` defaults do not (for example the
+  XNNPACK delegate or its flags). Both apps were debug builds; release numbers come later.
 
 ## Experiments (labelled separately from the parity run)
 
-| Backend         | Load / compile (ms) | Median inference, golden_01 (ms) | Golden PASS count | Notes |
-| --------------- | ------------------- | -------------------------------- | ----------------- | ----- |
-| CPU (default)   |                     |                                  |                   |       |
-| CPU, 4 threads  |                     |                                  |                   |       |
-| GPU (CompiledModel) |                 |                                  |                   |       |
+All on golden_01, median of 5, debug build, 2026-10-27.
+
+| Backend             | Load / compile (ms) | Median inference (ms)                  | Median total (ms) | Golden PASS | Worst IoU per image (01–05)     |
+| ------------------- | ------------------- | -------------------------------------- | ----------------- | ----------- | ------------------------------- |
+| CPU (default)       | 261                 | 2168 (2171, 2168, 2174, 2168, 2167)    | 2210              | 5/5         | 0.996, 0.998, 0.999, 0.994, 0.998 |
+| CPU, 4 threads      | 169                 | 2168 (2167, 2169, 2168, 2168, 2170)    | 2211              | 5/5         | 0.996, 0.998, 0.999, 0.994, 0.998 |
+| GPU (CompiledModel) | 3457                | **540** (564, 539, 570, 537, 540)      | 585               | 5/5         | 0.996, 0.989, 0.998, 0.995, 0.997 |
+
+- 4 threads gives the same inference time as the defaults, so the default `Interpreter` options
+  already use the cores this phone gives it (or the bottleneck is elsewhere).
+- The GPU is about 4× faster than the CPU and still passes all five images against both Python
+  references. Its boxes differ slightly from the CPU's (golden_02 worst IoU 0.989 vs 0.998), as
+  expected from GPU float arithmetic. Compiling for the GPU costs about 3.5 s once per launch.
+- The guide keeps photo scans on the CPU because that path is the verified parity path; the GPU
+  results make it a candidate for photos too, as a separate decision.
 
 RN's live mode uses the `android-gpu` delegate; Kotlin uses LiteRT's `CompiledModel` with
 `Accelerator.GPU` (the Interpreter GPU delegate is LiteRT v1 only).
