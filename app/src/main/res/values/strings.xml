@@ -32,6 +32,32 @@
     <string name="common_close">Close</string>
     <string name="common_confidence">%1$d%% confidence</string>
 
+    <!-- tabs (RN: strings.tabs) -->
+    <string name="tabs_home">Home</string>
+    <string name="tabs_scan">Scan</string>
+    <string name="tabs_history">History</string>
+    <string name="tabs_learn">Learn</string>
+    <string name="tabs_settings">Settings</string>
+
+    <!-- Screens not built yet (RN: strings.placeholder). -->
+    <string name="placeholder">Placeholder screen. Built in a later phase.</string>
+
+    <!-- Stack screen titles (RN: the title in each app/_layout.tsx withHeader) -->
+    <string name="preview_title">Preview</string>
+    <string name="processing_title">Analyzing</string>
+    <string name="result_title">Result</string>
+    <string name="scan_detail_title">Scan detail</string>
+    <string name="about_title">About</string>
+    <string name="learn_title">Learn</string>
+    <string name="plots_title">Plots</string>
+    <string name="dev_seed_title">Fake scans (dev)</string>
+    <string name="settings_dev_inference">Model test (dev)</string>
+    <!-- The header back arrow (RN: the native header's own label). -->
+    <string name="nav_up">Navigate up</string>
+
+    <!-- startup (RN: strings.startup) -->
+    <string name="startup_db_error_body">The app could not open its storage on this phone. Try again, or restart the app. Your saved scans are not affected.</string>
+
     <!-- onboarding (RN: strings.onboarding.slides) -->
     <string name="onboarding_scan_title">Check cacao pods in the field</string>
     <string name="onboarding_scan_body">Take a photo of a pod. The app marks each pod as healthy, early stage or infected.</string>
@@ -41,6 +67,7 @@
     <string name="onboarding_tips_body">Good photos give better results.</string>
     <string name="onboarding_aid_title">A screening aid, not a diagnosis</string>
     <string name="onboarding_aid_body">The app can miss early signs. Always check doubtful pods by eye.</string>
+    <string name="onboarding_get_started">Get started</string>
 
     <!-- result (RN: strings.result). Plural quantity follows the total number of pods. -->
     <plurals name="result_verdict_infected">

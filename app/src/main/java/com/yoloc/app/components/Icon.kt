@@ -22,6 +22,7 @@ enum class IconName(val key: String, @param:DrawableRes val drawable: Int) {
     AlertCircle("alert-circle", R.drawable.ic_alert_circle),
     AlertOctagon("alert-octagon", R.drawable.ic_alert_octagon),
     AlertTriangle("alert-triangle", R.drawable.ic_alert_triangle),
+    ArrowLeft("arrow-left", R.drawable.ic_arrow_left),
     ArrowRight("arrow-right", R.drawable.ic_arrow_right),
     BarChart2("bar-chart-2", R.drawable.ic_bar_chart_2),
     BookOpen("book-open", R.drawable.ic_book_open),

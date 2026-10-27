@@ -102,6 +102,7 @@ edge case that would give a wrong result. Everything else follows RN commit `1e7
 | `refreshedNow` (RN `useNow`) (Step 4.4) | Ignores changes up to a minute | Also refreshes when the local day changed or the clock went back | "Today" labels after midnight |
 | `BottomSheet` (Step 5) | Closes with back, a scrim tap or the close button | Also closes when dragged down | It is Material 3's `ModalBottomSheet` (guide 5.2); the drag is the platform's own gesture |
 | `SwipeToDelete` (Step 5) | Deletes past 40 % of the width, or on a flick faster than 0.9 px/ms after 40 px | Deletes past 40 % of the width, or on Material 3's own flick speed | It is Material 3's `SwipeToDismissBox` (guide 5.2), which sets its own flick threshold |
+| `YoloCNavHost` (Step 5) | Stack screens use the native stack's Android default animation; the header back arrow is the platform's | A 200 ms fade (`Motion.BASE`) for stack screens and the camera, none between tabs; Feather's arrow-left | Compose Navigation has no native-stack animation to copy; fade is RN's own choice for the camera and stays within the motion tokens |
 
 ## Step 6 measurements (filled in as the port progresses)
 
