@@ -76,6 +76,19 @@ All on golden_01, median of 5, debug build, 2026-10-27.
 RN's live mode uses the `android-gpu` delegate; Kotlin uses LiteRT's `CompiledModel` with
 `Accelerator.GPU` (the Interpreter GPU delegate is LiteRT v1 only).
 
+## Deliberate behaviour differences
+
+Places where the Kotlin port does not copy RN on purpose, because RN's behaviour is a bug or an
+edge case that would give a wrong result. Everything else follows RN commit `1e7aabe`.
+
+| Where (Kotlin) | RN | Kotlin | Why |
+| -------------- | -- | ------ | --- |
+| `AnalyzePhoto`, `correctResultDetection` (Step 4.2) | A class missing from the `classes` table counts as severity 0 (healthy) | Fails with an error | Only a mismatched model and database can cause it; calling an unknown pod healthy would hide a possible infection |
+| `rangeStart` for 7 / 30 days (Step 4.2) | Start of today minus 6 or 29 × 24 h | Start of today minus 6 or 29 calendar days | Right after a daylight-saving change the 24-hour version is off by a day |
+| `SettingsStore.hydrate` (Step 4.3) | A load overwrites every cached setting with what it read | A setting changed while the load ran keeps the newer value | Otherwise the screen shows the old value until the next launch; at startup the UI waits for the load, so only a retry can race |
+| `ScanSession.setResult` (Step 4.3) | Stores any result | Ignores a result for a photo the session no longer holds | A slow analysis finishing after Back or "Choose another" would show the wrong photo's pods |
+| `ScanLibrary.deleteScan` (Step 4.3) | Offers Undo even when no row was deleted | A scan that is already gone only refreshes the lists | A double tap would replace the real Undo with an empty one |
+
 ## Step 6 measurements (filled in as the port progresses)
 
 | Measure                                                  | RN                                                    | Kotlin |
