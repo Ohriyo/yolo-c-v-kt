@@ -44,6 +44,8 @@ fun YButton(
     loading: Boolean = false,
     fullWidth: Boolean = false,
     accessibilityHint: String? = null,
+    /** Dev gallery only: render the pressed state statically. */
+    previewPressed: Boolean = false,
 ) {
     val colors = YoloCTheme.colors
     val c = when (variant) {
@@ -55,7 +57,7 @@ fun YButton(
     val inactive = !enabled || loading
     val filled = variant == ButtonVariant.Primary || variant == ButtonVariant.OnDark
     val press = rememberPress()
-    val pressed = press.pressed.value && !inactive
+    val pressed = (press.pressed.value || previewPressed) && !inactive
     val bg = when {
         !enabled && filled -> colors.disabled.bg
         pressed -> c.pressedBg

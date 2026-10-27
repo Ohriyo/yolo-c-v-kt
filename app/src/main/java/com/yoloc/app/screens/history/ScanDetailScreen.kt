@@ -13,9 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -36,6 +34,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.yoloc.app.R
 import com.yoloc.app.components.AppText
+import com.yoloc.app.components.ConfirmDialog
 import com.yoloc.app.components.ButtonVariant
 import com.yoloc.app.components.Card
 import com.yoloc.app.components.EmptyState
@@ -97,13 +96,13 @@ fun ScanDetailScreen(onBack: () -> Unit, vm: ScanDetailViewModel = viewModel(fac
     }
 
     if (s.confirmingDelete) {
-        AlertDialog(
-            onDismissRequest = vm::cancelDelete,
-            title = { AppText(stringResource(R.string.scan_detail_delete_title), variant = TypeVariant.Title) },
-            text = { AppText(stringResource(R.string.scan_detail_delete_body)) },
-            confirmButton = { TextButton(onClick = vm::confirmDelete) { AppText(stringResource(R.string.scan_detail_delete), variant = TypeVariant.Label, color = YoloCTheme.colors.link) } },
-            dismissButton = { TextButton(onClick = vm::cancelDelete) { AppText(stringResource(R.string.scan_detail_cancel), variant = TypeVariant.Label, color = YoloCTheme.colors.link) } },
-            containerColor = YoloCTheme.colors.surfaceRaised,
+        ConfirmDialog(
+            title = stringResource(R.string.scan_detail_delete_title),
+            body = stringResource(R.string.scan_detail_delete_body),
+            confirmLabel = stringResource(R.string.scan_detail_delete),
+            onConfirm = vm::confirmDelete,
+            cancelLabel = stringResource(R.string.scan_detail_cancel),
+            onCancel = vm::cancelDelete,
         )
     }
 }

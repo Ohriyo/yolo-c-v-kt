@@ -29,6 +29,8 @@ fun Card(
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
     accessibilityLabel: String? = null,
+    /** Dev gallery only: render the pressed state statically. */
+    previewPressed: Boolean = false,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val colors = YoloCTheme.colors
@@ -47,7 +49,7 @@ fun Card(
         modifier = modifier
             .fillMaxWidth()
             .clip(shape)
-            .background(if (onClick != null && press.pressed.value) colors.surface else colors.background)
+            .background(if (onClick != null && (press.pressed.value || previewPressed)) colors.surface else colors.background)
             .border(1.dp, colors.border, shape)
             .then(tap)
             .padding(Spacing.md),

@@ -27,7 +27,6 @@ import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -37,13 +36,13 @@ import androidx.navigation.toRoute
 import com.yoloc.app.BuildConfig
 import com.yoloc.app.R
 import com.yoloc.app.components.AppTabBar
-import com.yoloc.app.components.AppText
 import com.yoloc.app.components.IconName
-import com.yoloc.app.components.ScreenContainer
 import com.yoloc.app.components.TabBarItem
-import com.yoloc.app.components.Tone
 import com.yoloc.app.screens.appContainer
+import com.yoloc.app.screens.about.AboutScreen
+import com.yoloc.app.screens.dev.GalleryScreen
 import com.yoloc.app.screens.dev.InferenceScreen
+import com.yoloc.app.screens.dev.SeedScreen
 import com.yoloc.app.screens.history.HistoryScreen
 import com.yoloc.app.screens.history.ScanDetailScreen
 import com.yoloc.app.screens.home.HomeScreen
@@ -52,15 +51,16 @@ import com.yoloc.app.screens.learn.LearnTopicScreen
 import com.yoloc.app.screens.learn.learnTopicTitle
 import com.yoloc.app.screens.onboarding.PermissionsScreen
 import com.yoloc.app.screens.onboarding.WelcomeScreen
+import com.yoloc.app.screens.plots.PlotsScreen
 import com.yoloc.app.screens.scan.CameraScreen
 import com.yoloc.app.screens.scan.LiveScreen
 import com.yoloc.app.screens.scan.PreviewScreen
 import com.yoloc.app.screens.scan.ProcessingScreen
 import com.yoloc.app.screens.scan.ResultScreen
 import com.yoloc.app.screens.scan.ResultViewModel
+import com.yoloc.app.screens.settings.SettingsScreen
 import com.yoloc.app.store.HistoryRequest
 import com.yoloc.app.theme.Motion
-import com.yoloc.app.theme.TypeVariant
 import com.yoloc.app.theme.YoloCTheme
 
 /** Not a tab: the center button opens the full-screen camera (CLAUDE.md 3.2). */
@@ -139,7 +139,15 @@ fun YoloCNavHost(onboardingDone: Boolean) {
                     )
                 }
                 composable<Learn> { entry -> LearnScreen(onOpenTopic = { topic -> entry.ifShown { nav.navigate(LearnTopic(topic.key)) } }) }
-                composable<Settings> { Placeholder(stringResource(R.string.tabs_settings)) }
+                composable<Settings> { entry ->
+                    SettingsScreen(
+                        onOpenPlots = { entry.ifShown { nav.navigate(Plots) } },
+                        onOpenAbout = { entry.ifShown { nav.navigate(About) } },
+                        onOpenGallery = { entry.ifShown { nav.navigate(DevGallery) } },
+                        onOpenSeed = { entry.ifShown { nav.navigate(DevSeed) } },
+                        onOpenInference = { entry.ifShown { nav.navigate(DevInference) } },
+                    )
+                }
                 // The camera screens are dark in both themes, including during the fade.
                 // The photo reaches Preview from the ViewModel's state (after the picker or the
                 // capture), so these navigations are not gated on ifShown: a dropped one would
@@ -210,11 +218,24 @@ fun YoloCNavHost(onboardingDone: Boolean) {
                         )
                     }
                 }
-                stack<About>(nav, R.string.about_title)
-                stack<Plots>(nav, R.string.plots_title)
+                composable<About> { entry ->
+                    StackScreen(stringResource(R.string.about_title), onBack = { entry.ifShown { nav.navigateUp() } }) { AboutScreen() }
+                }
+                composable<Plots> { entry ->
+                    StackScreen(stringResource(R.string.plots_title), onBack = { entry.ifShown { nav.navigateUp() } }) {
+                        PlotsScreen(
+                            onOpenPlot = { entry.ifShown { nav.leaveForTab(History) } },
+                            // Opened from Result's save sheet: RN's leave guard stops the jump to
+                            // History and asks; here Result is shown again and asks there.
+                            beforeLeave = { nav.returnToUnsavedResult() },
+                        )
+                    }
+                }
                 if (BuildConfig.DEBUG) {
-                    composable<DevGallery> { Placeholder(null) }
-                    stack<DevSeed>(nav, R.string.dev_seed_title)
+                    composable<DevGallery> { GalleryScreen() }
+                    composable<DevSeed> { entry ->
+                        StackScreen(stringResource(R.string.dev_seed_title), onBack = { entry.ifShown { nav.navigateUp() } }) { SeedScreen() }
+                    }
                     composable<DevInference> { entry ->
                         StackScreen(stringResource(R.string.settings_dev_inference), onBack = { entry.ifShown { nav.navigateUp() } }) {
                             InferenceScreen(Modifier.windowInsetsPadding(WindowInsets.safeDrawing))
@@ -239,13 +260,6 @@ fun YoloCNavHost(onboardingDone: Boolean) {
     }
 }
 
-/** A stack screen with its header; the body is a placeholder until the screen is ported. */
-private inline fun <reified T : Any> androidx.navigation.NavGraphBuilder.stack(nav: NavHostController, title: Int) {
-    composable<T> { entry ->
-        StackScreen(stringResource(title), onBack = { entry.ifShown { nav.navigateUp() } }) { Placeholder(null) }
-    }
-}
-
 /**
  * RN: `<StatusBar style="light" />` on the camera screens: light bar icons over the dark camera,
  * in both themes. Leaving the camera puts back the theme's icons.
@@ -260,14 +274,6 @@ private fun CameraBars(onCamera: Boolean) {
             isAppearanceLightStatusBars = !dark && !onCamera
             isAppearanceLightNavigationBars = !dark && !onCamera
         }
-    }
-}
-
-@Composable
-private fun Placeholder(title: String?) {
-    ScreenContainer {
-        if (title != null) AppText(title, variant = TypeVariant.Headline)
-        AppText(stringResource(R.string.placeholder), tone = Tone.Muted)
     }
 }
 

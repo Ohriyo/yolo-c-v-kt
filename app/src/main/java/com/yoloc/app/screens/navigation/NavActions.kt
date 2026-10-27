@@ -1,9 +1,11 @@
 package com.yoloc.app.screens.navigation
 
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hasRoute
+import com.yoloc.app.screens.scan.ResultViewModel
 import com.yoloc.app.store.HistoryRequest
 import com.yoloc.app.store.HistoryRequests
 
@@ -68,6 +70,21 @@ fun NavController.processingToResult() = navigate(Result) { popUpTo<Processing> 
 /** RN: router.dismissTo('/scan/camera') (Retake, Discard, missing photo). */
 fun NavController.dismissToCamera() {
     if (!popBackStack<Camera>(inclusive = false)) navigate(Camera) { popUpTo<Home>() }
+}
+
+/**
+ * RN: leaving a stack above an unsaved Result is stopped by its usePreventRemove, which asks Stay /
+ * Discard / Save. If Result is below with unsaved pods, it is shown again with that question and
+ * true is returned (the caller does not leave); otherwise false.
+ */
+fun NavController.returnToUnsavedResult(): Boolean {
+    val entry = runCatching { getBackStackEntry<Result>() }.getOrNull() ?: return false
+    // The ViewModel Result's screen already made (same store, same default key).
+    val vm = ViewModelProvider.create(entry, ResultViewModel.Factory, entry.defaultViewModelCreationExtras)[ResultViewModel::class]
+    if (!vm.state.value.guarded) return false
+    popBackStack<Result>(inclusive = false)
+    vm.onLeaveRequested()
+    return true
 }
 
 /** RN: saved, dismissTo('/history') then push /history/[id]?saved=1. */

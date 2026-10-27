@@ -108,6 +108,9 @@ edge case that would give a wrong result. Everything else follows RN commit `1e7
 | `ScanRow` in History (Step 5) | Screen readers hear the hint "Long-press for options. Swipe left to delete." | TalkBack offers the row's long-press ("Scan options") and its "Delete" action itself | Android announces long-press and custom actions natively; a swipe hint is wrong for TalkBack users, who cannot swipe a row |
 | `CameraScreen` shutter flash (Step 5) | expo-camera's `animateShutter` flashes the preview dark on every capture | Same dark flash, skipped when the system's reduce-motion setting is on | The app's motion rule: animations respect reduce motion. The shutter's spinner still shows the capture |
 | `SaveScanSheet` plot choice (Step 5) | The chosen plot stays chosen after it is deleted in Manage plots (Save then fails), and a double tap on Add plot adds it twice | A deleted plot falls back to "No plot", and one add runs at a time | Bugs in RN's sheet (a foreign-key failure reported as "free space", a duplicate plot); the fix changes nothing else |
+| `PlotsScreen` opened from Result's save sheet (Step 5) | Tapping a plot is stopped by Result's `usePreventRemove`, and Stay / Discard / Save is asked over Plots | Result is shown again and asks there (`returnToUnsavedResult`) | Navigation Compose has no prevent-remove; without this the unsaved result would be dropped without asking |
+| `SettingsRow` (Step 5) | The detail line is the button's accessibility hint | It is read after the label, in the same announcement | Compose has no hint separate from the label; TalkBack reads both either way |
+| `SeedScreen` failure message (Step 5, dev only) | "See the Metro log" | "See the Logcat log" | The Kotlin app logs to Logcat; there is no Metro |
 
 ## Step 6 measurements (filled in as the port progresses)
 

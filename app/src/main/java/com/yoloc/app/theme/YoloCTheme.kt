@@ -32,14 +32,19 @@ object YoloCTheme {
  * tokens, so they match the app's own components.
  */
 @Composable
-fun YoloCTheme(preference: ThemeSetting = ThemeSetting.System, content: @Composable () -> Unit) {
+fun YoloCTheme(
+    preference: ThemeSetting = ThemeSetting.System,
+    /** False for a theme nested inside the app's (the dev gallery): the app's theme owns the bars. */
+    systemBars: Boolean = true,
+    content: @Composable () -> Unit,
+) {
     val dark = when (preference) {
         ThemeSetting.System -> isSystemInDarkTheme()
         ThemeSetting.Light -> false
         ThemeSetting.Dark -> true
     }
     val colors = if (dark) darkColors else lightColors
-    if (!LocalInspectionMode.current) SystemBars(colors)
+    if (systemBars && !LocalInspectionMode.current) SystemBars(colors)
     CompositionLocalProvider(LocalYoloCColors provides colors) {
         MaterialTheme(colorScheme = if (dark) darkScheme else lightScheme, typography = materialType, content = content)
     }

@@ -35,12 +35,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.onClick
-import androidx.compose.ui.semantics.role
-import androidx.compose.ui.semantics.toggleableState
-import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.yoloc.app.R
@@ -172,12 +166,7 @@ private fun FlashToggle(on: Boolean, onToggle: () -> Unit) {
             .alpha(if (press.pressed.value) 0.7f else 1f)
             .clip(RoundedCornerShape(Radii.sm))
             .background(if (on) cam.control else cam.controlFill)
-            .clearAndSetSemantics {
-                contentDescription = label
-                role = Role.Switch
-                toggleableState = ToggleableState(on)
-                onClick { onToggle(); true }
-            }
+            .a11yAction(label, onToggle, role = Role.Switch, checked = on)
             .toggleable(on, interactionSource = press.source, indication = null, role = Role.Switch, onValueChange = { onToggle() }),
         contentAlignment = Alignment.Center,
     ) {

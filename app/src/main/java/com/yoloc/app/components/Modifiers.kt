@@ -15,6 +15,8 @@ import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.toggleableState
+import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.draw.dropShadow
@@ -34,10 +36,13 @@ fun Modifier.a11yAction(
     selected: Boolean? = null,
     enabled: Boolean = true,
     hint: String? = null,
+    /** A switch's state (RN: accessibilityState.checked with role switch). */
+    checked: Boolean? = null,
 ): Modifier = clearAndSetSemantics {
     contentDescription = label
     this.role = role
     if (selected != null) this.selected = selected
+    if (checked != null) toggleableState = ToggleableState(checked)
     if (!enabled) disabled()
     onClick(label = hint) {
         if (enabled) onClick()

@@ -78,36 +78,65 @@ fun BottomSheet(
             )
         },
     ) {
-        Column(
+        SheetBody(title, onClose, content, Modifier.windowInsetsPadding(WindowInsets.navigationBars))
+    }
+}
+
+/**
+ * RN: BottomSheetPanel. The sheet's surface, handle, header and body drawn in place, without the
+ * modal. Dev gallery only (an inline preview next to the real sheet).
+ */
+@Composable
+fun BottomSheetPanel(title: String, onClose: () -> Unit, modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
+    val colors = YoloCTheme.colors
+    val shape = RoundedCornerShape(topStart = Radii.md, topEnd = Radii.md)
+    Column(
+        modifier.fillMaxWidth().floatingShadow(shape).background(colors.surfaceRaised, shape),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Box(
             Modifier
-                .fillMaxWidth()
-                .padding(horizontal = Spacing.screen)
-                .padding(top = Spacing.md)
-                .windowInsetsPadding(WindowInsets.navigationBars)
-                .padding(bottom = Spacing.screen),
-            verticalArrangement = Arrangement.spacedBy(Spacing.md),
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
-                AppText(title, Modifier.weight(1f), variant = TypeVariant.Title)
-                val press = rememberPress()
-                val close = stringResource(R.string.common_close)
-                Box(
-                    Modifier
-                        .size(TouchTarget)
-                        .clip(RoundedCornerShape(Radii.sm))
-                        .background(if (press.pressed.value) colors.surface else Color.Transparent)
-                        .a11yAction(close, onClose)
-                        .clickable(interactionSource = press.source, indication = null, onClick = onClose),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(IconName.X, size = 24.dp, color = colors.text)
-                }
+                .padding(top = Spacing.xs)
+                .size(width = 32.dp, height = 4.dp)
+                .background(colors.outline, RoundedCornerShape(Radii.full)),
+        )
+        SheetBody(title, onClose, content)
+    }
+}
+
+/** Header (title, close) and the scrolling body: long content scrolls inside the sheet. */
+@Composable
+private fun SheetBody(title: String, onClose: () -> Unit, content: @Composable ColumnScope.() -> Unit, modifier: Modifier = Modifier) {
+    val colors = YoloCTheme.colors
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .padding(horizontal = Spacing.screen)
+            .padding(top = Spacing.md)
+            .then(modifier)
+            .padding(bottom = Spacing.screen),
+        verticalArrangement = Arrangement.spacedBy(Spacing.md),
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
+            AppText(title, Modifier.weight(1f), variant = TypeVariant.Title)
+            val press = rememberPress()
+            val close = stringResource(R.string.common_close)
+            Box(
+                Modifier
+                    .size(TouchTarget)
+                    .clip(RoundedCornerShape(Radii.sm))
+                    .background(if (press.pressed.value) colors.surface else Color.Transparent)
+                    .a11yAction(close, onClose)
+                    .clickable(interactionSource = press.source, indication = null, onClick = onClose),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(IconName.X, size = 24.dp, color = colors.text)
             }
-            Column(
-                Modifier.fillMaxWidth().verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(Spacing.md),
-                content = content,
-            )
         }
+        Column(
+            Modifier.fillMaxWidth().verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(Spacing.md),
+            content = content,
+        )
     }
 }

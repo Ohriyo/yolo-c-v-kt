@@ -333,4 +333,164 @@
     <string name="processing_memory_error_body">Close other apps and try again, or use a smaller photo.</string>
     <string name="processing_inference_error_title">Analysis failed</string>
     <string name="processing_inference_error_body">Something went wrong while checking the photo. Try again.</string>
+    <!-- settings (RN: strings.settings) -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_detection_title">Detection</string>
+    <string name="settings_threshold">Confidence threshold</string>
+    <string name="settings_threshold_value">%1$d%%</string>
+    <plurals name="settings_threshold_a11y">
+        <item quantity="one">%d percent</item>
+        <item quantity="other">%d percent</item>
+    </plurals>
+    <string name="settings_threshold_more">Finds more pods</string>
+    <string name="settings_threshold_fewer">Fewer false alarms</string>
+    <string name="settings_threshold_help">Pods scored below this are not shown. Lower it to catch more early-stage pods, at the cost of more false alarms.</string>
+    <string name="settings_threshold_applies">Applies to your next scan. Saved scans keep their results.</string>
+    <string name="settings_threshold_reset">Reset to %1$d%% (model default)</string>
+    <string name="settings_appearance_title">Appearance</string>
+    <string name="settings_theme">Theme</string>
+    <string name="settings_theme_system">System</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_dark">Dark</string>
+    <string name="settings_location_title">Location</string>
+    <string name="settings_gps">Add location to saved scans</string>
+    <string name="settings_gps_off">Off by default. Locations stay on this phone.</string>
+    <string name="settings_gps_on">New saved scans include where they were taken.</string>
+    <string name="settings_gps_ask">YOLO-C needs location permission to add it to scans.</string>
+    <string name="settings_gps_blocked">Location is turned off for YOLO-C. Turn it on in your phone settings.</string>
+    <string name="settings_gps_revoked">Location permission was removed, so new scans are saved without it.</string>
+    <string name="settings_try_again">Try again</string>
+    <string name="settings_open_settings">Open settings</string>
+    <string name="settings_data_title">Your data</string>
+    <string name="settings_plots">Plots</string>
+    <plurals name="settings_plot_count">
+        <item quantity="one">%d plot</item>
+        <item quantity="other">%d plots</item>
+    </plurals>
+    <plurals name="settings_scan_count">
+        <item quantity="one">%d scan</item>
+        <item quantity="other">%d scans</item>
+    </plurals>
+    <string name="settings_storage">Storage on this phone</string>
+    <string name="settings_storage_unknown">Could not be read right now.</string>
+    <!-- "12 scans · 3.4 MB" -->
+    <string name="settings_storage_detail">%1$s · %2$s</string>
+    <string name="settings_export">Export scans (CSV)</string>
+    <string name="settings_export_detail">Share a spreadsheet of all saved scans</string>
+    <string name="settings_export_empty">No saved scans to export yet.</string>
+    <string name="settings_export_failed">The export could not be created. Try again.</string>
+    <string name="settings_retrain">Export for retraining</string>
+    <string name="settings_retrain_detail">Photos and labels for improving the model</string>
+    <string name="settings_retrain_body">A zip of photos with their labels, including your corrections, in the format used to train the model. Labels you did not correct are the model\'s guesses and need checking.</string>
+    <string name="settings_retrain_scope_corrected">Scans with corrected labels</string>
+    <string name="settings_retrain_scope_early">Scans with early-stage pods</string>
+    <string name="settings_retrain_scope_all">All saved scans</string>
+    <string name="settings_retrain_hint_corrected">Most useful: every corrected label was checked by you</string>
+    <string name="settings_retrain_hint_early">The stage the model misses most</string>
+    <string name="settings_retrain_hint_all">Everything saved on this phone</string>
+    <plurals name="settings_retrain_size">
+        <item quantity="one">%1$d photo, about %2$s</item>
+        <item quantity="other">%1$d photos, about %2$s</item>
+    </plurals>
+    <string name="settings_retrain_none">No scans in this group yet.</string>
+    <!-- Kotlin only (PARITY: RetrainingExportViewModel). -->
+    <string name="settings_retrain_sizing_failed">The scans could not be counted. Close this and open it again.</string>
+    <string name="settings_retrain_no_space">Not enough free space. The export needs about %1$s.</string>
+    <string name="settings_retrain_export">Create and share zip</string>
+    <plurals name="settings_retrain_done">
+        <item quantity="one">Exported %d scan</item>
+        <item quantity="other">Exported %d scans</item>
+    </plurals>
+    <!-- RN uses one form for every count. -->
+    <plurals name="settings_retrain_skipped">
+        <item quantity="one">%d without a photo file were left out.</item>
+        <item quantity="other">%d without a photo file were left out.</item>
+    </plurals>
+    <string name="settings_retrain_failed">The zip could not be created. Check free space and try again.</string>
+    <string name="settings_clear">Clear all data</string>
+    <string name="settings_clear_title">Delete all scans?</string>
+    <!-- %1$s: "12 scans", %2$s: "3 plots" -->
+    <string name="settings_clear_body">This deletes %1$s, their photos and %2$s from this phone. Your settings stay. This cannot be undone.</string>
+    <!-- Kotlin only (PARITY: SettingsViewModel.askClear): the counts could not be read. -->
+    <string name="settings_clear_body_unknown">This deletes all scans, their photos and plots from this phone. Your settings stay. This cannot be undone.</string>
+    <string name="settings_clear_confirm">Delete everything</string>
+    <string name="settings_cancel">Cancel</string>
+    <string name="settings_cleared">All scans deleted</string>
+    <string name="settings_clear_failed">Data could not be deleted. Try again.</string>
+    <string name="settings_clear_nothing">There are no saved scans or plots to delete.</string>
+    <string name="settings_app_title">App</string>
+    <string name="settings_about">About</string>
+    <string name="settings_about_detail">Model, accuracy and limitations</string>
+    <string name="settings_show_onboarding">Show onboarding again</string>
+    <string name="settings_dev_gallery">Component gallery (dev)</string>
+    <string name="settings_dev_seed">Fake scans (dev)</string>
+
+    <!-- about (RN: strings.about) -->
+    <string name="about_disclaimer">This app is a screening aid and does not replace an expert inspection.</string>
+    <string name="about_app_version">YOLO-C app %1$s</string>
+    <string name="about_model_title">Model</string>
+    <string name="about_model">Name</string>
+    <string name="about_version">Version</string>
+    <string name="about_input_size">Input size</string>
+    <string name="about_input_size_value">%1$d × %1$d px</string>
+    <string name="about_labels">Labels</string>
+    <string name="about_accuracy_title">How accurate is it?</string>
+    <string name="about_recall_headline">Finds about %1$d in 10 early-stage pods</string>
+    <string name="about_recall_body">In tests on photos it had not seen, it found %1$s of early-stage pods. About %2$d in 10 were missed.</string>
+    <string name="about_metrics_note">mAP50 scores how well the boxes and labels match expert labels, from 0 to 100%. Higher is better.</string>
+    <string name="about_metric_test_map50">Overall score (mAP50, test photos)</string>
+    <string name="about_metric_val_map50">Overall score (mAP50, validation photos)</string>
+    <string name="about_metric_early_test_map50">Early-stage score (mAP50, test photos)</string>
+    <string name="about_limitations_title">Limitations</string>
+    <string name="about_limitation_aid">It is a screening aid. Check doubtful pods by eye.</string>
+    <string name="about_limitation_misses">It misses about %1$d in 10 early-stage pods.</string>
+    <string name="about_limitation_conditions">Results are less reliable in direct sun, low light, blur, or when pods are far away or partly hidden.</string>
+    <string name="about_limitation_labels">It only knows three labels: healthy, early stage and fully infected. Other diseases or damage may get one of these labels.</string>
+    <string name="about_limitation_retrain">The model will be retrained with more photos, so results can change after an update.</string>
+    <string name="about_privacy_title">Privacy</string>
+    <string name="about_privacy_body">Everything runs on this phone. Photos, results and locations never leave it unless you export them.</string>
+
+    <!-- plots (RN: strings.plots) -->
+    <string name="plots_intro">Plots group scans by farm area, like "North block". Tap a plot to see its scans.</string>
+    <string name="plots_new_placeholder">New plot name</string>
+    <string name="plots_add">Add</string>
+    <plurals name="plots_scan_count">
+        <item quantity="one">%d scan</item>
+        <item quantity="other">%d scans</item>
+    </plurals>
+    <string name="plots_rename_a11y">Rename %1$s</string>
+    <string name="plots_delete_a11y">Delete %1$s</string>
+    <string name="plots_rename_title">Rename plot</string>
+    <string name="plots_save">Save</string>
+    <string name="plots_delete_title">Delete %1$s?</string>
+    <string name="plots_delete_body_none">The plot has no scans.</string>
+    <plurals name="plots_delete_body">
+        <item quantity="one">Its scan stays in History, without a plot.</item>
+        <item quantity="other">Its %d scans stay in History, without a plot.</item>
+    </plurals>
+    <string name="plots_delete">Delete</string>
+    <string name="plots_cancel">Cancel</string>
+    <string name="plots_empty_title">No plots yet</string>
+    <string name="plots_empty_body">Add one above, or when you save a scan.</string>
+    <string name="plots_failed">That did not work. Try again.</string>
+    <string name="plots_duplicate">A plot with this name already exists.</string>
+    <string name="plots_load_failed">Plots could not be loaded.</string>
+
+    <!-- dev seed (RN: strings.devSeed) -->
+    <string name="dev_seed_body">Adds fake scans with a sample photo so History can be tested. Development builds only.</string>
+    <plurals name="dev_seed_seed">
+        <item quantity="one">Add %d fake scan</item>
+        <item quantity="other">Add %d fake scans</item>
+    </plurals>
+    <string name="dev_seed_remove">Remove fake scans</string>
+    <string name="dev_seed_count">Fake scans in History: %1$d</string>
+    <plurals name="dev_seed_added">
+        <item quantity="one">Added %d fake scan.</item>
+        <item quantity="other">Added %d fake scans.</item>
+    </plurals>
+    <plurals name="dev_seed_removed">
+        <item quantity="one">Removed %d fake scan.</item>
+        <item quantity="other">Removed %d fake scans.</item>
+    </plurals>
+    <string name="dev_seed_failed">Could not change fake scans. See the Logcat log for details.</string>
 </resources>
