@@ -96,6 +96,9 @@ edge case that would give a wrong result. Everything else follows RN commit `1e7
 | `LiveViewModel.analyze` (Step 4.4) | The GPU resizer pads live frames with black | Pads with `letterboxPadValue` (gray 114), like photos | Same input as the verified photo pipeline and the model's training; RN used black only because its resizer offers nothing else. Speed is unaffected |
 | `ResultViewModel` (Step 4.4) | Back during a save still offers Discard; the save finishes anyway and opens the scan | Back and Discard do nothing while a save is writing | A scan the user discarded would end up in History |
 | `CameraViewModel` (Step 4.4) | A capture and a gallery pick can run at once | One at a time | The second photo would replace (and delete) the first |
+| `SettingsViewModel.askClear` (Step 4.4) | If the storage counts are missing (still loading, or failed), Clear all data says "nothing to clear" | Failed counts still open the confirm dialog (without counts); while loading, nothing happens | After a failed count the user could never clear their data |
+| `PlotsViewModel.add` (Step 4.4) | A double tap, or Add before the list loads, can insert the same name twice | One add at a time, and only once the list (the duplicate check) has loaded | The table has no unique index; the screen is the only duplicate check |
+| `RetrainingExportViewModel` (Step 4.4) | A failed count leaves the sheet counting forever | Says the count failed (`sizingFailed`) | The user could not tell a failure from a slow count |
 | `refreshedNow` (RN `useNow`) (Step 4.4) | Ignores changes up to a minute | Also refreshes when the local day changed or the clock went back | "Today" labels after midnight |
 
 ## Step 6 measurements (filled in as the port progresses)

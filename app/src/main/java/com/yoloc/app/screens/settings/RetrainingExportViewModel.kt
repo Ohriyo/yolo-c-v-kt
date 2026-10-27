@@ -20,6 +20,7 @@ import com.yoloc.app.features.scans.ScanFileStore
 import com.yoloc.app.screens.app
 import com.yoloc.app.screens.container
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -29,6 +30,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * RN: features/export/RetrainingExportSheet.tsx. Choose what to export for retraining, see how
@@ -56,6 +58,9 @@ class RetrainingExportViewModel(
         val summaries: Map<ExportScope, ExportSummary>? = null,
         /** Free space where the zip is written; null when Android cannot say. */
         val available: Long? = null,
+        /** Counting failed: the sheet says so instead of counting forever (reopen to retry). */
+        val sizingFailed: Boolean = false,
+        /** The sheet cannot be closed while this is true (RN: onClose ignored while working). */
         val working: Boolean = false,
         val outcome: Outcome? = null,
     ) {
@@ -72,20 +77,26 @@ class RetrainingExportViewModel(
 
     private var sizing: Job? = null
 
-    /** Each time the sheet opens (RN sizes the export whenever it becomes visible). */
+    /**
+     * Each time the sheet opens (RN sizes the export whenever it becomes visible). Ignored while an
+     * export runs, so its numbers and its outcome are not wiped.
+     */
     fun onOpened() {
-        _state.update { it.copy(summaries = null, available = availableBytes(context), outcome = null) }
+        if (_state.value.working) return
+        _state.update { it.copy(summaries = null, sizingFailed = false, outcome = null) }
         sizing?.cancel()
         sizing = viewModelScope.launch {
             try {
+                val available = withContext(Dispatchers.IO) { availableBytes(context) }
                 val sums = coroutineScope {
                     ExportScope.entries.map { sc -> async { sc to summarizeExport(scans, classes, files, sc) } }.awaitAll()
                 }
-                _state.update { it.copy(summaries = sums.toMap()) }
+                _state.update { it.copy(summaries = sums.toMap(), available = available) }
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
                 Log.w(TAG, "Could not size the export", e)
+                _state.update { it.copy(sizingFailed = true) }
             }
         }
     }

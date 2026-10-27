@@ -56,6 +56,7 @@ class PlotsViewModel(
     private val _state = MutableStateFlow(State())
     val state: StateFlow<State> = _state.asStateFlow()
     private val attempt = MutableStateFlow(0)
+    private var adding = false
 
     init {
         viewModelScope.launch {
@@ -82,15 +83,24 @@ class PlotsViewModel(
 
     fun setName(name: String) = _state.update { it.copy(name = name, problem = null) }
 
+    /**
+     * The duplicate check needs the loaded list (the table has no unique index), so Add waits for
+     * it, and one add runs at a time so a double tap cannot insert the name twice.
+     */
     fun add() {
         val name = _state.value.name
-        if (name.isBlank()) return
+        if (name.isBlank() || adding || _state.value.load !is Load.Ready) return
         if (isDuplicate(name)) {
             _state.update { it.copy(problem = Problem.Duplicate) }
             return
         }
+        adding = true
         viewModelScope.launch {
-            if (change { plots.createPlot(name) }) _state.update { it.copy(name = "") }
+            try {
+                if (change { plots.createPlot(name) }) _state.update { it.copy(name = "") }
+            } finally {
+                adding = false
+            }
         }
     }
 
@@ -145,6 +155,8 @@ class PlotsViewModel(
     }
 }
 
+/** Base letters only (RN: localeCompare sensitivity 'base'). Collator is not thread-safe, hence the lock. */
+private val nameCollator: Collator by lazy { Collator.getInstance().apply { strength = Collator.PRIMARY } }
+
 /** RN: `a.trim().localeCompare(b.trim(), undefined, { sensitivity: 'base' }) === 0`. */
-fun sameName(a: String, b: String): Boolean =
-    Collator.getInstance().apply { strength = Collator.PRIMARY }.compare(a.trim(), b.trim()) == 0
+fun sameName(a: String, b: String): Boolean = synchronized(nameCollator) { nameCollator.compare(a.trim(), b.trim()) == 0 }

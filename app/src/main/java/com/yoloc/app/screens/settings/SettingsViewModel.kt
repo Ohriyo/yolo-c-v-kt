@@ -163,6 +163,7 @@ class SettingsViewModel(
     }
 
     fun resetThreshold() {
+        local.update { it.copy(thresholdDraft = null) } // a drag that never reported its end
         viewModelScope.launch { settings.setConfThreshold(defaultThreshold) }
     }
 
@@ -224,14 +225,19 @@ class SettingsViewModel(
         }
     }
 
-    /** Clear all data asks first, naming what it removes; with nothing to remove it only says so. */
+    /**
+     * Clear all data asks first, naming what it removes; with nothing to remove it only says so.
+     * If the counts could not be read the dialog still opens (without counts): unknown is not
+     * "nothing", and the user must still be able to clear. While they are loading, nothing happens.
+     */
     fun askClear() {
-        val summary = local.value.summary
-        if (summary == null || summary.scans + summary.plots == 0) {
-            showToast(Toast.ClearNothing)
-            return
+        val l = local.value
+        val summary = l.summary
+        when {
+            summary == null && !l.summaryFailed -> return
+            summary != null && summary.scans + summary.plots == 0 -> showToast(Toast.ClearNothing)
+            else -> local.update { it.copy(confirmingClear = true) }
         }
-        local.update { it.copy(confirmingClear = true) }
     }
 
     fun cancelClear() = local.update { it.copy(confirmingClear = false) }

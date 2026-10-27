@@ -78,17 +78,21 @@ class DevSeedViewModel(
         if (!enabled || _state.value.busy) return
         _state.update { it.copy(busy = true, message = null) }
         viewModelScope.launch {
-            val message = try {
-                task()
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                Log.w(TAG, "Fake scan task failed", e)
-                Message.Failed
+            try {
+                val message = try {
+                    task()
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    Log.w(TAG, "Fake scan task failed", e)
+                    Message.Failed
+                }
+                _state.update { it.copy(busy = false, message = message) }
+                refreshCount()
+            } finally {
+                // Leaving mid-seed keeps the scans already saved; the lists must still show them.
+                library.bump()
             }
-            _state.update { it.copy(busy = false, message = message) }
-            refreshCount()
-            library.bump()
         }
     }
 
@@ -112,8 +116,11 @@ class DevSeedViewModel(
                         val file = File(application.cacheDir, "dev/sample_04.jpg")
                         withContext(Dispatchers.IO) {
                             if (!file.exists()) {
+                                // Copy next to it, then rename, so an interrupted copy never leaves a broken sample.
                                 file.parentFile?.mkdirs()
-                                application.assets.open(SAMPLE_ASSET).use { input -> file.outputStream().use { input.copyTo(it) } }
+                                val temp = File(file.parentFile, "${file.name}.tmp")
+                                application.assets.open(SAMPLE_ASSET).use { input -> temp.outputStream().use { input.copyTo(it) } }
+                                check(temp.renameTo(file)) { "Could not write ${file.name}" }
                             }
                         }
                         seedFakeScans(

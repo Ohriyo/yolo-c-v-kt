@@ -130,7 +130,8 @@ class SettingsViewModelsTest {
     @Test
     fun clearAllDataAsksFirstThenRemovesScansPlotsAndTheUndoOffer() = runBlocking {
         val vm = settingsVm()
-        vm.askClear() // nothing counted yet
+        vm.state.await("counted empty") { it.local.summary?.scans == 0 }
+        vm.askClear()
         vm.state.await("nothing to clear") { it.local.toast == SettingsViewModel.Toast.ClearNothing }
 
         val plot = plots.createPlot("North")
