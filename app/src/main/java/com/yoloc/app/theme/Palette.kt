@@ -9,11 +9,12 @@ import androidx.compose.ui.graphics.Color
  *
  * Derived entries exist because the brief's exact colors fail WCAG AA in some roles (Contrast.kt
  * and ContrastTest):
- * - amber on white is 2.25:1, so early-stage icons and text on light grounds use amberInk.
- * - brick on near-black is 3.49:1, so infected text and icons on dark grounds use brickLight.
+ * - amber on white is 2.25:1, so early-stage icons on light grounds use amberInk.
+ * - brick on near-black is 3.49:1, so infected icons on dark grounds use brickLight.
  * - forest900 on sage500 is 4.27:1, so the healthy chip fill is sageChip.
  * - sage500 on cream100 (selected rows) is 2.98:1, so light-mode icons use sageInk.
- * Bounding-box strokes always keep the exact status colors.
+ * Bounding-box strokes always keep the exact status colors. Status inks color icons only, never
+ * text (status text sits on the status fill), so ContrastTest checks them at the 3:1 icon minimum.
  */
 object Palette {
     // Brand (4.2): accents, never page fills

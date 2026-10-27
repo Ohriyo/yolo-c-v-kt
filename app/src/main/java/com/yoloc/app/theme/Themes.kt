@@ -102,11 +102,18 @@ data class YoloCColors(
     val disabled: DisabledColors,
     val tabBar: TabBarColors,
     val camera: CameraColors,
-    val status: Map<StatusKey, StatusColors>,
+    val healthy: StatusColors,
+    val early: StatusColors,
+    val infected: StatusColors,
     /** Only floating elements cast a shadow: bottom sheet, snackbar, camera controls. */
     val floatingShadow: Color,
 ) {
-    fun status(key: StatusKey): StatusColors = status.getValue(key)
+    /** RN: theme.status[key]. */
+    fun status(key: StatusKey): StatusColors = when (key) {
+        StatusKey.Healthy -> healthy
+        StatusKey.Early -> early
+        StatusKey.Infected -> infected
+    }
 }
 
 private val camera = CameraColors(
@@ -161,11 +168,9 @@ val lightColors = YoloCColors(
     disabled = DisabledColors(bg = p.light100, text = p.light600),
     tabBar = TabBarColors(bg = p.white, label = p.light600, active = p.forest900, indicator = p.cream100, scanBg = p.forest700, scanIcon = p.white),
     camera = camera,
-    status = mapOf(
-        StatusKey.Healthy to healthy(ink = p.sageInk),
-        StatusKey.Early to early(ink = p.amberInk),
-        StatusKey.Infected to infected(ink = p.statusInfected),
-    ),
+    healthy = healthy(ink = p.sageInk),
+    early = early(ink = p.amberInk),
+    infected = infected(ink = p.statusInfected),
     floatingShadow = p.dark950.copy(alpha = 0.18f),
 )
 
@@ -193,10 +198,8 @@ val darkColors = YoloCColors(
     disabled = DisabledColors(bg = p.dark850, text = p.dark300),
     tabBar = TabBarColors(bg = p.dark900, label = p.dark300, active = p.dark50, indicator = p.forest700, scanBg = p.sage500, scanIcon = p.dark950),
     camera = camera,
-    status = mapOf(
-        StatusKey.Healthy to healthy(ink = p.statusHealthy),
-        StatusKey.Early to early(ink = p.statusEarly),
-        StatusKey.Infected to infected(ink = p.brickLight),
-    ),
+    healthy = healthy(ink = p.statusHealthy),
+    early = early(ink = p.statusEarly),
+    infected = infected(ink = p.brickLight),
     floatingShadow = p.black.copy(alpha = 0.5f),
 )
