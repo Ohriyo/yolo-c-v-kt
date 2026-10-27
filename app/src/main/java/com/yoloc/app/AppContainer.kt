@@ -16,10 +16,16 @@ import com.yoloc.app.features.scans.TempImages
 import com.yoloc.app.features.scans.ThumbnailBackfill
 import com.yoloc.app.features.settings.FusedLocationSource
 import com.yoloc.app.features.settings.LocationSource
+import com.yoloc.app.store.ScanLibrary
+import com.yoloc.app.store.ScanSession
+import com.yoloc.app.store.SettingsStore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 
 /**
  * Manual DI, built once in [YoloCApp.onCreate]. Plays the role of RN's module-level singletons
- * (`getDb()`, the Zustand stores). Stores (Step 4.3) are added when they are ported.
+ * (`getDb()`, the Zustand stores).
  */
 class AppContainer(private val context: Context) {
     val modelConfig: ModelConfig by lazy { ModelConfig.load(context) }
@@ -37,4 +43,13 @@ class AppContainer(private val context: Context) {
     val analyzePhoto: AnalyzePhoto by lazy {
         AnalyzePhoto(settingsRepository, classRepository, modelLoader, modelConfig) // analyzePhoto.ts
     }
+
+    /**
+     * Lives as long as the process; work here outlasts any one screen (RN: un-awaited promises).
+     * IO: what runs here opens the database and reads assets.
+     */
+    val appScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    val settingsStore: SettingsStore by lazy { SettingsStore(settingsRepository, modelConfig, appScope) } // settingsStore.ts
+    val scanLibrary: ScanLibrary by lazy { ScanLibrary(scanRepository) } // scanLibraryStore.ts
+    val scanSession: ScanSession by lazy { ScanSession(tempImages) } // scanSessionStore.ts
 }
