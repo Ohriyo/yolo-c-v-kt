@@ -15,15 +15,20 @@ import java.io.File
 fun decodeOriented(file: File, sampleSize: Int = 1): Bitmap {
     val options = BitmapFactory.Options().apply { inSampleSize = sampleSize }
     val raw = BitmapFactory.decodeFile(file.path, options) ?: error("Could not decode ${file.name}")
-    val exif = ExifInterface(file)
-    val matrix = Matrix().apply {
-        if (exif.isFlipped) postScale(-1f, 1f)
-        postRotate(exif.rotationDegrees.toFloat())
-    }
-    return if (matrix.isIdentity) {
-        raw
-    } else {
-        Bitmap.createBitmap(raw, 0, 0, raw.width, raw.height, matrix, true).also { raw.recycle() }
+    try {
+        val exif = ExifInterface(file)
+        val matrix = Matrix().apply {
+            if (exif.isFlipped) postScale(-1f, 1f)
+            postRotate(exif.rotationDegrees.toFloat())
+        }
+        if (matrix.isIdentity) return raw
+        val oriented = Bitmap.createBitmap(raw, 0, 0, raw.width, raw.height, matrix, true)
+        if (oriented !== raw) raw.recycle()
+        return oriented
+    } catch (e: Throwable) {
+        // Bad EXIF or OOM while rotating: free the full-size bitmap now, not at the next GC.
+        raw.recycle()
+        throw e
     }
 }
 

@@ -91,6 +91,9 @@ interface ScanDao {
     @Query("UPDATE scans SET deleted_at = NULL WHERE id = :id AND deleted_at IS NOT NULL")
     suspend fun restore(id: String): Int
 
+    @Query("SELECT EXISTS(SELECT 1 FROM scans WHERE id = :id)")
+    suspend fun exists(id: String): Boolean
+
     @Query("UPDATE scans SET notes = :notes WHERE id = :id AND deleted_at IS NULL")
     suspend fun updateNotes(id: String, notes: String?): Int
 

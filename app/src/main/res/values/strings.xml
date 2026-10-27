@@ -6,6 +6,37 @@
     <string name="status_early">Early stage</string>
     <string name="status_infected">Infected</string>
 
+    <!-- verdict (RN: strings.verdict) -->
+    <string name="verdict_no_pod_title">No cacao pods found</string>
+
+    <!-- onboarding (RN: strings.onboarding.slides) -->
+    <string name="onboarding_scan_title">Check cacao pods in the field</string>
+    <string name="onboarding_scan_body">Take a photo of a pod. The app marks each pod as healthy, early stage or infected.</string>
+    <string name="onboarding_offline_title">Works without internet</string>
+    <string name="onboarding_offline_body">Everything runs on your phone. Your photos never leave the device.</string>
+    <string name="onboarding_tips_title">Take a clear photo</string>
+    <string name="onboarding_tips_body">Good photos give better results.</string>
+    <string name="onboarding_aid_title">A screening aid, not a diagnosis</string>
+    <string name="onboarding_aid_body">The app can miss early signs. Always check doubtful pods by eye.</string>
+
+    <!-- result (RN: strings.result). Plural quantity follows the total number of pods. -->
+    <plurals name="result_verdict_infected">
+        <item quantity="one">Advanced infection detected in %1$d of %2$d pod</item>
+        <item quantity="other">Advanced infection detected in %1$d of %2$d pods</item>
+    </plurals>
+    <plurals name="result_verdict_early">
+        <item quantity="one">Early-stage signs detected in %1$d of %2$d pod</item>
+        <item quantity="other">Early-stage signs detected in %1$d of %2$d pods</item>
+    </plurals>
+    <plurals name="result_verdict_healthy">
+        <item quantity="one">No signs of Frosty Pod Rot on this pod</item>
+        <item quantity="other">No signs of Frosty Pod Rot on %d pods</item>
+    </plurals>
+
+    <!-- history (RN: strings.history) -->
+    <string name="history_today">Today</string>
+    <string name="history_yesterday">Yesterday</string>
+
     <!-- processing (RN: strings.processing) -->
     <string name="processing_image_error_title">Photo could not be read</string>
     <string name="processing_image_error_body">The file may be damaged or in an unsupported format. Try another photo.</string>

@@ -9,6 +9,7 @@ import com.yoloc.app.db.repositories.ScanRepository
 import com.yoloc.app.db.repositories.SettingsRepository
 import com.yoloc.app.features.detection.ModelConfig
 import com.yoloc.app.features.detection.ModelLoader
+import com.yoloc.app.features.scans.AnalyzePhoto
 import com.yoloc.app.features.scans.AndroidScanFileStore
 import com.yoloc.app.features.scans.ScanFileStore
 import com.yoloc.app.features.scans.TempImages
@@ -30,4 +31,7 @@ class AppContainer(private val context: Context) {
     val settingsRepository: SettingsRepository by lazy { SettingsRepository(database) }
     val devRepository: DevRepository by lazy { DevRepository(database) }
     val thumbnails: ThumbnailBackfill by lazy { ThumbnailBackfill(scanRepository, files) } // thumbnails.ts
+    val analyzePhoto: AnalyzePhoto by lazy {
+        AnalyzePhoto(settingsRepository, classRepository, modelLoader, modelConfig) // analyzePhoto.ts
+    }
 }

@@ -7,6 +7,8 @@ import com.yoloc.app.db.repositories.ScanRepository
 import com.yoloc.app.db.repositories.ScanSource
 import com.yoloc.app.util.uuid
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.withContext
 import java.io.File
 
 /** A scan to save: everything in [NewScan] except the paths, which saveScan chooses. */
@@ -42,24 +44,34 @@ suspend fun saveScan(
 ): String {
     val id = uuid()
     val imagePath = scanImagePath(id)
-    var thumbnailPath: String? = scanThumbnailPath(id)
+    val thumbnailPath = scanThumbnailPath(id)
 
     try {
         files.copyIn(input.sourceImage, imagePath)
-        try {
-            files.makeThumbnail(imagePath, scanThumbnailPath(id), input.imageWidth, input.imageHeight)
+        val storedThumbnail = try {
+            files.makeThumbnail(imagePath, thumbnailPath, input.imageWidth, input.imageHeight)
+            thumbnailPath
         } catch (e: CancellationException) {
             throw e
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
+            // Throwable: an OutOfMemoryError on a big photo must not cost the user the scan.
             Log.w(TAG, "Thumbnail failed; History will use the full image", e)
-            thumbnailPath = null
+            null
         }
-        scans.createScan(input.toNewScan(id, imagePath, thumbnailPath), lowConfidenceThreshold)
+        scans.createScan(input.toNewScan(id, imagePath, storedThumbnail), lowConfidenceThreshold)
     } catch (e: Throwable) {
-        // Covers a failed DB write and a copy that died halfway and left a partial file. Best
-        // effort: the original error matters more than a failed cleanup.
-        runCatching { files.remove(imagePath) }
-        runCatching { files.remove(scanThumbnailPath(id)) }
+        // Covers a failed DB write, a copy that died halfway, and cancellation (the user left the
+        // screen). Runs even when cancelled. If the row was committed just before a cancellation,
+        // the files belong to a saved scan and stay; if the check itself fails, the files stay too
+        // (an orphan file is better than a saved scan without its photo). Best effort: the
+        // original error matters more than a failed cleanup.
+        withContext(NonCancellable) {
+            val saved = runCatching { scans.scanExists(id) }.getOrDefault(true)
+            if (!saved) {
+                runCatching { files.remove(imagePath) }
+                runCatching { files.remove(thumbnailPath) }
+            }
+        }
         throw e
     }
     return id

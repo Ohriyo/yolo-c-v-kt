@@ -74,19 +74,24 @@ class AndroidScanFileStore(context: Context) : ScanFileStore {
             // Sample down while decoding so a 12 MP photo never loads whole for a 240 px thumbnail.
             // Rotation does not change the short side, so the upright size picks the sample size.
             val oriented = decodeOriented(fileFor(relativeSource), sampleSizeFor(min(width, height)))
-            val scale = min(1.0, THUMBNAIL_SHORT_SIDE.toDouble() / min(oriented.width, oriented.height))
-            val thumb = oriented.scale(
-                maxOf(1, (oriented.width * scale).roundToInt()),
-                maxOf(1, (oriented.height * scale).roundToInt()),
-            )
+            // Write next to the destination, then rename, so a half-written file never shows.
+            val dest = fileFor(relativeDest)
+            val temp = File(dest.parentFile, "${dest.name}.tmp")
+            var thumb = oriented
             try {
-                // Write next to the destination, then rename, so a half-written file never shows.
-                val dest = fileFor(relativeDest)
-                val temp = File(dest.parentFile, "${dest.name}.tmp")
-                temp.outputStream().use { thumb.compress(Bitmap.CompressFormat.JPEG, THUMBNAIL_JPEG_QUALITY, it) }
+                val scale = min(1.0, THUMBNAIL_SHORT_SIDE.toDouble() / min(oriented.width, oriented.height))
+                thumb = oriented.scale(
+                    maxOf(1, (oriented.width * scale).roundToInt()),
+                    maxOf(1, (oriented.height * scale).roundToInt()),
+                )
+                val encoded = temp.outputStream().use {
+                    thumb.compress(Bitmap.CompressFormat.JPEG, THUMBNAIL_JPEG_QUALITY, it)
+                }
+                check(encoded) { "Could not encode thumbnail $relativeDest" }
                 if (dest.exists()) dest.delete()
                 check(temp.renameTo(dest)) { "Could not write thumbnail $relativeDest" }
             } finally {
+                temp.delete() // only still there if encoding or the rename failed
                 if (thumb !== oriented) thumb.recycle()
                 oriented.recycle()
             }

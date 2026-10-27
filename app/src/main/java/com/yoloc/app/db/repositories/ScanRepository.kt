@@ -251,6 +251,9 @@ class ScanRepository(private val database: AppDatabaseHolder) {
     suspend fun softDeleteScan(id: String, now: Long = System.currentTimeMillis()): Boolean =
         database.get().scanDao().softDelete(id, now) > 0
 
+    /** Whether a row with this id exists at all (soft-deleted or not). */
+    suspend fun scanExists(id: String): Boolean = database.get().scanDao().exists(id)
+
     /** Undo for softDeleteScan. Returns false if the scan is missing or not deleted. */
     suspend fun restoreScan(id: String): Boolean = database.get().scanDao().restore(id) > 0
 
