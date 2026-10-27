@@ -11,6 +11,7 @@ import com.yoloc.app.db.repositories.PlotRepository
 import com.yoloc.app.db.repositories.ScanCursor
 import com.yoloc.app.db.repositories.ScanRepository
 import com.yoloc.app.db.repositories.ScanSummary
+import com.yoloc.app.features.scans.DateRange
 import com.yoloc.app.features.scans.DayFormat
 import com.yoloc.app.features.scans.HistoryFilter
 import com.yoloc.app.features.scans.HistoryItem
@@ -66,7 +67,11 @@ class HistoryViewModel(
         val items: List<HistoryItem> = emptyList(),
         /** Matching scans in the database, not just the loaded pages. */
         val total: Int = 0,
-        /** Loading only before the first page of a new filter; reloads keep rows visible. */
+        /**
+         * Loading only before the first page of a new filter; reloads keep rows visible. Error with
+         * rows means a refresh failed: keep showing the rows (RN shows the error state only when
+         * there are none).
+         */
         val status: Status = Status.Loading,
         val loadingMore: Boolean = false,
         val hasMore: Boolean = false,
@@ -95,6 +100,8 @@ class HistoryViewModel(
         val loaded: Loaded? = null,
         /** Rows deleted but not yet gone from a reload, hidden at once so a swipe never leaves a gap. */
         val hidden: Set<String> = emptySet(),
+        /** Deletes still writing; a reload that lands before one finishes keeps its row hidden. */
+        val deleting: Set<String> = emptySet(),
         val optionsFor: String? = null,
         val deleteError: Boolean = false,
         val plots: List<Plot>? = null,
@@ -131,18 +138,33 @@ class HistoryViewModel(
         }
     }
 
+    /** Grouping inputs and result, so a keystroke or a sheet toggle does not regroup every row. */
+    private var grouped: Triple<List<ScanSummary>?, Set<String>, Long>? = null
+    private var groupedItems: List<HistoryItem> = emptyList()
+
+    private fun items(scans: List<ScanSummary>?, hidden: Set<String>, now: Long): List<HistoryItem> {
+        val last = grouped
+        // Rows by identity: a new list only comes from a load, so equal contents never need a deep compare.
+        if (last != null && last.first === scans && last.second == hidden && last.third == now) return groupedItems
+        val key = Triple(scans, hidden, now)
+        val visible = when {
+            scans == null -> emptyList()
+            hidden.isEmpty() -> scans
+            else -> scans.filter { it.id !in hidden }
+        }
+        return groupByDay(visible, now, dayFormat).also {
+            grouped = key
+            groupedItems = it
+        }
+    }
+
     private fun Inner.toState(): State {
         val current = loaded?.takeIf { it.filter == filter }
-        val visible = when {
-            current == null -> emptyList()
-            hidden.isEmpty() -> current.scans
-            else -> current.scans.filter { it.id !in hidden }
-        }
         return State(
             filter = filter,
             searchText = searchText,
             plotName = plotName,
-            items = groupByDay(visible, now, dayFormat),
+            items = items(current?.scans, hidden, now),
             total = current?.total ?: 0,
             status = when {
                 current == null -> Status.Loading
@@ -171,7 +193,7 @@ class HistoryViewModel(
             }
             // A reload reflects the database, so optimistic hides are no longer needed (and an
             // Undo brings the row back).
-            inner.update { it.copy(loaded = Loaded(filter, rows, total), hidden = emptySet()) }
+            inner.update { it.copy(loaded = Loaded(filter, rows, total), hidden = it.deleting) }
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
@@ -196,6 +218,9 @@ class HistoryViewModel(
                 val page = scans.listScans(filters.copy(after = ScanCursor(last.createdAt, last.id), limit = PAGE_SIZE))
                 inner.update {
                     val current = it.loaded?.takeIf { c -> c.filter == l.filter } ?: return@update it
+                    // A reload landed meanwhile and its list no longer ends at this page's cursor:
+                    // appending would skip the rows in between. Drop the page; the next scroll asks again.
+                    if (current.scans.lastOrNull()?.id != last.id) return@update it.copy(loaded = current.copy(loadingMore = false))
                     it.copy(loaded = current.copy(scans = mergePage(current.scans, page), loadingMore = false))
                 }
             } catch (e: CancellationException) {
@@ -238,8 +263,15 @@ class HistoryViewModel(
 
     /** The no-match state's Clear filters. */
     fun clearFilters() {
+        resetSearch()
         inner.update { it.copy(plotName = null) }
         setFilter(HistoryFilter())
+    }
+
+    /** A filter set from outside replaces any search still being typed. */
+    private fun resetSearch() {
+        searchJob?.cancel()
+        inner.update { it.copy(searchText = "") }
     }
 
     /** Called each time the Plot sheet opens (RN reloads plots whenever it becomes visible). */
@@ -263,15 +295,16 @@ class HistoryViewModel(
 
     /** Swipe, the options sheet, or the accessibility action. The row hides at once; Undo comes from the library. */
     fun delete(scanId: String) {
-        inner.update { it.copy(optionsFor = null, hidden = it.hidden + scanId) }
+        inner.update { it.copy(optionsFor = null, hidden = it.hidden + scanId, deleting = it.deleting + scanId) }
         viewModelScope.launch {
             try {
                 library.deleteScan(scanId)
+                inner.update { it.copy(deleting = it.deleting - scanId) }
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
                 Log.w(TAG, "Delete failed", e)
-                inner.update { it.copy(hidden = it.hidden - scanId, deleteError = true) }
+                inner.update { it.copy(hidden = it.hidden - scanId, deleting = it.deleting - scanId, deleteError = true) }
                 deleteErrorJob?.cancel()
                 deleteErrorJob = launch {
                     delay(DELETE_ERROR_MS)
@@ -286,10 +319,13 @@ class HistoryViewModel(
 
     private fun apply(request: HistoryRequest) = when (request) {
         is HistoryRequest.ByVerdict -> {
+            resetSearch()
             inner.update { it.copy(plotName = null) }
-            setFilter(HistoryFilter(verdicts = listOf(request.verdict)))
+            // Home's chips count the last 30 days, so the list they open covers the same days.
+            setFilter(HistoryFilter(verdicts = listOf(request.verdict), range = DateRange.Month))
         }
         is HistoryRequest.ByPlot -> {
+            resetSearch()
             inner.update { it.copy(plotName = request.name) }
             setFilter(HistoryFilter(plot = PlotFilter.Id(request.id)))
         }

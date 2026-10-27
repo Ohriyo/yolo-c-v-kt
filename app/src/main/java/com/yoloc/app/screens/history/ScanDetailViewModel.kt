@@ -90,21 +90,27 @@ class ScanDetailViewModel(
         if (saved) showToast(Toast.Saved)
         // Reloads after any change to saved scans (corrections and notes here bump the revision).
         viewModelScope.launch { library.revision.collectLatest { load() } }
-        viewModelScope.launch {
-            try {
-                val rows = classRepository.listClasses()
-                _state.update { s -> s.copy(classes = rows.associateBy { it.id }) }
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                Log.w(TAG, "Could not load classes", e)
-            }
+    }
+
+    /** Until they load, which Retry (a revision bump) tries again. */
+    private suspend fun loadClasses() {
+        if (_state.value.classes != null) return
+        try {
+            val rows = classRepository.listClasses()
+            _state.update { s -> s.copy(classes = rows.associateBy { it.id }) }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Log.w(TAG, "Could not load classes", e)
         }
     }
 
     private suspend fun load() {
+        loadClasses()
         try {
             val scan = scans.getScan(scanId)
+            // Our own delete bumps the revision before it returns; do not flash "not found" on the way out.
+            if (scan == null && _state.value.deleting) return
             _state.update { s ->
                 val firstLoad = (s.load as? Load.Ready)?.scan?.scan?.id != scan?.scan?.id
                 s.copy(

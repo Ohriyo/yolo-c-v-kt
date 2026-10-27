@@ -39,9 +39,21 @@ class ViewModelHelpersTest {
     }
 
     @Test
-    fun nowMovesOnlyAfterAMinute() {
-        assertEquals(1_000L, refreshedNow(1_000, now = 50_000))
-        assertEquals(70_000L, refreshedNow(1_000, now = 70_000))
+    fun nowMovesAfterAMinuteAtMidnightOrWhenTheClockGoesBack() {
+        val previous = TimeZone.getDefault()
+        TimeZone.setDefault(TimeZone.getTimeZone("Asia/Manila"))
+        try {
+            val zone = ZoneId.of("Asia/Manila")
+            fun at(day: Int, h: Int, m: Int, s: Int) = LocalDateTime.of(2026, 10, day, h, m, s).atZone(zone).toInstant().toEpochMilli()
+            val noon = at(27, 12, 0, 0)
+            assertEquals(noon, refreshedNow(noon, now = at(27, 12, 0, 50)))
+            assertEquals(at(27, 12, 1, 10), refreshedNow(noon, now = at(27, 12, 1, 10)))
+            // Across midnight, even within the minute.
+            assertEquals(at(28, 0, 0, 20), refreshedNow(at(27, 23, 59, 30), now = at(28, 0, 0, 20)))
+            assertEquals(at(27, 11, 59, 50), refreshedNow(noon, now = at(27, 11, 59, 50)))
+        } finally {
+            TimeZone.setDefault(previous)
+        }
     }
 
     @Test

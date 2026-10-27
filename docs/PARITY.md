@@ -88,7 +88,12 @@ edge case that would give a wrong result. Everything else follows RN commit `1e7
 | `SettingsStore.hydrate` (Step 4.3) | A load overwrites every cached setting with what it read | A setting changed while the load ran keeps the newer value | Otherwise the screen shows the old value until the next launch; at startup the UI waits for the load, so only a retry can race |
 | `ScanSession.setResult` (Step 4.3) | Stores any result | Ignores a result for a photo the session no longer holds | A slow analysis finishing after Back or "Choose another" would show the wrong photo's pods |
 | `ScanLibrary.deleteScan` (Step 4.3) | Offers Undo even when no row was deleted | A scan that is already gone only refreshes the lists | A double tap would replace the real Undo with an empty one |
-| `HistoryViewModel` (Step 4.4) | Rows hidden by a delete in progress reappear whenever the row list changes, including after "load more" | They stay hidden until the next full reload | Loading the next page between the swipe and the reload would briefly show the deleted row again |
+| `HistoryViewModel` (Step 4.4) | Rows hidden by a delete reappear whenever the row list changes ("load more", or a reload started by another change) | A row stays hidden while its delete is still writing; the first reload after that shows the database | Otherwise the deleted row briefly comes back |
+| `HistoryViewModel` (Step 4.4) | A Home count chip opens History with that result over all time | Also sets "Last 30 days" | The chip counts the last 30 days; RN's own comment says the chip and the list should agree |
+| `HistoryViewModel.loadMore` (Step 4.4) | Appends the page even if a reload replaced the list meanwhile | Drops the page when the list no longer ends at its cursor | A scan saved during the load would otherwise make one row disappear from the list |
+| `HistoryViewModel` (Step 4.4) | "Clear filters" or a request from Home / Plots within 250 ms of typing re-applies the typed search | Clears the pending search | The new filter should be exactly what was asked for |
+| `ScanDetailViewModel` (Step 4.4) | Classes load once; a failure stays until the screen reopens | Retried on each reload (Retry) | Otherwise the labels and the Correct label sheet never fill in |
+| `refreshedNow` (RN `useNow`) (Step 4.4) | Ignores changes up to a minute | Also refreshes when the local day changed or the clock went back | "Today" labels after midnight |
 
 ## Step 6 measurements (filled in as the port progresses)
 
