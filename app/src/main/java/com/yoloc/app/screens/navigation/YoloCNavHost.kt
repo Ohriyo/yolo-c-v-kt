@@ -26,6 +26,7 @@ import androidx.core.view.WindowCompat
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -52,6 +53,10 @@ import com.yoloc.app.screens.learn.LearnTopicScreen
 import com.yoloc.app.screens.learn.learnTopicTitle
 import com.yoloc.app.screens.onboarding.PermissionsScreen
 import com.yoloc.app.screens.onboarding.WelcomeScreen
+import com.yoloc.app.screens.scan.PreviewScreen
+import com.yoloc.app.screens.scan.ProcessingScreen
+import com.yoloc.app.screens.scan.ResultScreen
+import com.yoloc.app.screens.scan.ResultViewModel
 import com.yoloc.app.store.HistoryRequest
 import com.yoloc.app.theme.Motion
 import com.yoloc.app.theme.TypeVariant
@@ -137,9 +142,39 @@ fun YoloCNavHost(onboardingDone: Boolean) {
                 // The camera screens are dark in both themes, including during the fade.
                 composable<Camera> { CameraPlaceholder() }
                 composable<Live> { CameraPlaceholder() }
-                stack<Preview>(nav, R.string.preview_title)
-                stack<Processing>(nav, R.string.processing_title)
-                stack<Result>(nav, R.string.result_title)
+                composable<Preview> { entry ->
+                    StackScreen(stringResource(R.string.preview_title), onBack = { entry.ifShown { nav.navigateUp() } }) {
+                        PreviewScreen(
+                            onBackToCamera = { entry.ifShown { nav.dismissToCamera() } },
+                            onUsePhoto = { entry.ifShown { nav.navigate(Processing) } },
+                        )
+                    }
+                }
+                composable<Processing> { entry ->
+                    // Back while analyzing returns to Preview; leaving clears the ViewModel, which cancels the run.
+                    val back = { entry.ifShown { nav.navigateUp() } }
+                    StackScreen(stringResource(R.string.processing_title), onBack = back) {
+                        ProcessingScreen(
+                            onDone = { entry.ifShown { nav.processingToResult() } },
+                            onBack = back,
+                            onBackToCamera = { entry.ifShown { nav.dismissToCamera() } },
+                        )
+                    }
+                }
+                composable<Result> { entry ->
+                    val vm: ResultViewModel = viewModel(factory = ResultViewModel.Factory)
+                    // RN: usePreventRemove covers the header back too: guarded, it asks first.
+                    val back = { entry.ifShown { if (vm.state.value.guarded) vm.onLeaveRequested() else nav.navigateUp() } }
+                    StackScreen(stringResource(R.string.result_title), onBack = back) {
+                        ResultScreen(
+                            vm = vm,
+                            onDiscarded = { nav.dismissToCamera() },
+                            onSaved = { nav.openSavedScan(it) },
+                            onManagePlots = { entry.ifShown { nav.navigate(Plots) } },
+                            onBackToCamera = { entry.ifShown { nav.dismissToCamera() } },
+                        )
+                    }
+                }
                 composable<ScanDetail> { entry ->
                     // RN: canGoBack() ? back() : navigate('/history'). Only from the shown screen, so a
                     // second back (or one landing as a delete closes it) cannot pop the screen below.

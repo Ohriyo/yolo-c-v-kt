@@ -167,6 +167,30 @@
     <string name="result_correct_body">Your label is saved with the scan and helps improve the model later.</string>
     <string name="result_model_said">Model said: %1$s</string>
     <string name="result_saved">Scan saved</string>
+    <string name="result_no_pod_body">The detector did not find a cacao pod in this photo.</string>
+    <string name="result_no_pod_tip_fill">Fill most of the frame with one pod.</string>
+    <string name="result_no_pod_tip_shade">Stand in shade or avoid direct sun on the pod.</string>
+    <string name="result_no_pod_tip_steady">Hold the phone steady so the photo is sharp.</string>
+    <string name="result_retake">Retake</string>
+    <string name="result_missing_title">No result to show</string>
+    <string name="result_missing_body">Take or pick a photo to start a new scan.</string>
+    <string name="result_save_scan">Save scan</string>
+    <string name="result_save_title">Save to a plot</string>
+    <string name="result_plot_label">Plot</string>
+    <string name="result_no_plot">No plot</string>
+    <string name="result_new_plot_placeholder">New plot name, e.g. North block</string>
+    <string name="result_add_plot">Add plot</string>
+    <string name="result_manage_plots">Manage plots</string>
+    <string name="result_notes_label">Notes (optional)</string>
+    <string name="result_notes_placeholder">Tree number, row, anything to remember</string>
+    <string name="result_saving">Saving</string>
+    <string name="result_save_failed">The scan could not be saved. Check that the phone has free space, then try again.</string>
+    <string name="result_plot_failed">The plot could not be added. Try again.</string>
+    <string name="result_save">Save</string>
+    <string name="result_discard">Discard</string>
+    <string name="result_leave_title">Save this result?</string>
+    <string name="result_leave_body">This result is not saved yet.</string>
+    <string name="result_stay">Stay</string>
 
     <!-- history (RN: strings.history) -->
     <string name="history_today">Today</string>
@@ -257,7 +281,17 @@
     <string name="settings_export_dialog_title">Share YOLO-C scans</string>
     <string name="settings_retrain_dialog_title">Share YOLO-C retraining data</string>
 
+    <!-- preview (RN: strings.preview) -->
+    <string name="preview_retake">Retake</string>
+    <string name="preview_choose_another">Choose another</string>
+    <string name="preview_use_photo">Use photo</string>
+    <string name="preview_missing_title">No photo to check</string>
+    <string name="preview_missing_body">Take or pick a photo first.</string>
+    <string name="preview_back_to_scan">Back to Scan</string>
+
     <!-- processing (RN: strings.processing) -->
+    <string name="processing_body">Analyzing on your device</string>
+    <string name="processing_detail">This takes a few seconds.</string>
     <string name="processing_image_error_title">Photo could not be read</string>
     <string name="processing_image_error_body">The file may be damaged or in an unsupported format. Try another photo.</string>
     <string name="processing_model_error_title">The detector could not start</string>

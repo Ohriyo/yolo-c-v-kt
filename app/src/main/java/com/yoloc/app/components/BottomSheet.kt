@@ -18,8 +18,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,6 +41,9 @@ import com.yoloc.app.theme.YoloCTheme
  * close button all call [onClose]. Long content (plot lists, forms) scrolls inside the sheet
  * instead of pushing the primary action off screen. Opens fully, never half way (RN has no
  * half-open state).
+ *
+ * @param dismissable False while the sheet must stay (saving): drag, scrim and back then do
+ *   nothing, as RN's `onClose={saving ? () => {} : onClose}`.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,14 +51,19 @@ fun BottomSheet(
     visible: Boolean,
     title: String,
     onClose: () -> Unit,
+    dismissable: Boolean = true,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     if (!visible) return
     val colors = YoloCTheme.colors
+    val currentDismissable by rememberUpdatedState(dismissable)
     val shape = RoundedCornerShape(topStart = Radii.md, topEnd = Radii.md)
     ModalBottomSheet(
-        onDismissRequest = onClose,
-        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        onDismissRequest = { if (currentDismissable) onClose() },
+        sheetState = rememberModalBottomSheetState(
+            skipPartiallyExpanded = true,
+            confirmValueChange = { it != SheetValue.Hidden || currentDismissable },
+        ),
         shape = shape,
         containerColor = colors.surfaceRaised,
         contentColor = colors.text,
