@@ -5,8 +5,8 @@ import android.util.Log
 import java.io.File
 
 /** Unsaved photos (camera captures and picker copies) in the cache (RN: tempImage.ts). */
-class TempImages(context: Context) {
-    private val cacheDir = context.cacheDir
+class TempImages(private val cacheDir: File) {
+    constructor(context: Context) : this(context.cacheDir)
 
     /**
      * Deletes an unsaved photo. Only files inside the app's cache are touched, so a file that is
