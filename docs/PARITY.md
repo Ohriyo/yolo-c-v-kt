@@ -107,6 +107,7 @@ edge case that would give a wrong result. Everything else follows RN commit `1e7
 | Home count chips (Step 5) | While the counts load or after they fail, a chip shows "–" but is read out as "0 scans" | Read out as the result name only until the count is known | A screen-reader user was told there were no infected scans |
 | `ScanRow` in History (Step 5) | Screen readers hear the hint "Long-press for options. Swipe left to delete." | TalkBack offers the row's long-press ("Scan options") and its "Delete" action itself | Android announces long-press and custom actions natively; a swipe hint is wrong for TalkBack users, who cannot swipe a row |
 | `CameraScreen` shutter flash (Step 5) | expo-camera's `animateShutter` flashes the preview dark on every capture | Same dark flash, skipped when the system's reduce-motion setting is on | The app's motion rule: animations respect reduce motion. The shutter's spinner still shows the capture |
+| `SaveScanSheet` plot choice (Step 5) | The chosen plot stays chosen after it is deleted in Manage plots (Save then fails), and a double tap on Add plot adds it twice | A deleted plot falls back to "No plot", and one add runs at a time | Bugs in RN's sheet (a foreign-key failure reported as "free space", a duplicate plot); the fix changes nothing else |
 
 ## Step 6 measurements (filled in as the port progresses)
 

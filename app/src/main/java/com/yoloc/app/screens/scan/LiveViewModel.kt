@@ -205,6 +205,11 @@ class LiveViewModel(
     }
 
     fun onCaptured(file: File) {
+        // The screen closed while CameraX was writing: nothing will open Preview, so drop the photo.
+        if (!viewModelScope.isActive) {
+            file.delete()
+            return
+        }
         viewModelScope.launch {
             try {
                 session.setPhoto(photos.fromCamera(file))

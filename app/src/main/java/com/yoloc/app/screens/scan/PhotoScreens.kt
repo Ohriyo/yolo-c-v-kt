@@ -1,5 +1,7 @@
 package com.yoloc.app.screens.scan
 
+import android.content.ActivityNotFoundException
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
@@ -85,10 +87,15 @@ fun PreviewScreen(onBackToCamera: () -> Unit, onUsePhoto: () -> Unit, vm: Previe
 
     val fromCamera = photo.source == ScanSource.Camera
     val retakeLabel = stringResource(if (fromCamera) R.string.preview_retake else R.string.preview_choose_another)
-    val retake = {
+    val retake: () -> Unit = {
         when (vm.retake()) {
             PreviewViewModel.Retake.BackToCamera -> onBackToCamera()
-            PreviewViewModel.Retake.PickAnother -> pick.launch(PickVisualMediaRequest(PickVisualMedia.ImageOnly))
+            PreviewViewModel.Retake.PickAnother -> try {
+                pick.launch(PickVisualMediaRequest(PickVisualMedia.ImageOnly))
+            } catch (e: ActivityNotFoundException) {
+                // RN logs and keeps the current photo.
+                Log.w("preview", "Gallery failed", e)
+            }
             null -> Unit
         }
     }

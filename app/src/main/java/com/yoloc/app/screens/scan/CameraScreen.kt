@@ -1,8 +1,8 @@
 package com.yoloc.app.screens.scan
 
 import android.Manifest
+import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings
 import androidx.activity.compose.LocalActivity
@@ -11,7 +11,6 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.camera.core.ImageCapture
-import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
@@ -38,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
@@ -61,7 +61,9 @@ import com.yoloc.app.components.rememberPress
 import com.yoloc.app.features.camera.BoundCamera
 import com.yoloc.app.features.camera.CameraControlBar
 import com.yoloc.app.features.camera.Viewfinder
+import com.yoloc.app.features.camera.hasCameraPermission
 import com.yoloc.app.features.camera.ratio43
+import com.yoloc.app.features.camera.takePhotoTo
 import com.yoloc.app.features.live.CameraMode
 import com.yoloc.app.features.live.ModeSwitch
 import com.yoloc.app.features.scans.CameraAccess
@@ -98,8 +100,7 @@ fun CameraScreen(
     }
     // RN: useCameraAccess re-checks when the app returns, so access turned on in settings applies at once.
     LifecycleResumeEffect(vm) {
-        val granted = ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
-        vm.onPermissionChecked(granted, rationale())
+        vm.onPermissionChecked(hasCameraPermission(context), rationale())
         onPauseOrDispose {}
     }
     val askCamera = rememberLauncherForActivityResult(RequestPermission()) { vm.onPermissionResult(it, rationale()) }
@@ -123,18 +124,8 @@ fun CameraScreen(
     // RN: animateShutter. A dark flash over the preview as the photo is taken.
     val reduceMotion = rememberReduceMotion()
     val shutter = remember { Animatable(0f) }
-    val takePhoto = {
-        val file = vm.startCapture()
-        if (file != null) {
-            capture.takePicture(
-                ImageCapture.OutputFileOptions.Builder(file).build(),
-                ContextCompat.getMainExecutor(context),
-                object : ImageCapture.OnImageSavedCallback {
-                    override fun onImageSaved(output: ImageCapture.OutputFileResults) = vm.onCaptured(file)
-                    override fun onError(exception: ImageCaptureException) = vm.onCaptureFailed(exception, file)
-                },
-            )
-        }
+    val takePhoto: () -> Unit = {
+        vm.startCapture()?.let { capture.takePhotoTo(it, context, vm::onCaptured, vm::onCaptureFailed) }
     }
     LaunchedEffect(s.capturing) {
         if (s.capturing && !reduceMotion) {
@@ -205,7 +196,7 @@ fun CameraScreen(
                 }
                 previewOn -> {
                     BoundCamera(preview, others, Modifier.fillMaxSize(), onReady = vm::onCameraReady, onBindError = { vm.onMountError() })
-                    Box(Modifier.fillMaxSize().alpha(shutter.value).background(Color.Black))
+                    Box(Modifier.fillMaxSize().graphicsLayer { alpha = shutter.value }.background(Color.Black))
                 }
             }
         }
@@ -236,7 +227,16 @@ fun CameraScreen(
         CameraControlBar(
             galleryImage = s.latestImage,
             galleryBusy = s.picking,
-            onGallery = { if (vm.startGallery()) pick.launch(PickVisualMediaRequest(PickVisualMedia.ImageOnly)) },
+            onGallery = {
+                if (vm.startGallery()) {
+                    // RN catches a picker that cannot open and says so.
+                    try {
+                        pick.launch(PickVisualMediaRequest(PickVisualMedia.ImageOnly))
+                    } catch (e: ActivityNotFoundException) {
+                        vm.onGalleryFailed(e)
+                    }
+                }
+            },
             canCapture = previewOn && s.ready,
             capturing = s.capturing,
             onCapture = takePhoto,

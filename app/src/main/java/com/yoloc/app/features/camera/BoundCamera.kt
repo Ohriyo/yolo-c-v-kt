@@ -1,9 +1,15 @@
 package com.yoloc.app.features.camera
 
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
 import android.util.Log
 import android.util.Size
 import androidx.camera.compose.CameraXViewfinder
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.CameraState
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.UseCase
@@ -22,9 +28,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.awaitCancellation
+import java.io.File
 
 private const val TAG = "camera"
 
@@ -48,9 +58,10 @@ fun ratio43(target: Size? = null): ResolutionSelector = ResolutionSelector.Build
  * "only while focused and the app is in the foreground"; leaving composition unbinds it.
  * Fills [modifier] and crops the edges (RN: resizeMode "cover").
  *
- * @param onReady True once the preview has a surface (the camera can take a photo); false when
- *   the preview goes away.
- * @param onBindError Binding threw (no back camera, camera in use, ...).
+ * @param onReady True while the camera is open (it can take a photo); false otherwise.
+ * @param onBindError The camera could not start (RN: onMountError): binding threw (no back
+ *   camera), or the open camera reported an error (in use by another app, too many cameras open,
+ *   disabled by policy, disconnected).
  */
 @Composable
 fun BoundCamera(
@@ -70,9 +81,17 @@ fun BoundCamera(
         preview.setSurfaceProvider { request = it }
         val useCases = (listOf(preview) + others).toTypedArray()
         var provider: ProcessCameraProvider? = null
+        var cameraState: LiveData<CameraState>? = null
+        val observer = Observer<CameraState> { state ->
+            currentOnReady(state.type == CameraState.Type.OPEN)
+            val error = state.error ?: return@Observer
+            Log.w(TAG, "Camera error ${error.code}", error.cause)
+            currentOnBindError(IllegalStateException("Camera error ${error.code}", error.cause))
+        }
         try {
             provider = ProcessCameraProvider.awaitInstance(context)
-            provider.bindToLifecycle(owner, CameraSelector.DEFAULT_BACK_CAMERA, *useCases)
+            val camera = provider.bindToLifecycle(owner, CameraSelector.DEFAULT_BACK_CAMERA, *useCases)
+            cameraState = camera.cameraInfo.cameraState.also { it.observe(owner, observer) }
             awaitCancellation()
         } catch (e: CancellationException) {
             throw e
@@ -80,6 +99,7 @@ fun BoundCamera(
             Log.w(TAG, "Camera failed to start", e)
             currentOnBindError(e)
         } finally {
+            cameraState?.removeObserver(observer)
             provider?.unbind(*useCases)
             preview.setSurfaceProvider(null)
             request = null
@@ -88,6 +108,21 @@ fun BoundCamera(
     }
 
     val surface = request ?: return
-    LaunchedEffect(surface) { currentOnReady(true) }
     CameraXViewfinder(surfaceRequest = surface, modifier = modifier, contentScale = ContentScale.Crop)
+}
+
+/** RN: the camera permission as useCameraAccess / useCameraPermission read it, without asking. */
+fun hasCameraPermission(context: Context): Boolean =
+    ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
+
+/** Writes a photo to [file]; the callbacks run on the main thread. */
+fun ImageCapture.takePhotoTo(file: File, context: Context, saved: (File) -> Unit, failed: (Throwable, File) -> Unit) {
+    takePicture(
+        ImageCapture.OutputFileOptions.Builder(file).build(),
+        ContextCompat.getMainExecutor(context),
+        object : ImageCapture.OnImageSavedCallback {
+            override fun onImageSaved(output: ImageCapture.OutputFileResults) = saved(file)
+            override fun onError(exception: ImageCaptureException) = failed(exception, file)
+        },
+    )
 }

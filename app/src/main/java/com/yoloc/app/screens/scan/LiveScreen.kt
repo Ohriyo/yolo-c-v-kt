@@ -1,14 +1,10 @@
 package com.yoloc.app.screens.scan
 
-import android.Manifest
-import android.content.Context
-import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.util.Size
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
-import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.compose.foundation.background
@@ -59,7 +55,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -74,7 +69,9 @@ import com.yoloc.app.components.rememberPress
 import com.yoloc.app.components.statusIcon
 import com.yoloc.app.db.repositories.DetectionClass
 import com.yoloc.app.features.camera.BoundCamera
+import com.yoloc.app.features.camera.hasCameraPermission
 import com.yoloc.app.features.camera.ratio43
+import com.yoloc.app.features.camera.takePhotoTo
 import com.yoloc.app.features.detection.Detection
 import com.yoloc.app.features.detection.VerdictInput
 import com.yoloc.app.features.detection.summarizeDetections
@@ -120,9 +117,9 @@ fun LiveScreen(
     val context = LocalContext.current
     val cam = YoloCTheme.colors.camera
     // RN: useCameraPermission, which follows changes made in system settings.
-    var hasPermission by remember { mutableStateOf(granted(context)) }
+    var hasPermission by remember { mutableStateOf(hasCameraPermission(context)) }
     LifecycleResumeEffect(Unit) {
-        hasPermission = granted(context)
+        hasPermission = hasCameraPermission(context)
         onPauseOrDispose {}
     }
     var noCamera by remember { mutableStateOf(false) }
@@ -167,25 +164,22 @@ fun LiveScreen(
     val capture = remember { ImageCapture.Builder().setResolutionSelector(ratio43(CAPTURE_SIZE)).build() }
     DisposableEffect(analysis, vm) {
         val executor = Executors.newSingleThreadExecutor()
-        analysis.setAnalyzer(executor) { proxy -> proxy.use { vm.analyze { it.uprightBitmap() } } }
+        analysis.setAnalyzer(executor) { proxy ->
+            proxy.use {
+                var frame: Bitmap? = null
+                vm.analyze { it.uprightBitmap().also { b -> frame = b } }
+                // The ViewModel does not keep the frame: free its pixels now, not at the next GC.
+                frame?.recycle()
+            }
+        }
         onDispose {
             analysis.clearAnalyzer()
             executor.shutdown()
         }
     }
     val others = remember(analysis, capture) { listOf(analysis, capture) }
-    val takePhoto = {
-        val file = vm.startCapture()
-        if (file != null) {
-            capture.takePicture(
-                ImageCapture.OutputFileOptions.Builder(file).build(),
-                ContextCompat.getMainExecutor(context),
-                object : ImageCapture.OnImageSavedCallback {
-                    override fun onImageSaved(output: ImageCapture.OutputFileResults) = vm.onCaptured(file)
-                    override fun onError(exception: ImageCaptureException) = vm.onCaptureFailed(exception, file)
-                },
-            )
-        }
+    val takePhoto: () -> Unit = {
+        vm.startCapture()?.let { capture.takePhotoTo(it, context, vm::onCaptured, vm::onCaptureFailed) }
     }
 
     var view by remember { mutableStateOf(IntSize.Zero) }
@@ -252,16 +246,13 @@ fun LiveScreen(
     }
 }
 
-private fun granted(context: Context) =
-    ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
-
 /** The frame as the model should see it: rotated upright, as RN's enablePhysicalBufferRotation. */
 private fun ImageProxy.uprightBitmap(): Bitmap {
     val bitmap = toBitmap()
     val degrees = imageInfo.rotationDegrees
     if (degrees == 0) return bitmap
     val m = Matrix().apply { postRotate(degrees.toFloat()) }
-    return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, m, true)
+    return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, m, true).also { if (it !== bitmap) bitmap.recycle() }
 }
 
 @Composable

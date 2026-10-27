@@ -172,7 +172,9 @@ fun YoloCNavHost(onboardingDone: Boolean) {
                     val back = { entry.ifShown { nav.navigateUp() } }
                     StackScreen(stringResource(R.string.processing_title), onBack = back) {
                         ProcessingScreen(
-                            onDone = { entry.ifShown { nav.processingToResult() } },
+                            // Fired once by the Done state, which can land before the screen is
+                            // RESUMED (back from the background, or during the fade in): never dropped.
+                            onDone = { nav.processingToResult() },
                             onBack = back,
                             onBackToCamera = { entry.ifShown { nav.dismissToCamera() } },
                         )

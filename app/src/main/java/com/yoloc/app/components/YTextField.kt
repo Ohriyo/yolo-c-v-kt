@@ -28,7 +28,7 @@ import com.yoloc.app.theme.YoloCType
 
 /**
  * RN: the app's TextInput style (sheets, Plots): Barlow body text on the surface, a 1dp border,
- * the muted placeholder. [maxLength] cuts what is typed, as RN's maxLength.
+ * the muted placeholder. [maxLength] cuts what is typed, as RN's maxLength ([limitEdit]).
  *
  * @param onDone The keyboard's Done (single line only; RN: onSubmitEditing).
  */
@@ -57,7 +57,7 @@ fun YTextField(
         if (value.isEmpty()) AppText(placeholder, Modifier.clearAndSetSemantics {}, tone = Tone.Muted)
         BasicTextField(
             value = value,
-            onValueChange = { onValueChange(it.take(maxLength)) },
+            onValueChange = { onValueChange(limitEdit(value, it, maxLength)) },
             modifier = Modifier.fillMaxWidth().semantics { contentDescription = accessibilityLabel },
             textStyle = YoloCType.body.copy(color = colors.text),
             cursorBrush = SolidColor(colors.focus),
@@ -66,4 +66,20 @@ fun YTextField(
             keyboardActions = KeyboardActions(onDone = { onDone?.invoke() }),
         )
     }
+}
+
+/**
+ * RN maxLength (Android's LengthFilter): an edit that goes past [max] keeps as much of the typed
+ * or pasted text as fits; the text that was already there is never cut.
+ */
+internal fun limitEdit(old: String, new: String, max: Int): String {
+    if (new.length <= max) return new
+    // The edit replaced old's middle with new's middle; find the unchanged start and end.
+    var prefix = 0
+    while (prefix < old.length && prefix < new.length && old[prefix] == new[prefix]) prefix++
+    var suffix = 0
+    while (suffix < old.length - prefix && suffix < new.length - prefix && old[old.length - 1 - suffix] == new[new.length - 1 - suffix]) suffix++
+    val inserted = new.substring(prefix, new.length - suffix)
+    val room = (max - prefix - suffix).coerceAtLeast(0)
+    return new.substring(0, prefix) + inserted.take(room) + new.substring(new.length - suffix)
 }

@@ -27,4 +27,17 @@ class ComponentHelpersTest {
             assertEquals("snap $args", expected, snapToStep(v, min, max, step), 0.0)
         }
     }
+
+    @Test
+    fun limitEditKeepsTheExistingTextAndCutsWhatWasInserted() {
+        // Typing at the limit adds nothing.
+        assertEquals("abcde", limitEdit("abcde", "abcdeX", 5))
+        // A paste near the start keeps the end of the note and as much of the paste as fits.
+        assertEquals("a12bcd", limitEdit("abcd", "a12345bcd", 6))
+        // Under the limit nothing changes, and deleting is never cut.
+        assertEquals("ab1cd", limitEdit("abcd", "ab1cd", 6))
+        assertEquals("abc", limitEdit("abcdefg", "abc", 5))
+        // Repeated letters: the unchanged end is not counted twice.
+        assertEquals("aaaa", limitEdit("aaa", "aaaaaa", 4))
+    }
 }

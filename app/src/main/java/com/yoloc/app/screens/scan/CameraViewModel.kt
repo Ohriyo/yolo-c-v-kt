@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -112,6 +113,11 @@ class CameraViewModel(
     }
 
     fun onCaptured(file: File) {
+        // The screen closed while CameraX was writing: nothing will open Preview, so drop the photo.
+        if (!viewModelScope.isActive) {
+            file.delete()
+            return
+        }
         viewModelScope.launch {
             try {
                 session.setPhoto(photos.fromCamera(file))
@@ -151,10 +157,15 @@ class CameraViewModel(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                Log.w(TAG, "Gallery failed", e)
-                _state.update { it.copy(picking = false, notice = Notice.GalleryFailed) }
+                onGalleryFailed(e)
             }
         }
+    }
+
+    /** The picker could not open, or its photo could not be copied. */
+    fun onGalleryFailed(error: Throwable) {
+        Log.w(TAG, "Gallery failed", error)
+        _state.update { it.copy(picking = false, notice = Notice.GalleryFailed) }
     }
 
     fun previewOpened() = _state.update { it.copy(openPreview = false) }

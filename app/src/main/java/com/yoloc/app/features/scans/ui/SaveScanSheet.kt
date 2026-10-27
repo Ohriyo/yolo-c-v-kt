@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -76,17 +77,27 @@ fun SaveScanSheet(
     var plotId by rememberSaveable { mutableStateOf<String?>(null) }
     var newPlot by rememberSaveable { mutableStateOf("") }
     var notes by rememberSaveable { mutableStateOf("") }
+    // A plot deleted in Manage plots is no longer a choice (saving to it would fail).
+    val selectedId = plotId?.takeIf { id -> plots.any { it.id == id } }
+    var adding by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val addPlot = {
-        val name = newPlot
-        scope.launch {
-            val id = onAddPlot(name)
-            if (id != null) {
-                plotId = id
-                newPlot = ""
+        // One add at a time: a double tap (or Done, then Add) must not create the plot twice.
+        if (!adding) {
+            adding = true
+            val name = newPlot
+            scope.launch {
+                try {
+                    val id = onAddPlot(name)
+                    if (id != null) {
+                        plotId = id
+                        newPlot = ""
+                    }
+                } finally {
+                    adding = false
+                }
             }
         }
-        Unit
     }
 
     BottomSheet(visible, stringResource(R.string.result_save_title), onClose = onClose, dismissable = !saving) {
@@ -94,7 +105,7 @@ fun SaveScanSheet(
         Column(Modifier.selectableGroup(), verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
             val options = listOf<Pair<String?, String>>(null to stringResource(R.string.result_no_plot)) + plots.map { it.id to it.name }
             for ((id, name) in options) {
-                val selected = id == plotId
+                val selected = id == selectedId
                 val press = rememberPress()
                 val shape = RoundedCornerShape(Radii.full)
                 val choose = { plotId = id }
@@ -133,7 +144,7 @@ fun SaveScanSheet(
                 addPlot,
                 variant = ButtonVariant.Secondary,
                 icon = IconName.Plus,
-                enabled = newPlot.isNotBlank(),
+                enabled = newPlot.isNotBlank() && !adding,
             )
         }
         if (plotError) {
@@ -159,7 +170,7 @@ fun SaveScanSheet(
         }
         YButton(
             stringResource(if (saving) R.string.result_saving else R.string.result_save_scan),
-            { onSave(plotId, notes) },
+            { onSave(selectedId, notes) },
             Modifier.testTag(SAVE_SCAN_CONFIRM_TAG),
             icon = IconName.Save,
             size = ButtonSize.Lg,
