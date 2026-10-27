@@ -52,6 +52,8 @@ import com.yoloc.app.features.scans.ScanRow
 import com.yoloc.app.features.scans.UndoDeleteSnackbar
 import com.yoloc.app.features.scans.formatShortWhen
 import com.yoloc.app.screens.appContainer
+import com.yoloc.app.store.ScanLibrary
+import kotlinx.coroutines.CoroutineScope
 import com.yoloc.app.screens.rememberDayFormat
 import com.yoloc.app.theme.Radii
 import com.yoloc.app.theme.Spacing
@@ -74,6 +76,9 @@ fun HomeScreen(
     onOpenCount: (Verdict) -> Unit,
     onOpenLearn: () -> Unit,
     vm: HomeViewModel = viewModel(factory = HomeViewModel.Factory),
+    /** The Undo snackbar's store and the scope its restore runs in (tests pass their own). */
+    library: ScanLibrary = appContainer().scanLibrary,
+    undoScope: CoroutineScope = appContainer().appScope,
 ) {
     val summary by vm.summary.collectAsStateWithLifecycle()
     val now by vm.now.collectAsStateWithLifecycle()
@@ -84,7 +89,6 @@ fun HomeScreen(
     val dayFormat = rememberDayFormat()
     val tips = stringArrayResource(R.array.home_tips)
     val tip = tips[dailyTipIndex(now, tips.size)]
-    val container = appContainer()
 
     Box(Modifier.fillMaxSize()) {
         // Bottom room so the Undo snackbar never covers the tip.
@@ -151,7 +155,7 @@ fun HomeScreen(
                 }
             }
         }
-        UndoDeleteSnackbar(container.scanLibrary, container.appScope, Modifier.align(Alignment.BottomCenter))
+        UndoDeleteSnackbar(library, undoScope, Modifier.align(Alignment.BottomCenter))
     }
 }
 

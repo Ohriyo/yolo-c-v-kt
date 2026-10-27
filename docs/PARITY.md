@@ -105,6 +105,7 @@ edge case that would give a wrong result. Everything else follows RN commit `1e7
 | `YoloCNavHost` (Step 5) | Stack screens use the native stack's Android default animation; the header back arrow is the platform's | A 200 ms fade (`Motion.BASE`) for stack screens and the camera, none between tabs; Feather's arrow-left | Compose Navigation has no native-stack animation to copy; fade is RN's own choice for the camera and stays within the motion tokens |
 | `NavActions.ifShown` (Step 5) | A fast double tap on Skip, a Learn topic, a scan row or Scan can open the next screen twice | Forward taps count only while the screen is fully shown | Back from the first copy landed on a second copy of the same screen |
 | Home count chips (Step 5) | While the counts load or after they fail, a chip shows "–" but is read out as "0 scans" | Read out as the result name only until the count is known | A screen-reader user was told there were no infected scans |
+| `ScanRow` in History (Step 5) | Screen readers hear the hint "Long-press for options. Swipe left to delete." | TalkBack offers the row's long-press ("Scan options") and its "Delete" action itself | Android announces long-press and custom actions natively; a swipe hint is wrong for TalkBack users, who cannot swipe a row |
 
 ## Step 6 measurements (filled in as the port progresses)
 

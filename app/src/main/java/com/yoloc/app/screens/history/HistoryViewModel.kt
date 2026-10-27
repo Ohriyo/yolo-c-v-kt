@@ -261,6 +261,12 @@ class HistoryViewModel(
         setFilter(inner.value.filter.copy(plot = plot))
     }
 
+    /** The filter bar's Clear filters: the pills only; the search stays (RN: HistoryFilterBar). */
+    fun clearPills() {
+        inner.update { it.copy(plotName = null) }
+        setFilter(inner.value.filter.copy(verdicts = emptyList(), range = DateRange.All, plot = PlotFilter.Any))
+    }
+
     /** The no-match state's Clear filters. */
     fun clearFilters() {
         resetSearch()

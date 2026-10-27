@@ -7,3 +7,11 @@ import java.math.BigDecimal
  * CSV cells must read the same as RN's, which wrote them with String(n).
  */
 fun Double.toJsString(): String = BigDecimal(toString()).stripTrailingZeros().toPlainString()
+
+/**
+ * JS Number.prototype.toFixed: the double's exact value rounded half up (away from zero) to
+ * [digits] decimals, always with a '.' whatever the locale. String.format can round the same
+ * double differently and uses the locale's separator.
+ */
+fun toFixed(value: Double, digits: Int): String =
+    BigDecimal(value).setScale(digits, java.math.RoundingMode.HALF_UP).toPlainString()

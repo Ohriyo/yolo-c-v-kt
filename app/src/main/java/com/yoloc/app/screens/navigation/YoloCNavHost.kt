@@ -44,6 +44,8 @@ import com.yoloc.app.components.TabBarItem
 import com.yoloc.app.components.Tone
 import com.yoloc.app.screens.appContainer
 import com.yoloc.app.screens.dev.InferenceScreen
+import com.yoloc.app.screens.history.HistoryScreen
+import com.yoloc.app.screens.history.ScanDetailScreen
 import com.yoloc.app.screens.home.HomeScreen
 import com.yoloc.app.screens.learn.LearnScreen
 import com.yoloc.app.screens.learn.LearnTopicScreen
@@ -124,7 +126,12 @@ fun YoloCNavHost(onboardingDone: Boolean) {
                         onOpenLearn = { nav.selectTab(Learn) },
                     )
                 }
-                composable<History> { Placeholder(stringResource(R.string.tabs_history)) }
+                composable<History> { entry ->
+                    HistoryScreen(
+                        onOpenScan = { id -> entry.ifShown { nav.navigate(ScanDetail(id)) } },
+                        onScan = { entry.ifShown { nav.navigate(Camera) } },
+                    )
+                }
                 composable<Learn> { entry -> LearnScreen(onOpenTopic = { topic -> entry.ifShown { nav.navigate(LearnTopic(topic.key)) } }) }
                 composable<Settings> { Placeholder(stringResource(R.string.tabs_settings)) }
                 // The camera screens are dark in both themes, including during the fade.
@@ -133,7 +140,11 @@ fun YoloCNavHost(onboardingDone: Boolean) {
                 stack<Preview>(nav, R.string.preview_title)
                 stack<Processing>(nav, R.string.processing_title)
                 stack<Result>(nav, R.string.result_title)
-                stack<ScanDetail>(nav, R.string.scan_detail_title)
+                composable<ScanDetail> {
+                    // RN: canGoBack() ? back() : navigate('/history').
+                    val back = { if (!nav.popBackStack()) nav.selectTab(History) }
+                    StackScreen(stringResource(R.string.scan_detail_title), onBack = back) { ScanDetailScreen(onBack = back) }
+                }
                 composable<LearnTopic> { entry ->
                     StackScreen(learnTopicTitle(entry.toRoute<LearnTopic>().topic), onBack = { nav.navigateUp() }) {
                         LearnTopicScreen(

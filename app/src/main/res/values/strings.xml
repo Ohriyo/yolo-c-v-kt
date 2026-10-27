@@ -158,9 +158,52 @@
         <item quantity="other">%d pods found</item>
     </plurals>
 
+    <string name="result_screening_note">Screening aid only. Check doubtful pods by eye.</string>
+    <string name="result_detections_title">Pods</string>
+    <string name="result_advice_title">What to do</string>
+    <string name="result_tap_pod_hint">Tap a pod in the photo or the list to highlight it.</string>
+    <string name="result_correct_label">Correct label</string>
+    <string name="result_correct_title">What is this pod?</string>
+    <string name="result_correct_body">Your label is saved with the scan and helps improve the model later.</string>
+    <string name="result_model_said">Model said: %1$s</string>
+    <string name="result_saved">Scan saved</string>
+
     <!-- history (RN: strings.history) -->
     <string name="history_today">Today</string>
     <string name="history_yesterday">Yesterday</string>
+    <plurals name="history_count">
+        <item quantity="one">%d scan</item>
+        <item quantity="other">%d scans</item>
+    </plurals>
+    <plurals name="history_count_filtered">
+        <item quantity="one">%d matching scan</item>
+        <item quantity="other">%d matching scans</item>
+    </plurals>
+    <string name="history_search_placeholder">Search notes or plot</string>
+    <string name="history_search_label">Search scans by notes or plot name</string>
+    <string name="history_clear_search">Clear search</string>
+    <string name="history_filter_status">Result</string>
+    <!-- Only shown for two or more results (one shows that result's name). -->
+    <plurals name="history_filter_status_many">
+        <item quantity="one">%d result</item>
+        <item quantity="other">%d results</item>
+    </plurals>
+    <string name="history_filter_date">Date</string>
+    <string name="history_filter_plot">Plot</string>
+    <string name="history_filter_hint">Opens filter options</string>
+    <string name="history_clear_filters">Clear filters</string>
+    <string name="history_status_sheet_title">Show results</string>
+    <string name="history_date_sheet_title">Date</string>
+    <string name="history_plot_sheet_title">Plot</string>
+    <string name="history_range_all">Any date</string>
+    <string name="history_range_today">Today</string>
+    <string name="history_range_week">Last 7 days</string>
+    <string name="history_range_month">Last 30 days</string>
+    <string name="history_all_plots">Any plot</string>
+    <string name="history_no_plot">No plot</string>
+    <string name="history_no_plots_yet">No plots yet. You can add one when you save a scan.</string>
+    <string name="history_plots_failed">Plots could not be loaded.</string>
+    <string name="history_done">Done</string>
     <string name="history_no_pods_short">No pods found</string>
     <string name="history_uncertain">Uncertain</string>
     <string name="history_notes_a11y">Notes: %1$s</string>
@@ -168,6 +211,47 @@
     <string name="history_deleted">Scan deleted</string>
     <string name="history_undo">Undo</string>
     <string name="history_undo_failed">The scan could not be restored.</string>
+    <string name="history_delete_scan">Delete scan</string>
+    <string name="history_open_scan">Open scan</string>
+    <string name="history_options_title">Scan options</string>
+    <string name="history_delete_failed">The scan could not be deleted. Try again.</string>
+    <string name="history_empty_title">No scans yet</string>
+    <string name="history_empty_body">Scans you save appear here, newest first, grouped by day.</string>
+    <string name="history_no_match_title">No scans match</string>
+    <string name="history_no_match_body">Try other words or clear the filters.</string>
+    <string name="history_load_failed">Saved scans could not be loaded. Your scans are still on this phone.</string>
+
+    <!-- scan detail (RN: strings.scanDetail) -->
+    <string name="scan_detail_saved_on">Saved %1$s</string>
+    <string name="scan_detail_notes_title">Notes</string>
+    <string name="scan_detail_notes_placeholder">Tree number, row, what you did next</string>
+    <string name="scan_detail_notes_label">Notes for this scan</string>
+    <string name="scan_detail_save_notes">Save notes</string>
+    <string name="scan_detail_notes_saved">Notes saved</string>
+    <string name="scan_detail_notes_failed">Notes could not be saved. Try again.</string>
+    <string name="scan_detail_details_title">Details</string>
+    <string name="scan_detail_plot">Plot</string>
+    <string name="scan_detail_source">Photo from</string>
+    <string name="scan_detail_source_camera">Camera</string>
+    <string name="scan_detail_source_gallery">Gallery</string>
+    <string name="scan_detail_model">Model</string>
+    <string name="scan_detail_analysis_time">Analysis time</string>
+    <!-- RN: (ms / 1000).toFixed(1) -->
+    <string name="scan_detail_analysis_seconds">%1$s s</string>
+    <string name="scan_detail_threshold">Confidence threshold</string>
+    <string name="scan_detail_location">Location</string>
+    <string name="scan_detail_delete_scan">Delete scan</string>
+    <string name="scan_detail_delete_title">Delete this scan?</string>
+    <string name="scan_detail_delete_body">It disappears from History. You can undo right after.</string>
+    <string name="scan_detail_cancel">Cancel</string>
+    <string name="scan_detail_delete">Delete</string>
+    <string name="scan_detail_delete_failed">The scan could not be deleted. Try again.</string>
+    <string name="scan_detail_correction_failed">The label could not be saved. Try again.</string>
+    <string name="scan_detail_no_pod_body">The detector did not find a cacao pod in this photo.</string>
+    <string name="scan_detail_not_found_title">Scan not found</string>
+    <string name="scan_detail_not_found_body">It may have been deleted.</string>
+    <string name="scan_detail_load_failed">This scan could not be loaded. Your scans are still on this phone.</string>
+    <string name="scan_detail_back_to_history">Back to History</string>
 
     <!-- settings (RN: strings.settings) -->
     <string name="settings_export_dialog_title">Share YOLO-C scans</string>
