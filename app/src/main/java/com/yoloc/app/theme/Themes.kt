@@ -48,7 +48,7 @@ data class CameraColors(
     val frameBorder: Color,
     /** Corner guide marks over the preview. Decorative. */
     val guide: Color,
-    /** Control bar, drawn at [CAMERA_BAR_OPACITY]. Opaque so contrast can be checked. */
+    /** Live mode's chips and the Photo / Live switch. Opaque, so contrast can be checked. */
     val bar: Color,
     val barEdge: Color,
     /** Icons, shutter ring and outlines on the bar. */
@@ -57,6 +57,11 @@ data class CameraColors(
     val controlFill: Color,
     /** The ring around the white shutter (redesign 2026-10-28: the prototype's soft sage). */
     val shutterRing: Color,
+    /**
+     * Redesign 2026-10-28: the dark wash behind the photo camera's top row and controls, over the
+     * live picture. Translucent; Contrast.kt checks it over a white scene, the worst case.
+     */
+    val scrim: Color,
     val galleryFill: Color,
 )
 
@@ -112,7 +117,7 @@ data class YoloCColors(
     val healthy: StatusColors,
     val early: StatusColors,
     val infected: StatusColors,
-    /** Only floating elements cast a shadow: bottom sheet, snackbar, camera controls. */
+    /** Only floating elements cast a shadow: the bottom sheet and the snackbar. */
     val floatingShadow: Color,
 ) {
     /** RN: theme.status[key]. */
@@ -135,6 +140,7 @@ private val camera = CameraColors(
     control = p.white,
     controlFill = p.white.copy(alpha = 0.1f),
     shutterRing = p.mist300,
+    scrim = p.black.copy(alpha = 0.6f),
     galleryFill = p.dark850,
 )
 

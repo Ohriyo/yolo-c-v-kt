@@ -38,12 +38,12 @@ data class ReadoutCell(
     val onClick: (() -> Unit)? = null,
 )
 
-/** Md: 28sp figures (Result, Scan Detail, Home's last scan); Lg: 44sp (Home's counts). */
+/** Md: 28sp figures (Result, Scan Detail, Home's last scan); Lg: 34sp (Home's counts). */
 enum class ReadoutSize { Md, Lg }
 
 /**
  * RN: components/ReadoutStrip.tsx. A full-width row of 2–3 readings between hairlines, each a
- * small label with a large condensed tabular figure. Cells are separated by vertical hairlines.
+ * small label with a large tabular figure. Cells are separated by vertical hairlines.
  */
 @Composable
 fun ReadoutStrip(cells: List<ReadoutCell>, modifier: Modifier = Modifier, size: ReadoutSize = ReadoutSize.Md) {

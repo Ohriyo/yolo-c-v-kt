@@ -1,5 +1,8 @@
 package com.yoloc.app.components
 
+import com.yoloc.app.util.rememberReduceMotion
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
@@ -42,16 +45,18 @@ enum class ToastTone(val icon: IconName) {
  * RN: components/Toast.tsx. Snackbar: a short confirmation on an inverse surface such as "Scan
  * saved", or "Scan deleted" with Undo. Tone is carried by the icon, not color. Placement and
  * timing belong to the screen. It fades in moving down a little each time it appears (RN:
- * FadeInDown); wrap it in [ToastSlot] for the fade out.
+ * FadeInDown), and simply appears when the system removes animations; wrap it in [ToastSlot] for
+ * the fade out.
  */
 @Composable
 fun Toast(message: String, modifier: Modifier = Modifier, tone: ToastTone = ToastTone.Info, action: TextAction? = null) {
     val colors = YoloCTheme.colors
     val shape = RoundedCornerShape(Radii.sm)
     val shown = remember { MutableTransitionState(false).apply { targetState = true } }
+    val reduceMotion = rememberReduceMotion()
     AnimatedVisibility(
         visibleState = shown,
-        enter = fadeIn(tween(Motion.BASE)) + slideInVertically(tween(Motion.BASE)) { -it / 3 },
+        enter = if (reduceMotion) EnterTransition.None else fadeIn(tween(Motion.BASE)) + slideInVertically(tween(Motion.BASE)) { -it / 3 },
     ) {
         Row(
             modifier
@@ -102,11 +107,12 @@ fun Toast(message: String, modifier: Modifier = Modifier, tone: ToastTone = Toas
 fun <T : Any> ToastSlot(value: T?, modifier: Modifier = Modifier, content: @Composable (T) -> Unit) {
     val last = remember { arrayOfNulls<Any>(1) }
     if (value != null) last[0] = value
+    val reduceMotion = rememberReduceMotion()
     AnimatedVisibility(
         visible = value != null,
         modifier = modifier,
         enter = fadeIn(tween(0)),
-        exit = fadeOut(tween(Motion.FAST)),
+        exit = if (reduceMotion) ExitTransition.None else fadeOut(tween(Motion.FAST)),
     ) {
         @Suppress("UNCHECKED_CAST")
         (last[0] as T?)?.let { content(it) }

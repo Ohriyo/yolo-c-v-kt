@@ -65,7 +65,7 @@ object YoloCType {
     val label = style(Inter, FontWeight.SemiBold, 15, 20, 0.sp)
     val caption = style(Inter, FontWeight.Medium, 13, 18, 0.sp)
 
-    /** The small spaced line above a screen title (the prototype's date and section lines). */
+    /** RN's overline style, kept with the ported type scale. The redesign uses it nowhere. */
     val overline = style(Inter, FontWeight.SemiBold, 12, 16, 1.1.sp)
 
     /** A number in running rows: confidence %, counts, times. */

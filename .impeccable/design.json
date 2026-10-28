@@ -973,14 +973,14 @@
       },
       {
         "name": "camera-scrim-top",
-        "value": "linear-gradient(to bottom, rgba(0,0,0,0.6), transparent)",
-        "code": "CameraScreen.kt SCRIM = 0.6f",
+        "value": "linear-gradient(to bottom, rgba(0,0,0,0.6) calc(100% - 24dp), transparent)",
+        "code": "CameraColors.scrim, Modifier.scrim (CameraScreen.kt)",
         "purpose": "Behind the camera's close button, title and mode switch."
       },
       {
         "name": "camera-scrim-bottom",
-        "value": "linear-gradient(to bottom, transparent, rgba(0,0,0,0.6))",
-        "code": "CameraScreen.kt SCRIM = 0.6f",
+        "value": "linear-gradient(to bottom, transparent, rgba(0,0,0,0.6) 24dp)",
+        "code": "CameraColors.scrim, Modifier.scrim (CameraScreen.kt)",
         "purpose": "Behind the hint, gallery, shutter and flash."
       },
       {
@@ -1156,7 +1156,7 @@
       "Pale status tint chips with icon plus label. Solid status fills are used only for box labels on photos.",
       "Three radii only: 8dp for controls, 16dp for cards and photos, full for round things.",
       "Text scales with the system font up to 1.6×. Layouts reflow instead of truncating.",
-      "A full-screen dark camera with floating controls over soft scrims and a dashed oval guide."
+      "A full-screen dark camera with floating controls on dark scrims and a dashed oval guide."
     ],
     "rules": [
       {

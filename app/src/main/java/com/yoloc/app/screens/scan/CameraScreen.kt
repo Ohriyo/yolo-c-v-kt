@@ -1,5 +1,6 @@
 package com.yoloc.app.screens.scan
 
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Shadow
@@ -148,7 +149,8 @@ fun CameraScreen(
     }
 
     // Redesign 2026-10-28 (the prototype; docs/PARITY.md): the preview fills the screen and the
-    // controls float over soft scrims. The 4:3 photo holds a little more than the screen shows.
+    // controls float over scrims that fade out toward the picture. The 4:3 photo holds a little
+    // more than the screen shows.
     Box(Modifier.fillMaxSize().background(cam.screen)) {
         if (previewOn) {
             BoundCamera(preview, others, Modifier.fillMaxSize(), onReady = vm::onCameraReady, onBindError = { vm.onMountError() })
@@ -159,7 +161,7 @@ fun CameraScreen(
             Row(
                 Modifier
                     .fillMaxWidth()
-                    .background(Brush.verticalGradient(listOf(Color.Black.copy(alpha = SCRIM), Color.Transparent)))
+                    .scrim(cam.scrim, fadeAtBottom = true)
                     .windowInsetsPadding(WindowInsets.statusBars)
                     .padding(top = Spacing.xs, start = Spacing.xs, end = Spacing.md, bottom = Spacing.lg)
                     .heightIn(min = TouchTarget),
@@ -232,7 +234,7 @@ fun CameraScreen(
             Column(
                 Modifier
                     .fillMaxWidth()
-                    .background(Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = SCRIM))))
+                    .scrim(cam.scrim, fadeAtBottom = false)
                     .padding(top = Spacing.lg)
                     .windowInsetsPadding(WindowInsets.navigationBars)
                     .padding(bottom = Spacing.md),
@@ -289,8 +291,20 @@ fun CameraScreen(
     }
 }
 
-/** How dark the scrims behind the top row and the controls start. */
-private const val SCRIM = 0.6f
+/**
+ * The camera's [scrim] at full strength behind the controls, fading to clear over the last
+ * [Spacing.lg] toward the picture (the padding there holds no controls), so text and icons keep
+ * their contrast over a bright scene.
+ */
+private fun Modifier.scrim(color: Color, fadeAtBottom: Boolean): Modifier = drawWithCache {
+    val fade = (Spacing.lg.toPx() / size.height).coerceIn(0f, 1f)
+    val brush = if (fadeAtBottom) {
+        Brush.verticalGradient(0f to color, 1f - fade to color, 1f to Color.Transparent)
+    } else {
+        Brush.verticalGradient(0f to Color.Transparent, fade to color, 1f to color)
+    }
+    onDrawBehind { drawRect(brush) }
+}
 
 /** A soft dark halo under text over the live picture (as on the Live screen). */
 @Composable

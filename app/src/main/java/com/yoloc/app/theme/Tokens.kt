@@ -44,9 +44,6 @@ object Motion {
     const val PRESS = 100
 }
 
-/** The camera control bar sits at this opacity over the camera screen. */
-const val CAMERA_BAR_OPACITY = 0.94f
-
 /** Bounding box drawing (CLAUDE.md 4.3). */
 object BoxStroke {
     val width = 3.dp

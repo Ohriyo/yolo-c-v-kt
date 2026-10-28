@@ -345,7 +345,7 @@ The visual direction is the owner's prototype recording, which is binding (PRODU
 - Pale status tint chips with icon plus label. Solid status fills are used only for box labels on photos.
 - Three radii only: 8dp for controls, 16dp for cards and photos, full for round things.
 - Text scales with the system font up to 1.6×. Layouts reflow instead of truncating.
-- A full-screen dark camera with floating controls over soft scrims and a dashed oval guide.
+- A full-screen dark camera with floating controls on dark scrims and a dashed oval guide.
 
 ## Colors
 
@@ -441,7 +441,7 @@ Depth comes from hairlines and the tinted ground, plus two shadows. Material's t
 ### Shadow Vocabulary
 - **Card shadow** (`Modifier.cardShadow`: y 2dp, blur 12dp, `forest-ink` at 6%): used under cards, the hero and settings groups, in light only. In dark `cardShadow` is transparent and the hairline carries the edge.
 - **Floating shadow** (`Modifier.floatingShadow`: y 6dp, blur 20dp, `night` at 18% in light and black at 50% in dark): used for things that float over content, such as the snackbar and the sheet panel (the modal sheet itself sits on the scrim with no tonal elevation).
-- **Camera scrims** (CameraScreen.kt `SCRIM = 0.6f`): a vertical gradient from black at 60% to transparent behind the top row, and from transparent to black at 60% behind the controls. Text over the live picture also gets a soft 4dp black halo at 80%.
+- **Camera scrims** (`CameraColors.scrim`, black at 60%; `Modifier.scrim` in CameraScreen.kt): full strength behind the top row and the controls, fading to clear over the last 24dp toward the picture. Contrast.kt checks every camera control against a white scene seen through it, the worst case. Text over the live picture also gets a soft 4dp black halo at 80%.
 
 ### Named Rules
 **The Quiet Lift Rule.** Cards lift only by their hairline and a 6% shadow. Nothing else casts a shadow unless it floats over other content.
@@ -503,7 +503,7 @@ Buttons are solid and plain: one clear tap target per intent.
 - **Settings group:** one white card. Each row has a 40dp `leaf` icon disc with a 20dp `sage-ink` icon, a Body Strong label, a muted Caption detail and a chevron or switch. A destructive row swaps the disc for `inverse-ink` with white icon, and never uses a status colour.
 
 ### Feedback
-- **Snackbar (Toast):** an `inverse-ink` surface with 8dp corners, 56dp tall, with the floating shadow. It holds a tone icon (info, check or alert-circle) in `mist`, Body Strong text, and an optional underlined Label action such as Undo. It fades in while sliding down a third of its height over 200ms, and fades out over 150ms.
+- **Snackbar (Toast):** an `inverse-ink` surface with 8dp corners, 56dp tall, with the floating shadow. It holds a tone icon (info, check or alert-circle) in `mist`, Body Strong text, and an optional underlined Label action such as Undo. It fades in while sliding down a third of its height over 200ms, and fades out over 150ms; with reduce motion it appears and leaves at once.
 - **Bottom sheet:** opens fully, never half way. `card-white` (raised surface) with 16dp top corners, a 32 × 4dp `outline` handle, a Title header with a 48dp close button, and content that scrolls inside the sheet.
 - **Low-confidence notice:** a `press-surface` panel with an `outline` border, a sun icon and Body Strong text, announced politely.
 
@@ -518,7 +518,7 @@ The camera is the one dark surface. The preview fills the screen on `night` and 
 Only the owner's two clean "pods on the tree" photos ship: `photo_cacao_cluster` and `photo_cacao_column` (docs/ASSETS.md). Both are decorative and skipped by screen readers. They appear on the Home hero, the Guide covers and the onboarding panels.
 
 ### Motion
-Motion is purposeful only, 100 to 250ms (`Motion.PRESS` 100, `FAST` 150, `BASE` 200, `SLOW` 250). Uses: screen fades (200ms, none between tabs), the History header folding while the list scrolls (200ms), onboarding step fades (250ms), the shutter and the snackbar. The shutter, the History header and onboarding check `rememberReduceMotion()` and drop the animation. The snackbar's entrance slide does not check it yet.
+Motion is purposeful only, 100 to 250ms (`Motion.PRESS` 100, `FAST` 150, `BASE` 200, `SLOW` 250). Uses: screen fades (200ms, none between tabs), the History header folding while the list scrolls (200ms), onboarding step fades (250ms), the shutter and the snackbar. The shutter, the History header, onboarding and the snackbar check `rememberReduceMotion()` and drop the animation.
 
 ## Do's and Don'ts
 

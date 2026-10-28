@@ -42,7 +42,6 @@ import com.yoloc.app.components.Icon
 import com.yoloc.app.components.IconName
 import com.yoloc.app.components.a11yAction
 import com.yoloc.app.components.rememberPress
-import com.yoloc.app.theme.CAMERA_BAR_OPACITY
 import com.yoloc.app.theme.Motion
 import com.yoloc.app.theme.Radii
 import com.yoloc.app.theme.Spacing

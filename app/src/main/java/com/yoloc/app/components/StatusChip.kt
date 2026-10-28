@@ -97,9 +97,9 @@ fun StatusChip(
 }
 
 /**
- * RN: components/VerdictChip.tsx. A saved scan's verdict as a chip. Pod statuses use the status
- * fill + icon; "no pods" is deliberately neutral (outlined, search icon) so it never reads as
- * healthy (CLAUDE.md 3.3).
+ * RN: components/VerdictChip.tsx. A saved scan's verdict as a chip. Pod statuses use the pale
+ * status tint + icon (redesign 2026-10-28; RN: the status fill); "no pods" is deliberately neutral
+ * (outlined, search icon) so it never reads as healthy (CLAUDE.md 3.3).
  */
 @Composable
 fun VerdictChip(verdict: Verdict, modifier: Modifier = Modifier, size: ChipSize = ChipSize.Sm) {

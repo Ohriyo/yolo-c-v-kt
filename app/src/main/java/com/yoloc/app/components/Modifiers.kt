@@ -50,7 +50,7 @@ fun Modifier.a11yAction(
     }
 }
 
-/** RN: theme.shadow.floating (0 6 20). Only floating elements cast one: sheet, snackbar, camera bar. */
+/** RN: theme.shadow.floating (0 6 20). Only floating elements cast one: the sheet and the snackbar. */
 @Composable
 fun Modifier.floatingShadow(shape: Shape): Modifier =
     dropShadow(shape, Shadow(radius = 20.dp, color = YoloCTheme.colors.floatingShadow, offset = DpOffset(0.dp, 6.dp)))

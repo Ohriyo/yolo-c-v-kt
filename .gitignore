@@ -13,3 +13,5 @@
 .externalNativeBuild
 .cxx
 local.properties
+# Design review screenshots (impeccable finish), local only
+.impeccable/review/

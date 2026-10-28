@@ -68,7 +68,7 @@ class ContrastTest {
     @Test
     fun compositeMatchesRn() {
         // RN: composite('#191B1A', '#111312', 0.94)
-        assertEquals("#191B1A", hex(composite(Palette.dark900, Palette.dark950, CAMERA_BAR_OPACITY)))
+        assertEquals("#191B1A", hex(composite(Palette.dark900, Palette.dark950, 0.94f)))
     }
 
     private fun hex(c: Color) = "#%02X%02X%02X".format((c.red * 255).roundToInt(), (c.green * 255).roundToInt(), (c.blue * 255).roundToInt())

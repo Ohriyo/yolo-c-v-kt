@@ -98,11 +98,17 @@ fun contrastPairs(c: YoloCColors): List<ContrastPair> {
         add("${key.token} label on status tint", c.status(key).onTint, c.status(key).tint)
     }
 
-    // Camera screen (dark in both themes). The bar is translucent over the camera screen.
+    // Camera screens (dark in both themes). Live's chips and the mode switch sit on the opaque bar.
     val cam = c.camera
-    val bar = composite(cam.bar, cam.screen, CAMERA_BAR_OPACITY)
-    add("camera control icon on bar", cam.control, bar)
-    add("camera shutter ring on bar", cam.shutterRing, bar, ContrastKind.NonText)
+    add("camera control icon on bar", cam.control, cam.bar)
+    add("camera text on bar", cam.lensText, cam.bar)
+    // Redesign 2026-10-28: the photo camera's controls float over the live picture on the scrim.
+    // The worst case is a white scene (every control is light), seen through the full scrim.
+    val scene = composite(cam.scrim.copy(alpha = 1f), Color.White, cam.scrim.alpha)
+    add("camera control icon on the scrim", cam.control, scene, ContrastKind.NonText)
+    add("camera shutter ring on the scrim", cam.shutterRing, scene, ContrastKind.NonText)
+    add("camera text on the scrim", cam.lensText, scene)
+    add("camera toggle icon on its circle", cam.control, composite(cam.controlFill.copy(alpha = 1f), scene, cam.controlFill.alpha), ContrastKind.NonText)
     add("camera active toggle icon", cam.lens, cam.control, ContrastKind.NonText)
     add("camera gallery placeholder icon", cam.control, cam.galleryFill, ContrastKind.NonText)
     add("camera text on screen", cam.lensText, cam.screen)
