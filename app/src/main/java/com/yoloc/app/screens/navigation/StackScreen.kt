@@ -39,7 +39,7 @@ import com.yoloc.app.theme.TouchTarget
 import com.yoloc.app.theme.TypeVariant
 import com.yoloc.app.theme.YoloCTheme
 
-/** RN's native header title: Barlow SemiBold at the platform's 20sp. */
+/** RN's native header title: the app's SemiBold at the platform's 20sp. */
 private val headerTitle = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 20.sp, lineHeight = 28.sp)
 
 /**

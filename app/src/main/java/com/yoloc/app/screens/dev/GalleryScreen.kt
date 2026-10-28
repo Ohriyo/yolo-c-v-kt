@@ -164,7 +164,7 @@ private fun GalleryContent(theme: ThemeSetting, onTheme: (ThemeSetting) -> Unit)
             }
         }
 
-        Section("Typography", "Barlow for text, Barlow Semi Condensed with tabular figures for numbers") {
+        Section("Typography", "Inter for text, Inter Display for headlines and big numbers, tabular figures for numbers") {
             for ((variant, text) in typeSamples) {
                 Row(horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
                     AppText(
@@ -367,19 +367,18 @@ private fun GalleryContent(theme: ThemeSetting, onTheme: (ThemeSetting) -> Unit)
             )
         }
 
-        Section("TabBar", "Tap to move the active tab. Scan is the filled center action.") {
+        Section("TabBar", "Tap to move the active tab. Five plain tabs, the active one on a tint pill.") {
             Box(Modifier.fillMaxWidth().clip(RoundedCornerShape(Radii.md)).border(1.dp, colors.border, RoundedCornerShape(Radii.md))) {
                 AppTabBar(
                     listOf(
                         TabBarItem("home", stringResource(R.string.tabs_home), IconName.Home),
+                        TabBarItem("scan", stringResource(R.string.tabs_scan), IconName.ScanLine),
                         TabBarItem("history", stringResource(R.string.tabs_history), IconName.Clock),
-                        TabBarItem("scan", stringResource(R.string.tabs_scan), IconName.Camera),
                         TabBarItem("learn", stringResource(R.string.tabs_learn), IconName.BookOpen),
                         TabBarItem("settings", stringResource(R.string.tabs_settings), IconName.Settings),
                     ),
                     activeTab,
                     { activeTab = it },
-                    centerKey = "scan",
                 )
             }
         }

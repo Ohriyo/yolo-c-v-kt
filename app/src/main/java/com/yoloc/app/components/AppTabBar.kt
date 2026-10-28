@@ -19,7 +19,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
@@ -33,14 +32,12 @@ import com.yoloc.app.theme.YoloCTheme
 
 data class TabBarItem<K>(val key: K, val label: String, val icon: IconName)
 
-/** RN: fontFamilies.semibold on the active label (caption is Barlow Medium). */
+/** The active label is heavier, so the active tab never relies on color alone. */
 private val strongLabel = TextStyle(fontWeight = FontWeight.SemiBold)
 
 /**
- * RN: components/TabBar.tsx. Material navigation bar. The active tab gets an indicator behind its
- * icon and a heavier label, not color alone. Scan ([centerKey]) sits in line with the tabs, set
- * apart by a filled indicator in the primary color, so the main action is unmistakable without
- * floating above the bar. It is an action button, never "selected".
+ * RN: components/TabBar.tsx, redesigned 2026-10-28 (the prototype): five plain tabs, Scan among
+ * them. The active tab gets a tint pill behind its icon, the active color and a heavier label.
  */
 @Composable
 fun <K> AppTabBar(
@@ -48,7 +45,6 @@ fun <K> AppTabBar(
     activeKey: K,
     onSelect: (K) -> Unit,
     modifier: Modifier = Modifier,
-    centerKey: K? = null,
 ) {
     val colors = YoloCTheme.colors
     val t = colors.tabBar
@@ -63,25 +59,17 @@ fun <K> AppTabBar(
         ) {
             for (item in items) {
                 val active = item.key == activeKey
-                val isCenter = item.key == centerKey
                 val press = rememberPress()
-                val pressed = press.pressed.value
                 val indicator = when {
-                    isCenter -> t.scanBg
                     active -> t.indicator
-                    pressed -> colors.surface
+                    press.pressed.value -> colors.surface
                     else -> Color.Transparent
                 }
                 Column(
                     Modifier
                         .weight(1f)
                         .heightIn(min = TouchTarget + Spacing.md)
-                        .a11yAction(
-                            item.label,
-                            { onSelect(item.key) },
-                            role = if (isCenter) Role.Button else Role.Tab,
-                            selected = if (isCenter) null else active,
-                        )
+                        .a11yAction(item.label, { onSelect(item.key) }, role = Role.Tab, selected = active)
                         .clickable(interactionSource = press.source, indication = null) { onSelect(item.key) }
                         .padding(bottom = Spacing.xs),
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -89,26 +77,17 @@ fun <K> AppTabBar(
                 ) {
                     Box(
                         Modifier
-                            .size(width = 56.dp, height = 32.dp)
-                            .alpha(if (isCenter && pressed) 0.8f else 1f)
-                            .background(indicator, RoundedCornerShape(Radii.full)),
+                            .size(width = 48.dp, height = 32.dp)
+                            .background(indicator, RoundedCornerShape(Radii.sm)),
                         contentAlignment = Alignment.Center,
                     ) {
-                        Icon(
-                            item.icon,
-                            size = if (isCenter) 24.dp else 22.dp,
-                            color = when {
-                                isCenter -> t.scanIcon
-                                active -> t.active
-                                else -> t.label
-                            },
-                        )
+                        Icon(item.icon, size = 22.dp, color = if (active) t.active else t.label)
                     }
                     AppText(
                         item.label,
                         variant = TypeVariant.Caption,
-                        color = if (active || isCenter) t.active else t.label,
-                        style = if (active || isCenter) strongLabel else null,
+                        color = if (active) t.active else t.label,
+                        style = if (active) strongLabel else null,
                         maxLines = 1,
                     )
                 }

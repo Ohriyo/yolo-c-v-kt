@@ -21,9 +21,12 @@ data class StatusColors(
     val stroke: Color,
     /** Status icon on this theme's background and surfaces (passes 3:1). */
     val ink: Color,
-    /** Fill behind text (chips on photos and lists). AA-safe with [onFill]. */
+    /** Solid fill behind text on photos (box labels), matching the stroke. AA-safe with [onFill]. */
     val fill: Color,
     val onFill: Color,
+    /** Pale fill behind chip text on the app's own surfaces. AA-safe with [onTint]. */
+    val tint: Color,
+    val onTint: Color,
 )
 
 data class ButtonColors(
@@ -64,14 +67,16 @@ data class TabBarColors(
     val label: Color,
     val active: Color,
     val indicator: Color,
-    val scanBg: Color,
-    val scanIcon: Color,
 )
 
 /** RN: Theme.colors. Same fields, same values. */
 data class YoloCColors(
     val isDark: Boolean,
     val background: Color,
+    /** Cards on the ground. */
+    val card: Color,
+    /** The soft low shadow under cards; transparent in dark (the hairline carries depth). */
+    val cardShadow: Color,
     /** Grouped areas, inputs, skeletons. */
     val surface: Color,
     /** Sheets and dialogs. */
@@ -138,23 +143,33 @@ private val onDarkButton = ButtonColors(
     border = p.white,
 )
 
-private fun healthy(ink: Color) = StatusColors(stroke = p.statusHealthy, ink = ink, fill = p.sageChip, onFill = p.forest900)
+private fun healthy(ink: Color, tint: Color, onTint: Color) =
+    StatusColors(stroke = p.statusHealthy, ink = ink, fill = p.sageChip, onFill = p.forest900, tint = tint, onTint = onTint)
 
-private fun early(ink: Color) = StatusColors(stroke = p.statusEarly, ink = ink, fill = p.statusEarly, onFill = p.forest900)
+private fun early(ink: Color, tint: Color, onTint: Color) =
+    StatusColors(stroke = p.statusEarly, ink = ink, fill = p.statusEarly, onFill = p.forest900, tint = tint, onTint = onTint)
 
-private fun infected(ink: Color) = StatusColors(stroke = p.statusInfected, ink = ink, fill = p.statusInfected, onFill = p.white)
+private fun infected(ink: Color, tint: Color, onTint: Color) =
+    StatusColors(stroke = p.statusInfected, ink = ink, fill = p.statusInfected, onFill = p.white, tint = tint, onTint = onTint)
 
+/**
+ * Redesign 2026-10-28: the prototype's leaf-tinted ground, white cards with a hairline and a soft
+ * shadow, the forest green for actions and the active tab, pale status chips. The brand and
+ * status hex values are unchanged.
+ */
 val lightColors = YoloCColors(
     isDark = false,
-    background = p.white,
-    surface = p.light50,
+    background = p.ground,
+    card = p.white,
+    cardShadow = p.forest900.copy(alpha = 0.06f),
+    surface = p.pressLight,
     surfaceRaised = p.white,
-    selected = p.cream100,
+    selected = p.leaf,
     text = p.forest900,
-    textMuted = p.forest700,
-    textFaint = p.light600,
+    textMuted = p.inkMuted,
+    textFaint = p.inkFaint,
     icon = p.sageInk,
-    border = p.mist300.copy(alpha = 0.45f),
+    border = p.hairline,
     outline = p.light400,
     focus = p.forest700,
     link = p.forest700,
@@ -162,29 +177,31 @@ val lightColors = YoloCColors(
     boxHalo = p.white,
     inverse = InverseColors(bg = p.light900, text = p.white, icon = p.mist300),
     primary = ButtonColors(bg = p.forest700, text = p.white, pressedBg = p.forest900, pressedText = p.white, border = p.forest700),
-    secondary = ButtonColors(bg = Color.Transparent, text = p.forest700, pressedBg = p.light100, pressedText = p.forest900, border = p.light400),
-    ghost = ButtonColors(bg = Color.Transparent, text = p.forest700, pressedBg = p.light100, pressedText = p.forest900, border = Color.Transparent),
+    secondary = ButtonColors(bg = p.white, text = p.forest700, pressedBg = p.leaf, pressedText = p.forest900, border = p.controlEdge),
+    ghost = ButtonColors(bg = Color.Transparent, text = p.forest700, pressedBg = p.leaf, pressedText = p.forest900, border = Color.Transparent),
     onDark = onDarkButton,
     disabled = DisabledColors(bg = p.light100, text = p.light600),
-    tabBar = TabBarColors(bg = p.white, label = p.light600, active = p.forest900, indicator = p.cream100, scanBg = p.forest700, scanIcon = p.white),
+    tabBar = TabBarColors(bg = p.white, label = p.inkFaint, active = p.forest700, indicator = p.leaf),
     camera = camera,
-    healthy = healthy(ink = p.sageInk),
-    early = early(ink = p.amberInk),
-    infected = infected(ink = p.statusInfected),
+    healthy = healthy(ink = p.sageInk, tint = p.healthyTint, onTint = p.forest700),
+    early = early(ink = p.amberInk, tint = p.earlyTint, onTint = p.earlyTintInk),
+    infected = infected(ink = p.statusInfected, tint = p.infectedTint, onTint = p.infectedTintInk),
     floatingShadow = p.dark950.copy(alpha = 0.18f),
 )
 
 val darkColors = YoloCColors(
     isDark = true,
-    background = p.dark950,
-    surface = p.dark900,
-    surfaceRaised = p.dark850,
-    selected = p.dark800,
-    text = p.dark50,
-    textMuted = p.dark300,
-    textFaint = p.dark300,
+    background = p.groundDark,
+    card = p.cardDark,
+    cardShadow = Color.Transparent,
+    surface = p.pressDark,
+    surfaceRaised = p.cardDark,
+    selected = p.leafDark,
+    text = p.inkDark,
+    textMuted = p.inkMutedDark,
+    textFaint = p.inkFaintDark,
     icon = p.sage500,
-    border = p.mist300.copy(alpha = 0.18f),
+    border = p.hairlineDark,
     outline = p.dark500,
     focus = p.mist300,
     link = p.mist300,
@@ -192,14 +209,14 @@ val darkColors = YoloCColors(
     boxHalo = p.white,
     inverse = InverseColors(bg = p.dark50, text = p.dark950, icon = p.forest700),
     primary = ButtonColors(bg = p.sage500, text = p.dark950, pressedBg = p.mist300, pressedText = p.dark950, border = p.sage500),
-    secondary = ButtonColors(bg = Color.Transparent, text = p.mist300, pressedBg = p.dark850, pressedText = p.dark50, border = p.dark500),
-    ghost = ButtonColors(bg = Color.Transparent, text = p.mist300, pressedBg = p.dark850, pressedText = p.dark50, border = Color.Transparent),
+    secondary = ButtonColors(bg = p.cardDark, text = p.mist300, pressedBg = p.leafDark, pressedText = p.dark50, border = p.dark800),
+    ghost = ButtonColors(bg = Color.Transparent, text = p.mist300, pressedBg = p.leafDark, pressedText = p.dark50, border = Color.Transparent),
     onDark = onDarkButton,
     disabled = DisabledColors(bg = p.dark850, text = p.dark300),
-    tabBar = TabBarColors(bg = p.dark900, label = p.dark300, active = p.dark50, indicator = p.forest700, scanBg = p.sage500, scanIcon = p.dark950),
+    tabBar = TabBarColors(bg = p.cardDark, label = p.inkFaintDark, active = p.mist300, indicator = p.leafDark),
     camera = camera,
-    healthy = healthy(ink = p.statusHealthy),
-    early = early(ink = p.statusEarly),
-    infected = infected(ink = p.brickLight),
+    healthy = healthy(ink = p.statusHealthy, tint = p.healthyTintDark, onTint = p.healthyTintInkDark),
+    early = early(ink = p.statusEarly, tint = p.earlyTintDark, onTint = p.earlyTintInkDark),
+    infected = infected(ink = p.brickLight, tint = p.infectedTintDark, onTint = p.infectedTintInkDark),
     floatingShadow = p.black.copy(alpha = 0.5f),
 )

@@ -36,12 +36,12 @@ import com.yoloc.app.theme.YoloCTheme
 import com.yoloc.app.theme.YoloCType
 
 /**
- * RN: the app's TextInput style (sheets, Plots): Barlow body text on the surface, a 1dp border,
+ * RN: the app's TextInput style (sheets, Plots): body text on the card color, a 1dp border,
  * the muted placeholder. [maxLength] cuts what is typed, as RN's maxLength ([limitEdit]).
  *
  * @param onDone The keyboard's Done (single line only; RN: onSubmitEditing).
  * @param pill Fully rounded ends (RN: Plots' fields).
- * @param background Defaults to the surface.
+ * @param background Defaults to the card color.
  * @param selectAllOnFocus RN: selectTextOnFocus. The starting text is selected, so typing replaces it.
  */
 @Composable
@@ -60,7 +60,7 @@ fun YTextField(
     selectAllOnFocus: Boolean = false,
 ) {
     val colors = YoloCTheme.colors
-    val shape = RoundedCornerShape(if (pill) Radii.full else Radii.md)
+    val shape = RoundedCornerShape(if (pill) Radii.full else Radii.sm)
     var field by remember { mutableStateOf(TextFieldValue(value, TextRange(value.length))) }
     // The caller owns the text. Only a change made outside the field (cleared after Add) replaces
     // it: a caller that shows the typed text a frame late must not move the cursor or break the
@@ -73,7 +73,7 @@ fun YTextField(
     Box(
         modifier
             .heightIn(min = minHeight)
-            .background(if (background.isSpecified) background else colors.surface, shape)
+            .background(if (background.isSpecified) background else colors.card, shape)
             .border(1.dp, colors.border, shape)
             .padding(horizontal = Spacing.md, vertical = if (singleLine) 0.dp else Spacing.sm),
         contentAlignment = if (singleLine) Alignment.CenterStart else Alignment.TopStart,

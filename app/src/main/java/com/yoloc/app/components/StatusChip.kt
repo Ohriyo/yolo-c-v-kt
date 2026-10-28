@@ -67,7 +67,8 @@ private fun ChipRow(size: ChipSize, modifier: Modifier, content: @Composable () 
 }
 
 /**
- * RN: components/StatusChip.tsx. Status fill + icon + label. Never color alone.
+ * RN: components/StatusChip.tsx. Status tint + icon + label. Never color alone. Redesign
+ * 2026-10-28: a pale tint with the status ink (the prototype), not RN's solid fill.
  *
  * @param label Defaults to the generic status name; pass the class display name when known.
  * @param confidence 0–1. Shown as a whole percentage when given.
@@ -84,12 +85,12 @@ fun StatusChip(
     val text = label ?: statusName(status)
     val pct = confidence?.let(::formatConfidence)
     val a11y = if (pct == null) text else "$text, ${stringResource(R.string.common_confidence, pct)}"
-    ChipRow(size, modifier.a11yLabel(a11y).clip(RoundedCornerShape(Radii.full)).background(s.fill)) {
-        Icon(statusIcon.getValue(status), size = if (size == ChipSize.Sm) 14.dp else 16.dp, color = s.onFill)
+    ChipRow(size, modifier.a11yLabel(a11y).clip(RoundedCornerShape(Radii.sm)).background(s.tint)) {
+        Icon(statusIcon.getValue(status), size = if (size == ChipSize.Sm) 14.dp else 16.dp, color = s.onTint)
         AppText(
             if (pct == null) text else "$text $pct%",
             variant = if (size == ChipSize.Sm) TypeVariant.Caption else TypeVariant.Label,
-            color = s.onFill,
+            color = s.onTint,
             maxLines = 1,
         )
     }
@@ -108,9 +109,9 @@ fun VerdictChip(verdict: Verdict, modifier: Modifier = Modifier, size: ChipSize 
         return
     }
     val colors = YoloCTheme.colors
-    val shape = RoundedCornerShape(Radii.full)
+    val shape = RoundedCornerShape(Radii.sm)
     val label = verdictShortName(verdict)
-    ChipRow(size, modifier.a11yLabel(label).clip(shape).background(colors.background).border(1.dp, colors.outline, shape)) {
+    ChipRow(size, modifier.a11yLabel(label).clip(shape).background(colors.card).border(1.dp, colors.outline, shape)) {
         Icon(IconName.Search, size = if (size == ChipSize.Sm) 14.dp else 16.dp, color = colors.textMuted)
         AppText(label, variant = if (size == ChipSize.Sm) TypeVariant.Caption else TypeVariant.Label, maxLines = 1)
     }

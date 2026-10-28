@@ -19,15 +19,15 @@ object Spacing {
     val xxl = 48.dp
 }
 
-/** The only three corner radii. */
+/** The only three corner radii (redesign 2026-10-28: the prototype's softer corners). */
 object Radii {
-    /** Buttons, inputs, small controls. */
-    val sm = 4.dp
+    /** Buttons, inputs, chips, the tab indicator. */
+    val sm = 8.dp
 
-    /** Photos, panels, sheets. */
-    val md = 10.dp
+    /** Cards, photos, panels, sheets. */
+    val md = 16.dp
 
-    /** Status and filter chips, the capture button, the tab indicator. */
+    /** The capture button, round icon buttons, the status dot. */
     val full = 999.dp
 }
 

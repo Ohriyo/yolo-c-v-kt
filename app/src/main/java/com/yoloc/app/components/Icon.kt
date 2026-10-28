@@ -66,6 +66,7 @@ enum class IconName(val key: String, @param:DrawableRes val drawable: Int) {
     RotateCcw("rotate-ccw", R.drawable.ic_rotate_ccw),
     RotateCw("rotate-cw", R.drawable.ic_rotate_cw),
     Save("save", R.drawable.ic_save),
+    ScanLine("scan-line", R.drawable.ic_scan_line),
     Search("search", R.drawable.ic_search),
     Settings("settings", R.drawable.ic_settings),
     Share2("share-2", R.drawable.ic_share_2),

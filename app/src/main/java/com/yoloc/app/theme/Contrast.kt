@@ -58,6 +58,7 @@ fun contrastPairs(c: YoloCColors): List<ContrastPair> {
 
     val surfaces = listOf(
         "background" to c.background,
+        "card" to c.card,
         "surface" to c.surface,
         "surfaceRaised" to c.surfaceRaised,
         "selected" to c.selected,
@@ -88,10 +89,12 @@ fun contrastPairs(c: YoloCColors): List<ContrastPair> {
     add("tab label", c.tabBar.label, c.tabBar.bg)
     add("active tab label", c.tabBar.active, c.tabBar.bg)
     add("active tab icon on indicator", c.tabBar.active, c.tabBar.indicator, ContrastKind.NonText)
-    add("scan button icon", c.tabBar.scanIcon, c.tabBar.scanBg, ContrastKind.NonText)
-    add("scan button against the bar", c.tabBar.scanBg, c.tabBar.bg, ContrastKind.NonText)
+    add("active tab label on indicator", c.tabBar.active, c.tabBar.indicator)
 
-    for (key in StatusKey.entries) add("${key.token} label on status fill", c.status(key).onFill, c.status(key).fill)
+    for (key in StatusKey.entries) {
+        add("${key.token} label on status fill", c.status(key).onFill, c.status(key).fill)
+        add("${key.token} label on status tint", c.status(key).onTint, c.status(key).tint)
+    }
 
     // Camera screen (dark in both themes). The bar is translucent over the camera screen.
     val cam = c.camera

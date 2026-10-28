@@ -36,7 +36,11 @@
     <string name="tabs_home">Home</string>
     <string name="tabs_scan">Scan</string>
     <string name="tabs_history">History</string>
-    <string name="tabs_learn">Learn</string>
+    <string name="tabs_learn">Guide</string>
+    <string name="topbar_tagline">Your field companion</string>
+    <string name="topbar_offline">Offline ready</string>
+    <string name="topbar_offline_a11y">Offline ready. Scans run on this phone, nothing is sent.</string>
+    <string name="topbar_dark_mode">Dark mode</string>
     <string name="tabs_settings">Settings</string>
 
     <!-- Screens not built yet (RN: strings.placeholder). -->

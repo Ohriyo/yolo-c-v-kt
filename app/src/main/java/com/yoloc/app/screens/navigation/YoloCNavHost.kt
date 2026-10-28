@@ -33,9 +33,14 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import com.yoloc.app.BuildConfig
 import com.yoloc.app.R
 import com.yoloc.app.components.AppTabBar
+import com.yoloc.app.components.AppTopBar
+import com.yoloc.app.db.repositories.ThemeSetting
 import com.yoloc.app.components.IconName
 import com.yoloc.app.components.TabBarItem
 import com.yoloc.app.screens.appContainer
@@ -63,7 +68,7 @@ import com.yoloc.app.store.HistoryRequest
 import com.yoloc.app.theme.Motion
 import com.yoloc.app.theme.YoloCTheme
 
-/** Not a tab: the center button opens the full-screen camera (CLAUDE.md 3.2). */
+/** The Scan tab: not a route of its own, it opens the camera (CLAUDE.md 3.2). */
 private data object ScanButton
 
 internal val tabRoutes = listOf(Home::class, History::class, Learn::class, Settings::class)
@@ -97,23 +102,34 @@ fun YoloCNavHost(onboardingDone: Boolean) {
     CameraBars(destination.isCamera())
 
     val colors = YoloCTheme.colors
+    // Redesign 2026-10-28 (the prototype): Home, Scan, History, Guide, Settings, all plain tabs.
     val items = listOf<TabBarItem<Any>>(
         TabBarItem(Home, stringResource(R.string.tabs_home), IconName.Home),
+        TabBarItem(ScanButton, stringResource(R.string.tabs_scan), IconName.ScanLine),
         TabBarItem(History, stringResource(R.string.tabs_history), IconName.Clock),
-        // Scan sits in the middle of the five, after Home and History.
-        TabBarItem(ScanButton, stringResource(R.string.tabs_scan), IconName.Camera),
         TabBarItem(Learn, stringResource(R.string.tabs_learn), IconName.BookOpen),
         TabBarItem(Settings, stringResource(R.string.tabs_settings), IconName.Settings),
     )
     // Only real routes: ScanButton is not one (no serializer), so hasRoute on it throws.
     val activeTab: Any = items.firstOrNull { it.key != ScanButton && destination?.hasRoute(it.key::class) == true }?.key ?: Home
 
+    val settings = appContainer().settingsStore
+    val themeScope = rememberCoroutineScope()
+
     Column(Modifier.fillMaxSize().background(colors.background)) {
+        if (onTab) {
+            AppTopBar(
+                dark = colors.isDark,
+                onToggleDark = { themeScope.launch { settings.setTheme(if (colors.isDark) ThemeSetting.Light else ThemeSetting.Dark) } },
+            )
+        }
         NavHost(
             navController = nav,
             startDestination = start,
-            // The tab bar keeps the navigation bar clear, so tab screens must not pad for it too.
-            modifier = Modifier.weight(1f).then(if (onTab) Modifier.consumeWindowInsets(WindowInsets.navigationBars) else Modifier),
+            // The top bar and tab bar keep the system bars clear, so tab screens must not pad for them too.
+            modifier = Modifier
+                .weight(1f)
+                .then(if (onTab) Modifier.consumeWindowInsets(WindowInsets.navigationBars).consumeWindowInsets(WindowInsets.statusBars) else Modifier),
             // RN: JS tabs switch without animation; stack screens fade (the camera's own "fade").
             enterTransition = { if (initialState.isTab() && targetState.isTab()) EnterTransition.None else fadeIn(tween(Motion.BASE)) },
             exitTransition = { if (initialState.isTab() && targetState.isTab()) ExitTransition.None else fadeOut(tween(Motion.BASE)) },
@@ -256,7 +272,6 @@ fun YoloCNavHost(onboardingDone: Boolean) {
             AppTabBar(
                 items = items,
                 activeKey = activeTab,
-                centerKey = ScanButton,
                 onSelect = { key ->
                     when {
                         key == ScanButton -> entry?.ifShown { nav.navigate(Camera) }

@@ -25,7 +25,7 @@ enum class Tone { Default, Muted, Faint }
 private const val MAX_FONT_SCALE = 1.6f
 
 /**
- * RN: components/AppText.tsx. Text in the Barlow type scale and theme colors. Use instead of raw
+ * RN: components/AppText.tsx. Text in the app's type scale and theme colors. Use instead of raw
  * Text. Headline and title are announced as headings. [color] is for text on a known fill
  * (status chips, buttons).
  */

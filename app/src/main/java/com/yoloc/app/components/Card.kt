@@ -21,8 +21,8 @@ import com.yoloc.app.theme.Spacing
 import com.yoloc.app.theme.YoloCTheme
 
 /**
- * RN: components/Card.tsx. A bordered panel, for content that needs grouping (a form, an export
- * summary). Lists use divided rows instead. No shadow: depth comes from the hairline and spacing.
+ * RN: components/Card.tsx, redesigned 2026-10-28 (the prototype): a white card on the tinted
+ * ground, with a hairline and a soft low shadow (none in dark, where the hairline carries depth).
  */
 @Composable
 fun Card(
@@ -48,8 +48,9 @@ fun Card(
     Column(
         modifier = modifier
             .fillMaxWidth()
+            .cardShadow(shape)
             .clip(shape)
-            .background(if (onClick != null && (press.pressed.value || previewPressed)) colors.surface else colors.background)
+            .background(if (onClick != null && (press.pressed.value || previewPressed)) colors.surface else colors.card)
             .border(1.dp, colors.border, shape)
             .then(tap)
             .padding(Spacing.md),

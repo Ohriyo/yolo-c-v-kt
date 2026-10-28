@@ -112,6 +112,20 @@ edge case that would give a wrong result. Everything else follows RN commit `1e7
 | `SettingsRow` (Step 5) | The detail line is the button's accessibility hint | It is read after the label, in the same announcement | Compose has no hint separate from the label; TalkBack reads both either way |
 | `SeedScreen` failure message (Step 5, dev only) | "See the Metro log" | "See the Logcat log" | The Kotlin app logs to Logcat; there is no Metro |
 
+## Redesign (2026-10-28, Kotlin only)
+
+The Kotlin app follows the user's UI prototype (the screen recording `YOLO-C-UI-GUIDE.mp4`)
+instead of RN's "Field instrument" look; the RN app may get the same design later. Product
+truth and the analysis are unchanged. Compare the two apps' UI with this in mind.
+
+| Where (Kotlin) | RN | Kotlin | Part |
+| -------------- | -- | ------ | ---- |
+| Theme tokens | White ground, neutral surfaces, Barlow and Barlow Semi Condensed, corners 4 / 10 | Leaf-tinted ground `#F6F8F5`, white cards with a hairline and a soft shadow, Inter and Inter Display, corners 8 / 16 | 1 |
+| Status chips | Solid status fill | Pale status tint with the status ink (same icon and label); box labels on photos keep the solid fill | 1 |
+| Tab bar | Home, History, a filled Scan action, Learn, Settings | Five plain tabs: Home, Scan, History, Guide, Settings; the active one on a tint pill | 1 |
+| Top bar on tab screens | None | "Your field companion", an "Offline ready" badge and a dark mode switch | 1 |
+| Icons | Feather at stroke 2 | Feather at stroke 1.75, plus Lucide's scan-line for the Scan tab | 1 |
+
 ## Step 6 measurements (filled in as the port progresses)
 
 | Measure                                                  | RN                                                    | Kotlin |

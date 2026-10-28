@@ -55,6 +55,13 @@ fun Modifier.a11yAction(
 fun Modifier.floatingShadow(shape: Shape): Modifier =
     dropShadow(shape, Shadow(radius = 20.dp, color = YoloCTheme.colors.floatingShadow, offset = DpOffset(0.dp, 6.dp)))
 
+/** Redesign 2026-10-28: the soft low shadow under cards (the prototype). None in dark. */
+@Composable
+fun Modifier.cardShadow(shape: Shape): Modifier {
+    val color = YoloCTheme.colors.cardShadow
+    return if (color.alpha == 0f) this else dropShadow(shape, Shadow(radius = 12.dp, color = color, offset = DpOffset(0.dp, 2.dp)))
+}
+
 /** A press source plus its pressed state, for RN-style pressed colors (no ripple). */
 class Press(val source: MutableInteractionSource, val pressed: State<Boolean>)
 
