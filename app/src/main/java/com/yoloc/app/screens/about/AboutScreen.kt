@@ -28,7 +28,7 @@ import com.yoloc.app.components.Card
 import com.yoloc.app.components.Icon
 import com.yoloc.app.components.IconName
 import com.yoloc.app.components.RecallPods
-import com.yoloc.app.components.SectionHeader
+import com.yoloc.app.components.HeaderedSection
 import com.yoloc.app.components.ScreenContainer
 import com.yoloc.app.components.StatusChip
 import com.yoloc.app.components.Tone
@@ -77,7 +77,7 @@ fun AboutScreen(vm: AboutViewModel = viewModel(factory = AboutViewModel.Factory)
         }
 
         if (found != null && missed != null && recall != null) {
-            Section(stringResource(R.string.about_accuracy_title)) {
+            HeaderedSection(stringResource(R.string.about_accuracy_title)) {
                 Card {
                     AppText(stringResource(R.string.about_recall_headline, found), variant = TypeVariant.Title)
                     RecallPods(found, stringResource(R.string.about_recall_a11y, found))
@@ -94,7 +94,7 @@ fun AboutScreen(vm: AboutViewModel = viewModel(factory = AboutViewModel.Factory)
             }
         }
 
-        Section(stringResource(R.string.about_limitations_title)) {
+        HeaderedSection(stringResource(R.string.about_limitations_title)) {
             Card {
                 listOf(
                     stringResource(R.string.about_limitation_aid),
@@ -106,7 +106,7 @@ fun AboutScreen(vm: AboutViewModel = viewModel(factory = AboutViewModel.Factory)
             }
         }
 
-        Section(stringResource(R.string.about_model_title)) {
+        HeaderedSection(stringResource(R.string.about_model_title)) {
             Card {
                 InfoRow(stringResource(R.string.about_model), config.displayName)
                 InfoRow(stringResource(R.string.about_version), config.id)
@@ -118,7 +118,7 @@ fun AboutScreen(vm: AboutViewModel = viewModel(factory = AboutViewModel.Factory)
             }
         }
 
-        Section(stringResource(R.string.about_privacy_title)) {
+        HeaderedSection(stringResource(R.string.about_privacy_title)) {
             Card { Bullet(IconName.Lock, stringResource(R.string.about_privacy_body)) }
         }
 
@@ -131,14 +131,6 @@ fun AboutScreen(vm: AboutViewModel = viewModel(factory = AboutViewModel.Factory)
                 textAlign = TextAlign.Center,
             )
         }
-    }
-}
-
-@Composable
-private fun Section(title: String, content: @Composable () -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
-        SectionHeader(title)
-        content()
     }
 }
 

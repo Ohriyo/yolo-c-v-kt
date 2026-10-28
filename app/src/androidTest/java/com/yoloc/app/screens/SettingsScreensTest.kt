@@ -182,7 +182,18 @@ class SettingsScreensTest {
 
     private fun showPlots(requests: HistoryRequests = HistoryRequests(), onOpen: () -> Unit = {}) {
         val vm = PlotsViewModel(plots, library, requests)
-        compose.setContent { YoloCTheme { PlotsScreen(onOpenPlot = onOpen, vm = vm) } }
+        // As the NavHost: send the request, then show History.
+        compose.setContent {
+            YoloCTheme {
+                PlotsScreen(
+                    onOpenPlot = { send ->
+                        send()
+                        onOpen()
+                    },
+                    vm = vm,
+                )
+            }
+        }
     }
 
     @Test

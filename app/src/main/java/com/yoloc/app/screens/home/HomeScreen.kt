@@ -38,7 +38,7 @@ import com.yoloc.app.components.Card
 import com.yoloc.app.components.Icon
 import com.yoloc.app.components.IconName
 import com.yoloc.app.components.ScreenContainer
-import com.yoloc.app.components.SectionHeader
+import com.yoloc.app.components.HeaderedSection
 import com.yoloc.app.components.TextAction
 import com.yoloc.app.components.Tone
 import com.yoloc.app.components.YButton
@@ -98,8 +98,7 @@ fun HomeScreen(
                 YButton(stringResource(R.string.home_scan_cta), onScan, icon = IconName.Camera, size = ButtonSize.Lg, fullWidth = true)
             }
 
-            Section {
-                SectionHeader(stringResource(R.string.home_counts_title), subtitle = stringResource(R.string.home_counts_subtitle))
+            HeaderedSection(stringResource(R.string.home_counts_title), subtitle = stringResource(R.string.home_counts_subtitle)) {
                 // Three equal capsules in one row, so no status is ever orphaned on a second line.
                 Row(horizontalArrangement = Arrangement.spacedBy(Spacing.xs)) {
                     for (v in COUNT_VERDICTS) {
@@ -109,16 +108,15 @@ fun HomeScreen(
                 }
             }
 
-            Section {
-                val s = summary
-                SectionHeader(
-                    stringResource(R.string.home_recent_title),
-                    action = if (s is HomeViewModel.Summary.Ready && s.recent.isNotEmpty()) {
-                        TextAction(stringResource(R.string.home_see_all), onOpenHistory)
-                    } else {
-                        null
-                    },
-                )
+            val s = summary
+            HeaderedSection(
+                stringResource(R.string.home_recent_title),
+                action = if (s is HomeViewModel.Summary.Ready && s.recent.isNotEmpty()) {
+                    TextAction(stringResource(R.string.home_see_all), onOpenHistory)
+                } else {
+                    null
+                },
+            ) {
                 when (s) {
                     HomeViewModel.Summary.Loading -> RecentSkeleton()
                     HomeViewModel.Summary.Error -> Card {
@@ -145,8 +143,7 @@ fun HomeScreen(
                 }
             }
 
-            Section {
-                SectionHeader(stringResource(R.string.home_tip_title), action = TextAction(stringResource(R.string.home_learn_more), onOpenLearn))
+            HeaderedSection(stringResource(R.string.home_tip_title), action = TextAction(stringResource(R.string.home_learn_more), onOpenLearn)) {
                 Card {
                     Row(horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
                         Icon(IconName.Camera, size = 22.dp)
@@ -157,11 +154,6 @@ fun HomeScreen(
         }
         UndoDeleteSnackbar(library, undoScope, Modifier.align(Alignment.BottomCenter))
     }
-}
-
-@Composable
-private fun Section(content: @Composable () -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(Spacing.sm)) { content() }
 }
 
 /** A 30-day count that opens History filtered to that result. Status fill + icon + label. */

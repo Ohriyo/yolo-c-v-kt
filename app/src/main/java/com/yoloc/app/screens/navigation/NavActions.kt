@@ -8,6 +8,7 @@ import androidx.navigation.NavDestination.Companion.hasRoute
 import com.yoloc.app.screens.scan.ResultViewModel
 import com.yoloc.app.store.HistoryRequest
 import com.yoloc.app.store.HistoryRequests
+import com.yoloc.app.store.ScanSession
 
 /*
  * RN router calls, as the guide's table (5.3) maps them. Screens call these instead of building
@@ -77,13 +78,13 @@ fun NavController.dismissToCamera() {
  * Discard / Save. If Result is below with unsaved pods, it is shown again with that question and
  * true is returned (the caller does not leave); otherwise false.
  */
-fun NavController.returnToUnsavedResult(): Boolean {
+fun NavController.returnToUnsavedResult(session: ScanSession): Boolean {
     val entry = runCatching { getBackStackEntry<Result>() }.getOrNull() ?: return false
-    // The ViewModel Result's screen already made (same store, same default key).
-    val vm = ViewModelProvider.create(entry, ResultViewModel.Factory, entry.defaultViewModelCreationExtras)[ResultViewModel::class]
-    if (!vm.state.value.guarded) return false
+    // Result guards while its scan has pods; the session holds that scan until Result exits.
+    if (session.state.value.result?.detections.isNullOrEmpty()) return false
     popBackStack<Result>(inclusive = false)
-    vm.onLeaveRequested()
+    // Result is shown now, so its ViewModel is the one its screen uses (made here if it was not yet).
+    ViewModelProvider.create(entry, ResultViewModel.Factory, entry.defaultViewModelCreationExtras)[ResultViewModel::class].onLeaveRequested()
     return true
 }
 

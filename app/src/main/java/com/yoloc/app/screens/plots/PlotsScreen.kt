@@ -65,15 +65,11 @@ private const val NAME_MAX = 60
  * RN: app/plots.tsx (CLAUDE.md 3.2). Add, rename and delete the farm areas scans are grouped by.
  * Tapping a plot opens History filtered to it. Deleting a plot keeps its scans.
  *
- * @param onOpenPlot Called after the History request is sent; the NavHost shows History.
- * @param beforeLeave True when leaving was stopped (an unsaved Result asks first): no request is sent.
+ * @param onOpenPlot Gets the action that sends the History request; the NavHost runs it (or not, if
+ *   leaving is stopped) together with showing History.
  */
 @Composable
-fun PlotsScreen(
-    onOpenPlot: () -> Unit,
-    beforeLeave: () -> Boolean = { false },
-    vm: PlotsViewModel = viewModel(factory = PlotsViewModel.Factory),
-) {
+fun PlotsScreen(onOpenPlot: (sendRequest: () -> Unit) -> Unit, vm: PlotsViewModel = viewModel(factory = PlotsViewModel.Factory)) {
     val s by vm.state.collectAsStateWithLifecycle()
     val colors = YoloCTheme.colors
     ScreenContainer {
@@ -93,7 +89,8 @@ fun PlotsScreen(
                 background = colors.surfaceRaised,
                 onDone = vm::add,
             )
-            YButton(stringResource(R.string.plots_add), vm::add, icon = IconName.Plus, enabled = s.name.isNotBlank())
+            // The duplicate check needs the list, so Add waits for it.
+            YButton(stringResource(R.string.plots_add), vm::add, icon = IconName.Plus, enabled = s.canAdd)
         }
         when (s.problem) {
             PlotsViewModel.Problem.Duplicate -> Alert(stringResource(R.string.plots_duplicate))
@@ -117,12 +114,7 @@ fun PlotsScreen(
                         key(plot.id) {
                             PlotRow(
                                 plot,
-                                onOpen = {
-                                    if (!beforeLeave()) {
-                                        vm.open(plot)
-                                        onOpenPlot()
-                                    }
-                                },
+                                onOpen = { onOpenPlot { vm.open(plot) } },
                                 onRename = { vm.startRename(plot) },
                                 onDelete = { vm.askDelete(plot) },
                             )
@@ -134,7 +126,9 @@ fun PlotsScreen(
     }
 
     s.renaming?.let { plot ->
-        key(plot.id) { RenameSheet(plot, isDuplicate = { vm.isDuplicate(it, plot.id) }, onSave = vm::rename, onClose = vm::cancelRename) }
+        key(plot.id) {
+            RenameSheet(plot, s.renameSaving, isDuplicate = { vm.isDuplicate(it, plot.id) }, onSave = vm::rename, onClose = vm::cancelRename)
+        }
     }
     s.deleting?.let { plot ->
         ConfirmDialog(
@@ -205,7 +199,7 @@ private fun IconButton(icon: IconName, label: String, onPress: () -> Unit) {
 }
 
 @Composable
-private fun RenameSheet(plot: PlotWithCount, isDuplicate: (String) -> Boolean, onSave: (String) -> Unit, onClose: () -> Unit) {
+private fun RenameSheet(plot: PlotWithCount, saving: Boolean, isDuplicate: (String) -> Boolean, onSave: (String) -> Unit, onClose: () -> Unit) {
     var value by remember { mutableStateOf(plot.name) }
     val duplicate = isDuplicate(value)
     val unchanged = value.trim() == plot.name
@@ -231,6 +225,7 @@ private fun RenameSheet(plot: PlotWithCount, isDuplicate: (String) -> Boolean, o
             icon = IconName.Check,
             size = ButtonSize.Lg,
             fullWidth = true,
+            loading = saving,
             enabled = value.isNotBlank() && !duplicate && !unchanged,
         )
         // Inside the sheet, so the field is attached when focus is asked for.

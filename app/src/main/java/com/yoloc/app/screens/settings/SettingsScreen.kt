@@ -21,6 +21,9 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -40,7 +43,7 @@ import com.yoloc.app.components.ButtonVariant
 import com.yoloc.app.components.ConfirmDialog
 import com.yoloc.app.components.IconName
 import com.yoloc.app.components.ScreenContainer
-import com.yoloc.app.components.SectionHeader
+import com.yoloc.app.components.HeaderedSection
 import com.yoloc.app.components.SegmentedControl
 import com.yoloc.app.components.SegmentedOption
 import com.yoloc.app.components.Toast
@@ -92,16 +95,24 @@ fun SettingsScreen(
         vm.onLocationChecked(hasLocationPermission(context), rationale())
         onPauseOrDispose {}
     }
+    // One prompt at a time: a second launch is answered at once with nothing granted.
+    var asking by remember { mutableStateOf(false) }
     val askLocation = rememberLauncherForActivityResult(RequestMultiplePermissions()) { result ->
+        asking = false
         vm.onLocationResult(result.values.any { it }, rationale())
     }
-    val turnOnGps = { if (vm.toggleGps(true)) askLocation.launch(LOCATION_PERMISSIONS) }
+    val turnOnGps = {
+        if (!asking && vm.toggleGps(true)) {
+            asking = true
+            askLocation.launch(LOCATION_PERMISSIONS)
+        }
+    }
 
     Box(Modifier.fillMaxSize()) {
         ScreenContainer(contentPadding = PaddingValues(start = Spacing.screen, top = Spacing.screen, end = Spacing.screen, bottom = 96.dp)) {
             AppText(stringResource(R.string.settings_title), variant = TypeVariant.Headline)
-            Section(stringResource(R.string.settings_detection_title)) { Threshold(s, vm) }
-            Section(stringResource(R.string.settings_appearance_title)) {
+            HeaderedSection(stringResource(R.string.settings_detection_title)) { Threshold(s, vm) }
+            HeaderedSection(stringResource(R.string.settings_appearance_title)) {
                 SegmentedControl(
                     options = listOf(
                         SegmentedOption(ThemeSetting.System, stringResource(R.string.settings_theme_system), IconName.Smartphone),
@@ -113,11 +124,11 @@ fun SettingsScreen(
                     accessibilityLabel = stringResource(R.string.settings_theme),
                 )
             }
-            Section(stringResource(R.string.settings_location_title)) {
+            HeaderedSection(stringResource(R.string.settings_location_title)) {
                 Location(s, onToggle = { on -> if (on) turnOnGps() else vm.toggleGps(false) }, onTryAgain = turnOnGps)
             }
-            Section(stringResource(R.string.settings_data_title)) { Data(s, vm, onOpenPlots) }
-            Section(stringResource(R.string.settings_app_title)) {
+            HeaderedSection(stringResource(R.string.settings_data_title)) { Data(s, vm, onOpenPlots) }
+            HeaderedSection(stringResource(R.string.settings_app_title)) {
                 SettingsGroup {
                     row {
                         SettingsRow(
@@ -172,14 +183,6 @@ fun SettingsScreen(
             cancelLabel = stringResource(R.string.settings_cancel),
             onCancel = vm::cancelClear,
         )
-    }
-}
-
-@Composable
-private fun Section(title: String, content: @Composable () -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
-        SectionHeader(title)
-        content()
     }
 }
 

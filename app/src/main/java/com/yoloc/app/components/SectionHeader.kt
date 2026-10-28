@@ -25,6 +25,21 @@ data class TextAction(val label: String, val onClick: () -> Unit)
  * RN: components/SectionHeader.tsx. Section title with an optional text action at the right edge.
  * [subtitle] only when it says something the title does not.
  */
+/** A [SectionHeader] over its content, `Spacing.sm` apart (RN: a section View with gap sm). */
+@Composable
+fun HeaderedSection(
+    title: String,
+    modifier: Modifier = Modifier,
+    subtitle: String? = null,
+    action: TextAction? = null,
+    content: @Composable () -> Unit,
+) {
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
+        SectionHeader(title, subtitle = subtitle, action = action)
+        content()
+    }
+}
+
 @Composable
 fun SectionHeader(title: String, modifier: Modifier = Modifier, subtitle: String? = null, action: TextAction? = null) {
     Row(

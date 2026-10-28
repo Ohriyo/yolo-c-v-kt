@@ -223,11 +223,18 @@ fun YoloCNavHost(onboardingDone: Boolean) {
                 }
                 composable<Plots> { entry ->
                     StackScreen(stringResource(R.string.plots_title), onBack = { entry.ifShown { nav.navigateUp() } }) {
+                        val session = appContainer().scanSession
                         PlotsScreen(
-                            onOpenPlot = { entry.ifShown { nav.leaveForTab(History) } },
-                            // Opened from Result's save sheet: RN's leave guard stops the jump to
-                            // History and asks; here Result is shown again and asks there.
-                            beforeLeave = { nav.returnToUnsavedResult() },
+                            onOpenPlot = { sendRequest ->
+                                entry.ifShown {
+                                    // Opened from Result's save sheet: RN's leave guard stops the jump
+                                    // to History and asks; here Result is shown again and asks there.
+                                    if (!nav.returnToUnsavedResult(session)) {
+                                        sendRequest()
+                                        nav.leaveForTab(History)
+                                    }
+                                }
+                            },
                         )
                     }
                 }

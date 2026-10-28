@@ -42,8 +42,8 @@ import com.yoloc.app.theme.YoloCTheme
  * instead of pushing the primary action off screen. Opens fully, never half way (RN has no
  * half-open state).
  *
- * @param dismissable False while the sheet must stay (saving): drag, scrim and back then do
- *   nothing, as RN's `onClose={saving ? () => {} : onClose}`.
+ * @param dismissable False while the sheet must stay (saving): drag, scrim, back and the close
+ *   button then do nothing, as RN's `onClose={saving ? () => {} : onClose}`.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -78,7 +78,7 @@ fun BottomSheet(
             )
         },
     ) {
-        SheetBody(title, onClose, content, Modifier.windowInsetsPadding(WindowInsets.navigationBars))
+        SheetBody(title, { if (currentDismissable) onClose() }, content, Modifier.windowInsetsPadding(WindowInsets.navigationBars))
     }
 }
 
