@@ -43,6 +43,8 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
+import kotlinx.coroutines.flow.flowOf
+import androidx.compose.ui.test.performTextInput
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -125,6 +127,20 @@ class FirstScreensTest {
         compose.onNodeWithText(text(R.string.onboarding_permissions_location)).assertIsDisplayed()
         compose.onNodeWithContentDescription(text(R.string.onboarding_continue)).performClick()
         compose.waitUntil(5_000) { store.state.value.onboardingDone }
+        // No name typed: none saved.
+        assertEquals("", store.state.value.userName)
+    }
+
+    /** Redesign 2026-10-28 (Kotlin only): the primer's optional name, saved before onboarding ends. */
+    @Test
+    fun thePrimerSavesTheOptionalName() {
+        val (vm, store) = onboarding()
+        runBlocking { store.hydrate() }
+        compose.setContent { YoloCTheme { PermissionsScreen(vm = vm) } }
+        compose.onNodeWithContentDescription(text(R.string.onboarding_name_a11y)).performTextInput("  Juan  ")
+        compose.onNodeWithContentDescription(text(R.string.onboarding_continue)).performClick()
+        compose.waitUntil(5_000) { store.state.value.onboardingDone }
+        assertEquals("Juan", store.state.value.userName)
     }
 
     @Test
@@ -133,14 +149,23 @@ class FirstScreensTest {
         val vm = HomeViewModel(scans, library)
         compose.setContent {
             YoloCTheme {
-                HomeScreen(onScan = { scanned++ }, onOpenScan = {}, onOpenHistory = {}, onOpenCount = {}, onOpenLearn = {}, vm = vm)
+                HomeScreen(onScan = { scanned++ }, onOpenScan = {}, onOpenHistory = {}, onOpenWeek = {}, onOpenTopic = {}, vm = vm)
             }
         }
         compose.waitUntil(5_000) { compose.onAllNodesWithText(text(R.string.home_no_scans_title)).fetchSemanticsNodes().isNotEmpty() }
-        // "See all" only once there is something to see.
+        // "View history" only once there is something to see.
         assertTrue(compose.onAllNodesWithContentDescription(text(R.string.home_see_all)).fetchSemanticsNodes().isEmpty())
         compose.onNodeWithContentDescription(text(R.string.home_scan_cta)).performClick()
         assertEquals(1, scanned)
+    }
+
+    @Test
+    fun homeGreetsByNameWhenOneWasGiven() {
+        val vm = HomeViewModel(scans, library, flowOf("Juan"))
+        compose.setContent { YoloCTheme { HomeScreen(onScan = {}, onOpenScan = {}, onOpenHistory = {}, onOpenWeek = {}, onOpenTopic = {}, vm = vm) } }
+        val greetings = listOf(R.string.home_greeting_morning_name, R.string.home_greeting_afternoon_name, R.string.home_greeting_evening_name)
+            .map { text(it, "Juan") }
+        compose.waitUntil(5_000) { greetings.any { g -> compose.onAllNodesWithText(g).fetchSemanticsNodes().isNotEmpty() } }
     }
 
     @Test
@@ -169,7 +194,7 @@ class FirstScreensTest {
         }
         var opened: String? = null
         var history = 0
-        var counted: Verdict? = null
+        val counted = mutableListOf<Verdict?>()
         val vm = HomeViewModel(scans, library)
         compose.setContent {
             YoloCTheme {
@@ -177,8 +202,8 @@ class FirstScreensTest {
                     onScan = {},
                     onOpenScan = { opened = it },
                     onOpenHistory = { history++ },
-                    onOpenCount = { counted = it },
-                    onOpenLearn = {},
+                    onOpenWeek = { counted += it },
+                    onOpenTopic = {},
                     vm = vm,
                 )
             }
@@ -189,9 +214,11 @@ class FirstScreensTest {
         compose.onNodeWithContentDescription("Notes: Tree 2", substring = true).assertExists()
         assertTrue(compose.onAllNodesWithContentDescription("Notes: Tree 3", substring = true).fetchSemanticsNodes().isEmpty())
 
-        val infected = TestDb.context.resources.getQuantityString(R.plurals.home_count_a11y, 2, text(R.string.verdict_short_infected), 2)
-        compose.onNodeWithContentDescription(infected).performClick()
-        assertEquals(Verdict.Infected, counted)
+        // Redesign 2026-10-28: two 7-day stat cards, every result and early stage.
+        val res = TestDb.context.resources
+        compose.onNodeWithContentDescription(res.getQuantityString(R.plurals.home_stat_total_a11y, 4, 4)).performClick()
+        compose.onNodeWithContentDescription(res.getQuantityString(R.plurals.home_stat_early_a11y, 1, 1)).performClick()
+        assertEquals(listOf(null, Verdict.EarlyStage), counted)
 
         compose.onNodeWithContentDescription(text(R.string.home_see_all)).performClick()
         assertEquals(1, history)

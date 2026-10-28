@@ -43,6 +43,7 @@ import com.yoloc.app.components.AppTopBar
 import com.yoloc.app.db.repositories.ThemeSetting
 import com.yoloc.app.components.IconName
 import com.yoloc.app.components.TabBarItem
+import com.yoloc.app.features.scans.DateRange
 import com.yoloc.app.screens.appContainer
 import com.yoloc.app.screens.about.AboutScreen
 import com.yoloc.app.screens.dev.GalleryScreen
@@ -145,8 +146,8 @@ fun YoloCNavHost(onboardingDone: Boolean) {
                         onScan = { entry.ifShown { nav.navigate(Camera) } },
                         onOpenScan = { id -> entry.ifShown { nav.navigate(ScanDetail(id)) } },
                         onOpenHistory = { nav.selectTab(History) },
-                        onOpenCount = { v -> nav.openHistory(requests, HistoryRequest.ByVerdict(v)) },
-                        onOpenLearn = { nav.selectTab(Learn) },
+                        onOpenWeek = { v -> nav.openHistory(requests, HistoryRequest.ByVerdict(v, DateRange.Week)) },
+                        onOpenTopic = { topic -> entry.ifShown { nav.navigate(LearnTopic(topic.key)) } },
                     )
                 }
                 composable<History> { entry ->

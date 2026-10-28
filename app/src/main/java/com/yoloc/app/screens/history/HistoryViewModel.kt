@@ -324,7 +324,7 @@ class HistoryViewModel(
         // A filter set from outside replaces any search still being typed.
         // Home's chips count the last 30 days, so the list they open covers the same days.
         is HistoryRequest.ByVerdict ->
-            applyFilter(HistoryFilter(verdicts = listOf(request.verdict), range = DateRange.Month), plotName = null, resetText = true)
+            applyFilter(HistoryFilter(verdicts = listOfNotNull(request.verdict), range = request.range), plotName = null, resetText = true)
         is HistoryRequest.ByPlot ->
             applyFilter(HistoryFilter(plot = PlotFilter.Id(request.id)), plotName = request.name, resetText = true)
     }

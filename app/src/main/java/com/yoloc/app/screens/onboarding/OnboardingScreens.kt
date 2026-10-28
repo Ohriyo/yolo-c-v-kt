@@ -20,6 +20,11 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.yoloc.app.R
+import com.yoloc.app.store.USER_NAME_MAX
+import com.yoloc.app.components.YTextField
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.mutableStateOf
 import com.yoloc.app.components.AppText
 import com.yoloc.app.components.Icon
 import com.yoloc.app.components.IconName
@@ -112,14 +117,26 @@ private fun PhotoTipsPanel() {
 @Composable
 fun PermissionsScreen(vm: OnboardingViewModel = viewModel(factory = OnboardingViewModel.Factory)) {
     val colors = YoloCTheme.colors
+    // Redesign 2026-10-28 (Kotlin only): the optional first name Home greets with.
+    var name by rememberSaveable { mutableStateOf("") }
     OnboardingFrame(
         step = ONBOARDING_STEPS - 1,
         total = ONBOARDING_STEPS,
         title = stringResource(R.string.onboarding_permissions_title),
         body = stringResource(R.string.onboarding_permissions_body),
-        primary = FrameAction(stringResource(R.string.onboarding_continue), vm::complete),
+        primary = FrameAction(stringResource(R.string.onboarding_continue), { vm.complete(name) }),
         illustration = { DiscIllustration(IconName.Image) },
     ) {
+        Column(Modifier.padding(bottom = Spacing.xs), verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
+            AppText(stringResource(R.string.onboarding_name_label), variant = TypeVariant.BodyStrong)
+            YTextField(
+                value = name,
+                onValueChange = { name = it },
+                placeholder = stringResource(R.string.onboarding_name_placeholder),
+                accessibilityLabel = stringResource(R.string.onboarding_name_a11y),
+                maxLength = USER_NAME_MAX,
+            )
+        }
         Row(
             Modifier.padding(top = Spacing.xs),
             horizontalArrangement = Arrangement.spacedBy(Spacing.sm),

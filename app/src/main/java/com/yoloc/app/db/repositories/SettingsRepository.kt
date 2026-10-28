@@ -19,6 +19,8 @@ data class AppSettings(
     val gpsOptIn: Boolean,
     val keepOriginalImages: Boolean,
     val activeModelId: String,
+    /** Redesign 2026-10-28 (Kotlin only): the first name Home greets; empty when not given. */
+    val userName: String = "",
 )
 
 /** How one setting is stored: its key, how a raw value parses (with fallback), how it formats. */
@@ -48,6 +50,9 @@ object SettingCodecs {
     val gpsOptIn = bool("gps_opt_in", false)
     val keepOriginalImages = bool("keep_original_images", true)
     val activeModelId = text("active_model_id", "")
+
+    /** Kotlin only (redesign 2026-10-28). A new key in the key/value table: no schema change. */
+    val userName = text("user_name", "")
 }
 
 /** RN: src/db/repositories/settingsRepository.ts. */
@@ -64,6 +69,7 @@ class SettingsRepository(private val database: AppDatabaseHolder) {
             gpsOptIn = read(SettingCodecs.gpsOptIn),
             keepOriginalImages = read(SettingCodecs.keepOriginalImages),
             activeModelId = read(SettingCodecs.activeModelId),
+            userName = read(SettingCodecs.userName),
         )
     }
 

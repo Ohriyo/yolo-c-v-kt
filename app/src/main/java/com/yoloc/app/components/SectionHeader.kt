@@ -45,25 +45,31 @@ fun SectionHeader(title: String, modifier: Modifier = Modifier, subtitle: String
     Row(
         modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
-        verticalAlignment = Alignment.Bottom,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
             AppText(title, variant = TypeVariant.Title)
             if (subtitle != null) AppText(subtitle, variant = TypeVariant.Caption, tone = Tone.Faint)
         }
-        if (action != null) {
-            val press = rememberPress()
-            Box(
-                Modifier
-                    .heightIn(min = TouchTarget)
-                    .a11yAction(action.label, action.onClick)
-                    .clickable(interactionSource = press.source, indication = null, onClick = action.onClick)
-                    .alpha(if (press.pressed.value) 0.6f else 1f)
-                    .padding(bottom = 2.dp),
-                contentAlignment = Alignment.BottomStart,
-            ) {
-                AppText(action.label, variant = TypeVariant.Label, color = YoloCTheme.colors.link)
-            }
-        }
+        if (action != null) ArrowLink(action.label, action.onClick)
+    }
+}
+
+/** Redesign 2026-10-28 (the prototype): a text link with a trailing arrow, "View history ->". */
+@Composable
+fun ArrowLink(label: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val colors = YoloCTheme.colors
+    val press = rememberPress()
+    Row(
+        modifier
+            .heightIn(min = TouchTarget)
+            .a11yAction(label, onClick)
+            .clickable(interactionSource = press.source, indication = null, onClick = onClick)
+            .alpha(if (press.pressed.value) 0.6f else 1f),
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        AppText(label, variant = TypeVariant.Label, color = colors.link, maxLines = 1)
+        Icon(IconName.ArrowRight, size = 16.dp, color = colors.link)
     }
 }

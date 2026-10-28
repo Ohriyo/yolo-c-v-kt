@@ -78,32 +78,56 @@
     <string name="onboarding_permissions_title">Camera and photos</string>
     <string name="onboarding_permissions_body">The app asks for the camera the first time you open Scan. You can also pick photos from your gallery.</string>
     <string name="onboarding_permissions_location">Location stays off unless you turn it on in Settings.</string>
+    <string name="onboarding_name_label">What should we call you? (optional)</string>
+    <string name="onboarding_name_placeholder">First name</string>
+    <string name="onboarding_name_a11y">Your first name, optional</string>
     <string name="onboarding_continue">Continue</string>
     <string name="onboarding_slide_counter">Step %1$d of %2$d</string>
 
     <!-- home (RN: strings.home) -->
-    <string name="home_hero_title">Check your cacao pods</string>
+    <!-- Home, redesign 2026-10-28 (the prototype; Kotlin only) -->
+    <string name="home_greeting_morning">Good morning.</string>
+    <string name="home_greeting_afternoon">Good afternoon.</string>
+    <string name="home_greeting_evening">Good evening.</string>
+    <string name="home_greeting_morning_name">Good morning, %1$s.</string>
+    <string name="home_greeting_afternoon_name">Good afternoon, %1$s.</string>
+    <string name="home_greeting_evening_name">Good evening, %1$s.</string>
+    <string name="home_subtitle">A healthier harvest starts with a closer look.</string>
+    <string name="home_hero_overline">Early detection. Better protection.</string>
+    <string name="home_hero_title">One pod at a time.\nProtect your harvest.</string>
+    <string name="home_hero_body">Check pods for early signs of Frosty Pod Rot, right here, even without a connection.</string>
     <string name="home_scan_cta">Scan a pod</string>
+    <string name="home_stat_total">Total scans</string>
+    <string name="home_stat_early">Early detections</string>
+    <string name="home_stat_window">last 7 days</string>
+    <plurals name="home_stat_total_a11y">
+        <item quantity="one">Total scans: %1$d in the last 7 days. Opens History.</item>
+        <item quantity="other">Total scans: %1$d in the last 7 days. Opens History.</item>
+    </plurals>
+    <plurals name="home_stat_early_a11y">
+        <item quantity="one">Early detections: %1$d scan in the last 7 days. Opens History.</item>
+        <item quantity="other">Early detections: %1$d scans in the last 7 days. Opens History.</item>
+    </plurals>
     <string name="home_recent_title">Recent scans</string>
-    <string name="home_see_all">See all</string>
+    <string name="home_see_all">View history</string>
     <string name="home_no_scans_title">No saved scans yet</string>
     <string name="home_no_scans_body">Scan a pod and save the result to see it here.</string>
-    <string name="home_counts_title">Last 30 days</string>
-    <string name="home_counts_subtitle">Saved scans by result. Tap to see them.</string>
-    <plurals name="home_count_a11y">
-        <item quantity="one">%1$s: %2$d scan in the last 30 days. Opens History.</item>
-        <item quantity="other">%1$s: %2$d scans in the last 30 days. Opens History.</item>
-    </plurals>
     <string name="home_load_failed">Recent scans could not be loaded.</string>
-    <string name="home_tip_title">Photo tip</string>
-    <!-- Photography tips only; agronomic advice belongs to the classes table (CLAUDE.md 3.3). -->
+    <string name="home_learn_overline">A little knowledge goes a long way</string>
+    <string name="home_learn_title">Small signs.\nImportant signals.</string>
+    <string name="home_learn_body">Learn what healthy, early-stage and infected pods look like, so you know what to check.</string>
+    <string name="home_learn_link">Know the stages</string>
+    <string name="home_tip_title">A better photo, a better check</string>
     <string-array name="home_tips">
         <item>Photograph one pod at a time, in shade, filling most of the frame.</item>
         <item>Wipe the camera lens before you start. Sap and dust blur the photo.</item>
         <item>Keep the whole pod in the photo, from stalk to tip.</item>
         <item>If a result says Uncertain, retake it from a different side.</item>
     </string-array>
-    <string name="home_learn_more">Learn more</string>
+    <string name="home_tip_link">See photo tips</string>
+    <string name="home_footer_title">Built for the field.</string>
+    <string name="home_footer_runs">Runs on %1$s on this phone · Works offline</string>
+    <string name="home_footer_aid">YOLO-C is a screening aid, not a diagnosis.</string>
 
     <!-- learn (RN: strings.learn) -->
     <string name="learn_subtitle">A short field guide. Works without internet.</string>

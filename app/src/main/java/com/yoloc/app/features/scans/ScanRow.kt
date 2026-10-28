@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -52,7 +53,7 @@ import com.yoloc.app.theme.Spacing
 import com.yoloc.app.theme.TypeVariant
 import com.yoloc.app.theme.YoloCTheme
 
-val THUMB_SIZE = 72.dp
+val THUMB_SIZE = 56.dp
 
 /** RN: scanSubtitle. Second line of a row: "3 pods found · North block". */
 @Composable
@@ -67,7 +68,9 @@ fun scanSubtitle(scan: ScanSummary): String {
 
 /**
  * RN: features/scans/ScanRow.tsx. One saved scan: thumbnail, verdict chip, pods and plot, time,
- * and the first line of the notes. One spoken label for the whole row.
+ * and the first line of the notes. One spoken label for the whole row. Redesign 2026-10-28: the
+ * prototype's list row (what was found, then the chip; time and a chevron at the end), drawn
+ * edge to edge inside a card.
  *
  * @param time Time shown on the row. History has day headers, so it passes the time only.
  * @param onLongPress With [longPressLabel], opens the row's options (History).
@@ -102,8 +105,7 @@ fun ScanRow(
     Row(
         modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(Radii.md))
-            .background(if (press.pressed.value) colors.surfaceRaised else colors.surface)
+            .background(if (press.pressed.value) colors.surface else colors.card)
             .clearAndSetSemantics {
                 contentDescription = a11y
                 role = Role.Button
@@ -118,29 +120,14 @@ fun ScanRow(
                 onClick = { onOpen(scan.id) },
             )
             .heightIn(min = THUMB_SIZE + Spacing.sm * 2)
-            .padding(Spacing.sm),
-        horizontalArrangement = Arrangement.spacedBy(Spacing.md),
+            .padding(horizontal = Spacing.md, vertical = Spacing.sm),
+        horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Thumbnail(scan)
-        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(Spacing.xxs)) {
-            Row(
-                Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(Spacing.xs),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                VerdictChip(scan.verdict)
-                // Long times ("Yesterday" on Home) shrink and ellipsize instead of overflowing.
-                AppText(
-                    time,
-                    Modifier.weight(1f),
-                    variant = TypeVariant.Caption,
-                    tone = Tone.Muted,
-                    maxLines = 1,
-                    textAlign = TextAlign.End,
-                )
-            }
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             AppText(subtitle, variant = TypeVariant.BodyStrong, maxLines = 1)
+            VerdictChip(scan.verdict)
             if (scan.lowConfidence || notes != null) {
                 Row(horizontalArrangement = Arrangement.spacedBy(Spacing.xs), verticalAlignment = Alignment.CenterVertically) {
                     if (scan.lowConfidence) {
@@ -153,6 +140,9 @@ fun ScanRow(
                 }
             }
         }
+        // Long times ("Yesterday" on Home) ellipsize instead of pushing the row.
+        AppText(time, Modifier.widthIn(max = 96.dp), variant = TypeVariant.Caption, tone = Tone.Muted, maxLines = 1, textAlign = TextAlign.End)
+        Icon(IconName.ChevronRight, size = 18.dp, color = colors.textFaint)
     }
 }
 
@@ -166,7 +156,7 @@ private fun Thumbnail(scan: ScanSummary) {
     val files = appContainer().files
     val file = remember(scan.id, scan.thumbnailPath, scan.imagePath) { files.fileFor(scan.thumbnailPath ?: scan.imagePath) }
     var failed by remember(file) { mutableStateOf(false) }
-    val shape = RoundedCornerShape(Radii.md)
+    val shape = RoundedCornerShape(Radii.sm)
     Box(
         Modifier
             .size(THUMB_SIZE)

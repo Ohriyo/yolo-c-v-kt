@@ -15,6 +15,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.yoloc.app.theme.Radii
 import com.yoloc.app.theme.Spacing
@@ -31,6 +32,10 @@ fun Card(
     accessibilityLabel: String? = null,
     /** Dev gallery only: render the pressed state statically. */
     previewPressed: Boolean = false,
+    /** Inner padding; 0 for edge-to-edge rows, which pad themselves. */
+    padding: Dp = Spacing.md,
+    /** Gap between the card's children. */
+    spacing: Dp = Spacing.xs,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val colors = YoloCTheme.colors
@@ -53,8 +58,8 @@ fun Card(
             .background(if (onClick != null && (press.pressed.value || previewPressed)) colors.surface else colors.card)
             .border(1.dp, colors.border, shape)
             .then(tap)
-            .padding(Spacing.md),
-        verticalArrangement = Arrangement.spacedBy(Spacing.xs),
+            .padding(padding),
+        verticalArrangement = Arrangement.spacedBy(spacing),
         content = content,
     )
 }

@@ -125,6 +125,9 @@ truth and the analysis are unchanged. Compare the two apps' UI with this in mind
 | Tab bar | Home, History, a filled Scan action, Learn, Settings | Five plain tabs: Home, Scan, History, Guide, Settings; the active one on a tint pill | 1 |
 | Top bar on tab screens | None | "Your field companion", an "Offline ready" badge and a dark mode switch | 1 |
 | Icons | Feather at stroke 2 | Feather at stroke 1.75, plus Lucide's scan-line for the Scan tab | 1 |
+| Home | A heading, the Scan button, three 30-day count chips, recent scans, a photo tip | Date line and a greeting by part of the day (with the name), a hero card with a photo and Scan a pod, two stat cards (Total scans, Early detections) over the last 7 days, recent scans in one card, a card into the guide's stages topic, the photo tip with a link to the photos topic, and a footer naming the model | 2 |
+| Name (onboarding primer, `user_name` setting) | None | An optional first name on the permission primer, saved in the key/value settings table (no schema change); Home greets with it | 2 |
+| `HistoryRequest.ByVerdict` | Home opens History by result over 30 days | Home's stat cards open History over the last 7 days, for every result or early stage only | 2 |
 
 ## Step 6 measurements (filled in as the port progresses)
 
