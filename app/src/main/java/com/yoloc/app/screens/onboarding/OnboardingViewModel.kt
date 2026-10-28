@@ -9,6 +9,7 @@ import com.yoloc.app.features.onboarding.ONBOARDING_STEPS
 import com.yoloc.app.features.onboarding.OnboardingSlide
 import com.yoloc.app.screens.container
 import com.yoloc.app.store.SettingsStore
+import com.yoloc.app.store.cleanUserName
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -46,9 +47,12 @@ class OnboardingViewModel(private val settings: SettingsStore, config: ModelConf
         return true
     }
 
-    /** The primer's Continue. */
-    fun complete() {
-        viewModelScope.launch { settings.completeOnboarding() }
+    /** The primer's Continue. A name typed there is saved first, so Home greets with it at once. */
+    fun complete(name: String = "") {
+        viewModelScope.launch {
+            if (cleanUserName(name).isNotEmpty()) settings.setUserName(name)
+            settings.completeOnboarding()
+        }
     }
 
     companion object {

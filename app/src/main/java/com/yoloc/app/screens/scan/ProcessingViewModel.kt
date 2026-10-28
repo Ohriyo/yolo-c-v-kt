@@ -40,6 +40,9 @@ class ProcessingViewModel(
         data object Done : State
     }
 
+    /** The photo being analyzed, shown dimmed while it runs. */
+    val photo: PendingPhoto? = session.state.value.photo
+
     private val _state = MutableStateFlow<State>(State.Running)
     val state: StateFlow<State> = _state.asStateFlow()
 

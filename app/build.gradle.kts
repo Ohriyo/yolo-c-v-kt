@@ -46,6 +46,12 @@ android {
     androidResources {
         noCompress += "tflite"
     }
+    // The Settings language picker switches in the app, so every install needs every language.
+    bundle {
+        language {
+            enableSplit = false
+        }
+    }
 }
 
 room3 {
@@ -72,6 +78,12 @@ dependencies {
     implementation(libs.androidx.sqlite.bundled)
     implementation(libs.play.services.location)
     implementation(libs.kotlinx.coroutines.play.services)
+    implementation(libs.coil.compose)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.camera.core)
+    implementation(libs.camera.camera2)
+    implementation(libs.camera.lifecycle)
+    implementation(libs.camera.compose)
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)

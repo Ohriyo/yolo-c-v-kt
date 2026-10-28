@@ -1,6 +1,7 @@
 package com.yoloc.app.store
 
 import com.yoloc.app.features.detection.Verdict
+import com.yoloc.app.features.scans.DateRange
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -8,8 +9,11 @@ import kotlinx.coroutines.flow.getAndUpdate
 
 /** A filter another screen asks History to open with (RN: History's route params). */
 sealed interface HistoryRequest {
-    /** Home's count chips. */
-    data class ByVerdict(val verdict: Verdict) : HistoryRequest
+    /**
+     * Home's stat cards (redesign 2026-10-28: the last 7 days; RN's count chips used 30). A null
+     * verdict is every result.
+     */
+    data class ByVerdict(val verdict: Verdict?, val range: DateRange = DateRange.Month) : HistoryRequest
 
     /** The Plots manager. */
     data class ByPlot(val id: String, val name: String) : HistoryRequest

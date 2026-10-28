@@ -17,6 +17,7 @@ import com.yoloc.app.screens.container
 import com.yoloc.app.screens.refreshedNow
 import com.yoloc.app.store.ScanLibrary
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -40,6 +41,8 @@ class ScanDetailViewModel(
     private val library: ScanLibrary,
     private val files: ScanFileStore,
     val dayFormat: DayFormat,
+    /** Where the delete runs: leaving the screen mid-delete must not skip the Undo offer and the refresh. */
+    private val appScope: CoroutineScope,
 ) : ViewModel() {
     sealed interface Load {
         data object Loading : Load
@@ -179,7 +182,7 @@ class ScanDetailViewModel(
     fun confirmDelete() {
         if (_state.value.deleting) return
         _state.update { it.copy(confirmingDelete = false, deleting = true) }
-        viewModelScope.launch {
+        appScope.launch {
             try {
                 library.deleteScan(scanId)
                 _state.update { it.copy(closed = true) }
@@ -217,7 +220,7 @@ class ScanDetailViewModel(
                 val c = container
                 ScanDetailViewModel(
                     args.get<String>("id").orEmpty(), args.get<Boolean>("saved") ?: false,
-                    c.scanRepository, c.classRepository, c.scanLibrary, c.files, DayFormat.forDevice(app),
+                    c.scanRepository, c.classRepository, c.scanLibrary, c.files, DayFormat.forDevice(app), c.appScope,
                 )
             }
         }

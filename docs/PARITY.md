@@ -100,6 +100,48 @@ edge case that would give a wrong result. Everything else follows RN commit `1e7
 | `PlotsViewModel.add` (Step 4.4) | A double tap, or Add before the list loads, can insert the same name twice | One add at a time, and only once the list (the duplicate check) has loaded | The table has no unique index; the screen is the only duplicate check |
 | `RetrainingExportViewModel` (Step 4.4) | A failed count leaves the sheet counting forever | Says the count failed (`sizingFailed`) | The user could not tell a failure from a slow count |
 | `refreshedNow` (RN `useNow`) (Step 4.4) | Ignores changes up to a minute | Also refreshes when the local day changed or the clock went back | "Today" labels after midnight |
+| `BottomSheet` (Step 5) | Closes with back, a scrim tap or the close button | Also closes when dragged down | It is Material 3's `ModalBottomSheet` (guide 5.2); the drag is the platform's own gesture |
+| `SwipeToDelete` (Step 5) | Deletes past 40 % of the width, or on a flick faster than 0.9 px/ms after 40 px | Deletes past 40 % of the width, or on Material 3's own flick speed | It is Material 3's `SwipeToDismissBox` (guide 5.2), which sets its own flick threshold |
+| `YoloCNavHost` (Step 5) | Stack screens use the native stack's Android default animation; the header back arrow is the platform's | A 200 ms fade (`Motion.BASE`) for stack screens and the camera, none between tabs; Feather's arrow-left | Compose Navigation has no native-stack animation to copy; fade is RN's own choice for the camera and stays within the motion tokens |
+| `NavActions.ifShown` (Step 5) | A fast double tap on Skip, a Learn topic, a scan row or Scan can open the next screen twice | Forward taps count only while the screen is fully shown | Back from the first copy landed on a second copy of the same screen |
+| Home count chips (Step 5) | While the counts load or after they fail, a chip shows "–" but is read out as "0 scans" | Read out as the result name only until the count is known | A screen-reader user was told there were no infected scans |
+| `ScanRow` in History (Step 5) | Screen readers hear the hint "Long-press for options. Swipe left to delete." | TalkBack offers the row's long-press ("Scan options") and its "Delete" action itself | Android announces long-press and custom actions natively; a swipe hint is wrong for TalkBack users, who cannot swipe a row |
+| `CameraScreen` shutter flash (Step 5) | expo-camera's `animateShutter` flashes the preview dark on every capture | Same dark flash, skipped when the system's reduce-motion setting is on | The app's motion rule: animations respect reduce motion. The shutter's spinner still shows the capture |
+| `SaveScanSheet` plot choice (Step 5) | The chosen plot stays chosen after it is deleted in Manage plots (Save then fails), and a double tap on Add plot adds it twice | A deleted plot falls back to "No plot", and one add runs at a time | Bugs in RN's sheet (a foreign-key failure reported as "free space", a duplicate plot); the fix changes nothing else |
+| `PlotsScreen` opened from Result's save sheet (Step 5) | Tapping a plot is stopped by Result's `usePreventRemove`, and Stay / Discard / Save is asked over Plots | Result is shown again and asks there (`returnToUnsavedResult`) | Navigation Compose has no prevent-remove; without this the unsaved result would be dropped without asking |
+| `SettingsRow` (Step 5) | The detail line is the button's accessibility hint | It is read after the label, in the same announcement | Compose has no hint separate from the label; TalkBack reads both either way |
+| `SeedScreen` failure message (Step 5, dev only) | "See the Metro log" | "See the Logcat log" | The Kotlin app logs to Logcat; there is no Metro |
+
+## Redesign (2026-10-28, Kotlin only)
+
+The Kotlin app follows the user's UI prototype (the screen recording `YOLO-C-UI-GUIDE.mp4`)
+instead of RN's "Field instrument" look; the RN app may get the same design later. Product
+truth and the analysis are unchanged. Compare the two apps' UI with this in mind.
+
+| Where (Kotlin) | RN | Kotlin | Part |
+| -------------- | -- | ------ | ---- |
+| Theme tokens | White ground, neutral surfaces, Barlow and Barlow Semi Condensed, corners 4 / 10 | Leaf-tinted ground `#F6F8F5`, white cards with a hairline and a soft shadow, Inter and Inter Display, corners 8 / 16 | 1 |
+| Status chips | Solid status fill | Pale status tint with the status ink (same icon and label); box labels on photos keep the solid fill | 1 |
+| Tab bar | Home, History, a filled Scan action, Learn, Settings | Home, History, Scan, Guide, Settings: Scan in the middle as a filled primary pill (the user's choice over the prototype's plain Scan tab, 2026-10-28), the active tab on a tint pill | 1 |
+| Top bar on tab screens | None | "Your field companion", an "Offline ready" badge and a dark mode switch | 1 |
+| Icons | Feather at stroke 2 | Feather at stroke 1.75, plus Lucide's scan-line for the Scan tab | 1 |
+| Home | A heading, the Scan button, three 30-day count chips, recent scans, a photo tip | Date line and a greeting by part of the day (with the name), a hero card with a photo and Scan a pod, two stat cards (Total scans, Early detections) over the last 7 days, recent scans in one card, a card into the guide's stages topic, the photo tip with a link to the photos topic, and a footer naming the model | 2 |
+| Name (onboarding primer, `user_name` setting) | None | An optional first name on the permission primer, saved in the key/value settings table (no schema change); Home greets with it | 2 |
+| `HistoryRequest.ByVerdict` | Home opens History by result over 30 days | Home's stat cards open History over the last 7 days, for every result or early stage only | 2 |
+| History | "History" with a count; one row of Result, Date and Plot pills, results picked in a sheet | "Scan history" with its own New scan button, folding away while the list scrolls; All and one chip per result (still combinable) in one row with the Date and Plot pills; each day's scans in one card | 3 |
+| Guide (RN: Learn) | Three topic rows, the first filled in the primary color | "A field guide to Frosty Pod Rot": one photo card per topic, numbered in reading order; the draft note stays | 3 |
+| Settings: theme | System / Light / Dark | One Dark mode switch (and the top bar's); "follow the phone" stays the first-run default until it is used | 3 |
+| Settings: new rows | None | Your name (a sheet to change or remove it) and On-device model (opens About), in a "Profile and display" group; "Show onboarding again" reads "View introduction" | 3 |
+| Camera (photo) | A 3:4 framed viewfinder with corner ticks on black; gallery, shutter and flash on a dark bar | The preview fills the screen; the top row and the controls sit on a dark scrim that fades out toward the picture; a dashed oval guide; "Scan a pod" beside the close button; the white shutter with a sage ring between gallery and flash; a line saying the photo is checked on the phone. The 4:3 photo holds a little more than the screen shows | 4 |
+| Buttons | Labels on one line | Labels may wrap to a second line (Inter is wider than Barlow, and Filipino labels are longer); Preview's two buttons are equal halves | 4 |
+| Result and Scan Detail | Pod rows on the page | Pod rows in one white card, like the advice | 4 |
+| Language | English only | English and Filipino. Filipino (values-fil) is a draft by Claude, marked as such beside the choice, and needs a native speaker's check; the agronomic placeholders stay TODO in both. Settings > Language switches in the app (Android 13+: the per-app language, also in the phone's settings; older: saved in the app). Without a choice the app follows the phone. Class names stored in the database follow the language; scans keep their class ids | 5 |
+| Camera title | One line | Up to two lines, for longer languages | 5 |
+| App bundle | Language splits on | Off, so an install from a bundle has both languages | 5 |
+| Onboarding panels | Drawn capsules and a disc around an icon | The owner's pod photos (finish review); the drawn viewfinder and recall chart stay. The optional name is its own sixth step after the primer (RN: five steps, the primer ends onboarding) | finish |
+| Small all-caps labels | None | None either: the prototype's date line, kickers and "Field guide · 0N" numbers were built, then removed at the owner's choice in the finish review. The Home date is a plain muted line. The Home hero shows red pods on the tree (`photo_cacao_column`) | finish |
+| Scan rows | Pods and plot on one line | What was found and the time on the first line, the chip, then plot and notes on one line (finish review) | finish |
+| Home hero, History title, top bar | Fixed layout | With large text or a longer language: the hero photo moves above the text, the History New scan button moves under the title, and the top-bar tagline gives way to the Offline badge (finish review) | finish |
 
 ## Step 6 measurements (filled in as the port progresses)
 

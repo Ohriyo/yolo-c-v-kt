@@ -86,6 +86,16 @@ class AppDatabaseHolder(
         return db
     }
 
+    /**
+     * Redesign 2026-10-28: seeds again with [localized]'s strings, so the stored class names follow
+     * the app language. The seed's fingerprint covers the names, so this writes only when they
+     * changed. Opens the database first if needed.
+     */
+    suspend fun syncCatalog(localized: Context) {
+        val db = get()
+        mutex.withLock { seedFromModelConfig(db, config, classCatalog(localized)) }
+    }
+
     fun close() {
         ready?.close()
         ready = null

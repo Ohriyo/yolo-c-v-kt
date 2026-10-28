@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Palette.dark950: the dark background (YoloCTheme darkColors). -->
+    <color name="window_background">#FF111312</color>
+</resources>

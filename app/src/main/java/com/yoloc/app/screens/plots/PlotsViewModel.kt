@@ -49,8 +49,13 @@ class PlotsViewModel(
         val renaming: PlotWithCount? = null,
         /** The plot whose delete dialog is open. */
         val deleting: PlotWithCount? = null,
+        /** The rename sheet's Save is running (RN: RenameSheet's `saving`). */
+        val renameSaving: Boolean = false,
     ) {
         val plots: List<PlotWithCount> get() = (load as? Load.Ready)?.plots.orEmpty()
+
+        /** Add needs a name and the loaded list (for the duplicate check). */
+        val canAdd: Boolean get() = name.isNotBlank() && load is Load.Ready
     }
 
     private val _state = MutableStateFlow(State())
@@ -111,9 +116,14 @@ class PlotsViewModel(
     /** The rename sheet's Save; the sheet itself shows the duplicate message ([isDuplicate]). */
     fun rename(newName: String) {
         val plot = _state.value.renaming ?: return
-        if (newName.isBlank() || isDuplicate(newName, plot.id)) return
+        if (newName.isBlank() || isDuplicate(newName, plot.id) || _state.value.renameSaving) return
+        _state.update { it.copy(renameSaving = true) }
         viewModelScope.launch {
-            if (change { plots.renamePlot(plot.id, newName) }) _state.update { it.copy(renaming = null) }
+            try {
+                if (change { plots.renamePlot(plot.id, newName) }) _state.update { it.copy(renaming = null) }
+            } finally {
+                _state.update { it.copy(renameSaving = false) }
+            }
         }
     }
 

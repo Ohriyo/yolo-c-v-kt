@@ -41,6 +41,8 @@ class SettingsStore(
         val theme: ThemeSetting = ThemeSetting.System,
         val confThreshold: Double,
         val gpsOptIn: Boolean = false,
+        /** The first name Home greets (redesign 2026-10-28); empty when not given. */
+        val userName: String = "",
     )
 
     private val _state = MutableStateFlow(State(confThreshold = config.confThreshold))
@@ -80,6 +82,7 @@ class SettingsStore(
                     theme = fresh(SettingCodecs.theme, s.theme, now.theme),
                     confThreshold = fresh(SettingCodecs.confThreshold, s.confThreshold, now.confThreshold),
                     gpsOptIn = fresh(SettingCodecs.gpsOptIn, s.gpsOptIn, now.gpsOptIn),
+                    userName = fresh(SettingCodecs.userName, s.userName, now.userName),
                 )
             }
         } catch (e: CancellationException) {
@@ -101,6 +104,12 @@ class SettingsStore(
         set(SettingCodecs.confThreshold, { it.confThreshold }) { it.copy(confThreshold = value) }
 
     suspend fun setGpsOptIn(optIn: Boolean) = set(SettingCodecs.gpsOptIn, { it.gpsOptIn }) { it.copy(gpsOptIn = optIn) }
+
+    /** Trimmed and cut to [USER_NAME_MAX]; blank clears it. */
+    suspend fun setUserName(name: String) {
+        val clean = cleanUserName(name)
+        set(SettingCodecs.userName, { it.userName }) { it.copy(userName = clean) }
+    }
 
     /**
      * Updates the cache at once (the screen responds without waiting on storage), then persists.
@@ -128,3 +137,9 @@ class SettingsStore(
         const val TAG = "settingsStore"
     }
 }
+
+/** The longest first name kept; the greeting must fit one line at the default text size. */
+const val USER_NAME_MAX = 30
+
+/** Whitespace runs become one space, the ends are trimmed, and the rest is cut to [USER_NAME_MAX]. */
+fun cleanUserName(name: String): String = name.trim().replace(Regex("\\s+"), " ").take(USER_NAME_MAX).trim()

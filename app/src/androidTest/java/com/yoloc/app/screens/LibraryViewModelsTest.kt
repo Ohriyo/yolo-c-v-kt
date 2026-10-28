@@ -45,6 +45,7 @@ class LibraryViewModelsTest {
     private val requests = HistoryRequests()
     private val config = TestDb.config
     private val dayFormat = DayFormat.forDevice(TestDb.context)
+    private val scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.IO)
 
     @Before
     fun open() = runBlocking { holder.get(); Unit }
@@ -84,7 +85,7 @@ class LibraryViewModelsTest {
     @Test
     fun homeShowsTheLastThreeScansAndThirtyDayCountsAndReloadsOnRevision() = runBlocking {
         repeat(4) { save(createdAt = System.currentTimeMillis() - it * 1000L) }
-        val home = HomeViewModel(scans, library, requests)
+        val home = HomeViewModel(scans, library)
         val ready = home.summary.await("Home ready") { it is HomeViewModel.Summary.Ready } as HomeViewModel.Summary.Ready
         assertEquals(3, ready.recent.size)
         assertEquals(4, ready.stats.scansByVerdict[Verdict.Healthy])
@@ -92,9 +93,6 @@ class LibraryViewModelsTest {
         save(verdictClass = 1, createdAt = System.currentTimeMillis())
         library.bump()
         home.summary.await("Home reloaded") { (it as? HomeViewModel.Summary.Ready)?.stats?.totalScans == 5 }
-
-        home.openCount(Verdict.Infected)
-        assertEquals(HistoryRequest.ByVerdict(Verdict.Infected), requests.request.value)
     }
 
     @Test
@@ -146,7 +144,7 @@ class LibraryViewModelsTest {
     @Test
     fun scanDetailLoadsSavesNotesAndClosesAfterDelete() = runBlocking {
         val id = save(notes = "Tree 7")
-        val vm = ScanDetailViewModel(id, saved = true, scans, classes, library, files, dayFormat)
+        val vm = ScanDetailViewModel(id, saved = true, scans, classes, library, files, dayFormat, scope)
         assertEquals(ScanDetailViewModel.Toast.Saved, vm.state.value.toast)
         val ready = vm.state.await("detail ready") { it.load is ScanDetailViewModel.Load.Ready }
         assertEquals("Tree 7", ready.notes.text)
@@ -168,7 +166,7 @@ class LibraryViewModelsTest {
 
     @Test
     fun scanDetailReportsAMissingScan() = runBlocking {
-        val vm = ScanDetailViewModel("no-such-id", saved = false, scans, classes, library, files, dayFormat)
+        val vm = ScanDetailViewModel("no-such-id", saved = false, scans, classes, library, files, dayFormat, scope)
         vm.state.await("missing") { it.load == ScanDetailViewModel.Load.Missing }
         Unit
     }
