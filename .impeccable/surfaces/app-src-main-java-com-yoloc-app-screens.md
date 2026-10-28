@@ -29,8 +29,10 @@ and early detections this week, finds recent scans, and learns the signs from ph
 
 FIRST VIEWPORT (Home): top bar "Your field companion", Offline ready badge, theme button; date
 line; "Good morning, <name>."; the hero card (tint, headline "One pod at a time. Protect your
-harvest.", Scan a pod button, pod photo on the right); two stat cards; recent scans card. Five
-plain tabs: Home, Scan, History, Guide, Settings, active one on a tint pill.
+harvest.", Scan a pod button, pod photo on the right, moving above the text when the button
+would not fit beside it); two stat cards; recent scans card. Five tabs: Home, History, Scan,
+Guide, Settings; the active one on a tint pill, Scan in the centre on a solid forest pill (the
+owner's request).
 
 FORM: brief-pinned (the prototype), no roll. seed: none (unavailable)
 

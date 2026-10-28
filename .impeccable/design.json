@@ -1,0 +1,1219 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-28T13:14:31Z",
+  "title": "Design System: YOLO-C",
+  "extensions": {
+    "platform": "android (Jetpack Compose, Material 3). Units: dp for layout, sp for type; CSS snippets render dp/sp as px.",
+    "sourceFiles": [
+      "app/src/main/java/com/yoloc/app/theme/Palette.kt",
+      "app/src/main/java/com/yoloc/app/theme/Themes.kt",
+      "app/src/main/java/com/yoloc/app/theme/Tokens.kt",
+      "app/src/main/java/com/yoloc/app/theme/Type.kt",
+      "app/src/main/java/com/yoloc/app/theme/Contrast.kt"
+    ],
+    "colorMeta": {
+      "forest": {
+        "role": "primary",
+        "displayName": "Field Forest",
+        "canonical": "#375534",
+        "oklch": "oklch(41.6% 0.064 142.2)",
+        "codeName": "Palette.forest700",
+        "theme": "light",
+        "tonalRamp": [
+          "#001000",
+          "#102D0D",
+          "#2D4B2A",
+          "#4C6B49",
+          "#6C8D69",
+          "#8EB08B",
+          "#B2D4AE",
+          "#D7FAD2"
+        ]
+      },
+      "forest-ink": {
+        "role": "primary",
+        "displayName": "Deep Forest Ink",
+        "canonical": "#0F2A1D",
+        "oklch": "oklch(25.9% 0.042 160.5)",
+        "codeName": "Palette.forest900",
+        "theme": "light",
+        "tonalRamp": [
+          "#000F07",
+          "#102B1E",
+          "#2E493B",
+          "#4C6959",
+          "#6D8A7A",
+          "#8FAE9C",
+          "#B3D2C0",
+          "#D7F8E5"
+        ]
+      },
+      "leaf": {
+        "role": "primary",
+        "displayName": "Leaf Tint",
+        "canonical": "#EBF1E6",
+        "oklch": "oklch(95.1% 0.016 130.4)",
+        "codeName": "Palette.leaf",
+        "theme": "light",
+        "tonalRamp": [
+          "#090D06",
+          "#22271F",
+          "#3F443B",
+          "#5E635A",
+          "#7F847B",
+          "#A2A79D",
+          "#C6CBC1",
+          "#EBF1E6"
+        ]
+      },
+      "sage": {
+        "role": "primary",
+        "displayName": "Sage",
+        "canonical": "#6B9071",
+        "oklch": "oklch(61.7% 0.062 149.2)",
+        "codeName": "Palette.sage500",
+        "theme": "light",
+        "tonalRamp": [
+          "#001003",
+          "#092D13",
+          "#294B30",
+          "#486B4E",
+          "#688D6E",
+          "#8AB090",
+          "#AED5B4",
+          "#D3FBD8"
+        ]
+      },
+      "sage-ink": {
+        "role": "primary",
+        "displayName": "Sage Ink",
+        "canonical": "#5F8465",
+        "oklch": "oklch(57.7% 0.063 149.1)",
+        "codeName": "Palette.sageInk",
+        "theme": "light",
+        "tonalRamp": [
+          "#001003",
+          "#092D13",
+          "#284B2F",
+          "#476B4E",
+          "#688D6E",
+          "#8AB190",
+          "#ADD5B3",
+          "#D2FBD8"
+        ]
+      },
+      "mist": {
+        "role": "primary",
+        "displayName": "Mist",
+        "canonical": "#AEC3B0",
+        "oklch": "oklch(79.6% 0.035 147.9)",
+        "codeName": "Palette.mist300",
+        "theme": "light",
+        "tonalRamp": [
+          "#020F04",
+          "#192A1B",
+          "#354738",
+          "#546756",
+          "#758877",
+          "#97AB99",
+          "#BBD0BD",
+          "#E0F5E2"
+        ]
+      },
+      "ground": {
+        "role": "neutral",
+        "displayName": "Leaf-Tinted Ground",
+        "canonical": "#F6F8F5",
+        "oklch": "oklch(97.7% 0.004 134.8)",
+        "codeName": "Palette.ground",
+        "theme": "light",
+        "tonalRamp": [
+          "#0A0C0A",
+          "#242623",
+          "#414240",
+          "#60625F",
+          "#818380",
+          "#A4A6A3",
+          "#C8CAC7",
+          "#EDEFEC"
+        ]
+      },
+      "card-white": {
+        "role": "neutral",
+        "displayName": "Card White",
+        "canonical": "#FFFFFF",
+        "oklch": "oklch(100.0% 0.000 89.9)",
+        "codeName": "Palette.white",
+        "theme": "light",
+        "tonalRamp": [
+          "#0B0B0B",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#A5A5A5",
+          "#C9C9C9",
+          "#EEEEEE"
+        ]
+      },
+      "press-surface": {
+        "role": "neutral",
+        "displayName": "Pressed Surface",
+        "canonical": "#F0F3EE",
+        "oklch": "oklch(96.0% 0.007 132.4)",
+        "codeName": "Palette.pressLight",
+        "theme": "light",
+        "tonalRamp": [
+          "#0A0C09",
+          "#242622",
+          "#40433F",
+          "#60625E",
+          "#81837F",
+          "#A3A6A1",
+          "#C7CAC5",
+          "#EDF0EB"
+        ]
+      },
+      "hairline": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "#E8ECE6",
+        "oklch": "oklch(93.8% 0.009 134.9)",
+        "codeName": "Palette.hairline",
+        "theme": "light",
+        "tonalRamp": [
+          "#0A0C08",
+          "#232622",
+          "#40433E",
+          "#5F625D",
+          "#80847E",
+          "#A3A6A1",
+          "#C7CAC5",
+          "#ECF0EA"
+        ]
+      },
+      "control-edge": {
+        "role": "neutral",
+        "displayName": "Control Edge",
+        "canonical": "#CAD2C8",
+        "oklch": "oklch(85.5% 0.016 139.4)",
+        "codeName": "Palette.controlEdge",
+        "theme": "light",
+        "tonalRamp": [
+          "#080D07",
+          "#212720",
+          "#3E443C",
+          "#5D645B",
+          "#7D857C",
+          "#A0A89E",
+          "#C4CCC2",
+          "#E9F1E7"
+        ]
+      },
+      "outline": {
+        "role": "neutral",
+        "displayName": "Control Outline",
+        "canonical": "#7A7E7C",
+        "oklch": "oklch(58.9% 0.006 164.9)",
+        "codeName": "Palette.light400",
+        "theme": "light",
+        "tonalRamp": [
+          "#090C0B",
+          "#232624",
+          "#3F4341",
+          "#5E6260",
+          "#7F8381",
+          "#A2A6A4",
+          "#C6CAC8",
+          "#EBF0ED"
+        ]
+      },
+      "ink-muted": {
+        "role": "neutral",
+        "displayName": "Muted Ink",
+        "canonical": "#4F5E54",
+        "oklch": "oklch(46.6% 0.024 156.1)",
+        "codeName": "Palette.inkMuted",
+        "theme": "light",
+        "tonalRamp": [
+          "#030E07",
+          "#1B2920",
+          "#38463D",
+          "#56665B",
+          "#77877C",
+          "#99AA9F",
+          "#BDCEC3",
+          "#E2F4E8"
+        ]
+      },
+      "ink-faint": {
+        "role": "neutral",
+        "displayName": "Faint Ink",
+        "canonical": "#606A64",
+        "oklch": "oklch(51.4% 0.015 159.5)",
+        "codeName": "Palette.inkFaint",
+        "theme": "light",
+        "tonalRamp": [
+          "#060D09",
+          "#1F2722",
+          "#3B453F",
+          "#5A645E",
+          "#7B857F",
+          "#9DA8A2",
+          "#C1CCC6",
+          "#E6F2EB"
+        ]
+      },
+      "inverse-ink": {
+        "role": "neutral",
+        "displayName": "Inverse Ink",
+        "canonical": "#16191A",
+        "oklch": "oklch(21.1% 0.005 219.7)",
+        "codeName": "Palette.light900",
+        "theme": "light",
+        "tonalRamp": [
+          "#090C0D",
+          "#222627",
+          "#3F4344",
+          "#5E6263",
+          "#7F8384",
+          "#A2A6A7",
+          "#C6CACB",
+          "#EBEFF1"
+        ]
+      },
+      "disabled-surface": {
+        "role": "neutral",
+        "displayName": "Disabled Surface",
+        "canonical": "#EDEFED",
+        "oklch": "oklch(95.0% 0.003 145.5)",
+        "codeName": "Palette.light100",
+        "theme": "light",
+        "tonalRamp": [
+          "#0A0C0A",
+          "#242524",
+          "#414241",
+          "#606260",
+          "#818381",
+          "#A4A5A4",
+          "#C8CAC8",
+          "#EDEFED"
+        ]
+      },
+      "disabled-ink": {
+        "role": "neutral",
+        "displayName": "Disabled Ink",
+        "canonical": "#5B5F5D",
+        "oklch": "oklch(48.1% 0.006 164.8)",
+        "codeName": "Palette.light600",
+        "theme": "light",
+        "tonalRamp": [
+          "#090C0A",
+          "#222624",
+          "#3F4341",
+          "#5E6260",
+          "#7F8381",
+          "#A2A6A4",
+          "#C6CAC8",
+          "#EBF0ED"
+        ]
+      },
+      "status-healthy": {
+        "role": "secondary",
+        "displayName": "Healthy Sage",
+        "canonical": "#6B9071",
+        "oklch": "oklch(61.7% 0.062 149.2)",
+        "codeName": "Palette.statusHealthy",
+        "theme": "both",
+        "tonalRamp": [
+          "#001003",
+          "#092D13",
+          "#294B30",
+          "#486B4E",
+          "#688D6E",
+          "#8AB090",
+          "#AED5B4",
+          "#D3FBD8"
+        ]
+      },
+      "status-early": {
+        "role": "secondary",
+        "displayName": "Early Amber",
+        "canonical": "#D9A441",
+        "oklch": "oklch(75.1% 0.130 79.8)",
+        "codeName": "Palette.statusEarly",
+        "theme": "both",
+        "tonalRamp": [
+          "#120900",
+          "#332201",
+          "#573C01",
+          "#7F5902",
+          "#A97801",
+          "#CF9B36",
+          "#F5BF5F",
+          "#FFECCD"
+        ]
+      },
+      "status-infected": {
+        "role": "secondary",
+        "displayName": "Infected Brick",
+        "canonical": "#B5473A",
+        "oklch": "oklch(54.4% 0.146 29.4)",
+        "codeName": "Palette.statusInfected",
+        "theme": "both",
+        "tonalRamp": [
+          "#1F0000",
+          "#4D0100",
+          "#7E0D07",
+          "#A4372B",
+          "#CB5B4C",
+          "#F27E6E",
+          "#FEB3A7",
+          "#FEE9E5"
+        ]
+      },
+      "amber-ink": {
+        "role": "secondary",
+        "displayName": "Amber Ink",
+        "canonical": "#8A6516",
+        "oklch": "oklch(53.1% 0.102 81.0)",
+        "codeName": "Palette.amberInk",
+        "theme": "light",
+        "tonalRamp": [
+          "#120900",
+          "#322201",
+          "#573D01",
+          "#7E5A00",
+          "#A17B32",
+          "#C69E57",
+          "#EBC37A",
+          "#FEECCD"
+        ]
+      },
+      "brick-light": {
+        "role": "secondary",
+        "displayName": "Brick Light",
+        "canonical": "#DE7A68",
+        "oklch": "oklch(68.7% 0.128 31.3)",
+        "codeName": "Palette.brickLight",
+        "theme": "light",
+        "tonalRamp": [
+          "#1E0000",
+          "#4B0500",
+          "#771C0F",
+          "#9D3F30",
+          "#C36251",
+          "#EA8572",
+          "#FEB4A5",
+          "#FEE9E5"
+        ]
+      },
+      "sage-chip": {
+        "role": "secondary",
+        "displayName": "Sage Chip",
+        "canonical": "#7D9E80",
+        "oklch": "oklch(66.6% 0.057 147.3)",
+        "codeName": "Palette.sageChip",
+        "theme": "light",
+        "tonalRamp": [
+          "#001002",
+          "#0F2C14",
+          "#2C4A30",
+          "#4B6A4E",
+          "#6C8C6F",
+          "#8EAF91",
+          "#B1D4B4",
+          "#D6FAD9"
+        ]
+      },
+      "healthy-tint": {
+        "role": "secondary",
+        "displayName": "Healthy Tint",
+        "canonical": "#E6F0E1",
+        "oklch": "oklch(94.4% 0.023 134.9)",
+        "codeName": "Palette.healthyTint",
+        "theme": "light",
+        "tonalRamp": [
+          "#070D05",
+          "#20281D",
+          "#3D4539",
+          "#5C6457",
+          "#7D8678",
+          "#9FA89A",
+          "#C3CDBE",
+          "#E8F2E3"
+        ]
+      },
+      "early-tint": {
+        "role": "secondary",
+        "displayName": "Early Tint",
+        "canonical": "#FAF0DA",
+        "oklch": "oklch(95.7% 0.031 86.5)",
+        "codeName": "Palette.earlyTint",
+        "theme": "light",
+        "tonalRamp": [
+          "#110A00",
+          "#2C2413",
+          "#49412F",
+          "#69604D",
+          "#8A816E",
+          "#AEA490",
+          "#D2C8B3",
+          "#F8EED8"
+        ]
+      },
+      "early-tint-ink": {
+        "role": "secondary",
+        "displayName": "Early Tint Ink",
+        "canonical": "#7A5810",
+        "oklch": "oklch(48.4% 0.094 80.4)",
+        "codeName": "Palette.earlyTintInk",
+        "theme": "light",
+        "tonalRamp": [
+          "#120900",
+          "#322201",
+          "#573D01",
+          "#7D5A14",
+          "#9F7C3B",
+          "#C49F5E",
+          "#E9C382",
+          "#FFECCD"
+        ]
+      },
+      "infected-tint": {
+        "role": "secondary",
+        "displayName": "Infected Tint",
+        "canonical": "#FBE7E3",
+        "oklch": "oklch(94.3% 0.023 31.1)",
+        "codeName": "Palette.infectedTint",
+        "theme": "light",
+        "tonalRamp": [
+          "#140806",
+          "#2F211E",
+          "#4D3E3B",
+          "#6E5D59",
+          "#8F7E7A",
+          "#B3A09C",
+          "#D8C4C0",
+          "#FDE9E5"
+        ]
+      },
+      "infected-tint-ink": {
+        "role": "secondary",
+        "displayName": "Infected Tint Ink",
+        "canonical": "#9C3A2F",
+        "oklch": "oklch(48.4% 0.133 29.2)",
+        "codeName": "Palette.infectedTintInk",
+        "theme": "light",
+        "tonalRamp": [
+          "#1F0000",
+          "#4D0100",
+          "#791811",
+          "#9F3D31",
+          "#C55F52",
+          "#ED8273",
+          "#FEB4A8",
+          "#FEE9E6"
+        ]
+      },
+      "ground-dark": {
+        "role": "neutral",
+        "displayName": "Ground Dark",
+        "canonical": "#0F1310",
+        "oklch": "oklch(18.1% 0.009 153.0)",
+        "codeName": "Palette.groundDark",
+        "theme": "dark",
+        "tonalRamp": [
+          "#080C09",
+          "#222623",
+          "#3F4340",
+          "#5E635F",
+          "#7F8480",
+          "#A1A7A2",
+          "#C5CBC6",
+          "#EAF0EC"
+        ]
+      },
+      "card-dark": {
+        "role": "neutral",
+        "displayName": "Card Dark",
+        "canonical": "#171D18",
+        "oklch": "oklch(22.3% 0.013 150.0)",
+        "codeName": "Palette.cardDark",
+        "theme": "dark",
+        "tonalRamp": [
+          "#070D08",
+          "#212722",
+          "#3D443E",
+          "#5C635D",
+          "#7D857E",
+          "#A0A7A1",
+          "#C3CCC5",
+          "#E9F1EA"
+        ]
+      },
+      "press-dark": {
+        "role": "neutral",
+        "displayName": "Press Dark",
+        "canonical": "#1F2721",
+        "oklch": "oklch(26.3% 0.016 152.8)",
+        "codeName": "Palette.pressDark",
+        "theme": "dark",
+        "tonalRamp": [
+          "#060D08",
+          "#1F2721",
+          "#3C453E",
+          "#5B645D",
+          "#7C857E",
+          "#9EA8A0",
+          "#C2CCC4",
+          "#E7F2E9"
+        ]
+      },
+      "leaf-dark": {
+        "role": "neutral",
+        "displayName": "Leaf Dark",
+        "canonical": "#223125",
+        "oklch": "oklch(29.6% 0.030 150.4)",
+        "codeName": "Palette.leafDark",
+        "theme": "dark",
+        "tonalRamp": [
+          "#030F05",
+          "#1A291E",
+          "#37473A",
+          "#566659",
+          "#768879",
+          "#98AB9C",
+          "#BCCFBF",
+          "#E1F5E4"
+        ]
+      },
+      "hairline-dark": {
+        "role": "neutral",
+        "displayName": "Hairline Dark",
+        "canonical": "#273029",
+        "oklch": "oklch(29.8% 0.018 151.8)",
+        "codeName": "Palette.hairlineDark",
+        "theme": "dark",
+        "tonalRamp": [
+          "#060D08",
+          "#1F2821",
+          "#3B453D",
+          "#5A645C",
+          "#7B867D",
+          "#9DA8A0",
+          "#C1CDC4",
+          "#E6F2E9"
+        ]
+      },
+      "ink-dark": {
+        "role": "neutral",
+        "displayName": "Ink Dark",
+        "canonical": "#E8EDE8",
+        "oklch": "oklch(94.1% 0.009 145.5)",
+        "codeName": "Palette.inkDark",
+        "theme": "dark",
+        "tonalRamp": [
+          "#090C09",
+          "#232623",
+          "#3F433F",
+          "#5E635E",
+          "#7F847F",
+          "#A2A6A2",
+          "#C6CBC6",
+          "#EBF0EB"
+        ]
+      },
+      "ink-muted-dark": {
+        "role": "neutral",
+        "displayName": "Ink Muted Dark",
+        "canonical": "#B0BAB2",
+        "oklch": "oklch(77.9% 0.016 151.7)",
+        "codeName": "Palette.inkMutedDark",
+        "theme": "dark",
+        "tonalRamp": [
+          "#070D08",
+          "#202721",
+          "#3C453E",
+          "#5B645D",
+          "#7C857E",
+          "#9EA8A0",
+          "#C2CCC4",
+          "#E7F2E9"
+        ]
+      },
+      "ink-faint-dark": {
+        "role": "neutral",
+        "displayName": "Ink Faint Dark",
+        "canonical": "#9AA59D",
+        "oklch": "oklch(71.1% 0.017 154.3)",
+        "codeName": "Palette.inkFaintDark",
+        "theme": "dark",
+        "tonalRamp": [
+          "#060D08",
+          "#1F2821",
+          "#3B453E",
+          "#5A645D",
+          "#7B857E",
+          "#9DA8A0",
+          "#C1CDC4",
+          "#E6F2E9"
+        ]
+      },
+      "outline-dark": {
+        "role": "neutral",
+        "displayName": "Outline Dark",
+        "canonical": "#777A79",
+        "oklch": "oklch(57.7% 0.004 174.4)",
+        "codeName": "Palette.dark500",
+        "theme": "dark",
+        "tonalRamp": [
+          "#0A0C0B",
+          "#232625",
+          "#404342",
+          "#5F6261",
+          "#808382",
+          "#A3A6A5",
+          "#C7CAC9",
+          "#ECEFEE"
+        ]
+      },
+      "edge-dark": {
+        "role": "neutral",
+        "displayName": "Edge Dark",
+        "canonical": "#2B2D2C",
+        "oklch": "oklch(29.5% 0.003 164.8)",
+        "codeName": "Palette.dark800",
+        "theme": "dark",
+        "tonalRamp": [
+          "#0A0C0B",
+          "#242625",
+          "#404241",
+          "#5F6261",
+          "#808382",
+          "#A3A6A4",
+          "#C7CAC8",
+          "#ECEFEE"
+        ]
+      },
+      "inverse-dark": {
+        "role": "neutral",
+        "displayName": "Inverse Dark",
+        "canonical": "#ECEDEC",
+        "oklch": "oklch(94.5% 0.002 145.6)",
+        "codeName": "Palette.dark50",
+        "theme": "dark",
+        "tonalRamp": [
+          "#0B0B0B",
+          "#242524",
+          "#414241",
+          "#616161",
+          "#828282",
+          "#A4A5A4",
+          "#C8C9C8",
+          "#EEEFEE"
+        ]
+      },
+      "healthy-tint-dark": {
+        "role": "secondary",
+        "displayName": "Healthy Tint Dark",
+        "canonical": "#1E2E22",
+        "oklch": "oklch(28.3% 0.031 151.9)",
+        "codeName": "Palette.healthyTintDark",
+        "theme": "dark",
+        "tonalRamp": [
+          "#020F05",
+          "#1A291E",
+          "#36473A",
+          "#556659",
+          "#758879",
+          "#98AB9C",
+          "#BBCFBF",
+          "#E0F5E5"
+        ]
+      },
+      "healthy-tint-ink-dark": {
+        "role": "secondary",
+        "displayName": "Healthy Tint Ink Dark",
+        "canonical": "#A9CDAA",
+        "oklch": "oklch(81.3% 0.062 145.7)",
+        "codeName": "Palette.healthyTintInkDark",
+        "theme": "dark",
+        "tonalRamp": [
+          "#001001",
+          "#0D2D11",
+          "#2B4B2D",
+          "#4A6B4C",
+          "#6B8D6C",
+          "#8DB08E",
+          "#B0D5B1",
+          "#D5FAD6"
+        ]
+      },
+      "early-tint-dark": {
+        "role": "secondary",
+        "displayName": "Early Tint Dark",
+        "canonical": "#352B17",
+        "oklch": "oklch(29.5% 0.036 83.8)",
+        "codeName": "Palette.earlyTintDark",
+        "theme": "dark",
+        "tonalRamp": [
+          "#110A00",
+          "#2D2410",
+          "#4B412C",
+          "#6B604A",
+          "#8D816A",
+          "#B0A48C",
+          "#D4C8AF",
+          "#FAEDD4"
+        ]
+      },
+      "early-tint-ink-dark": {
+        "role": "secondary",
+        "displayName": "Early Tint Ink Dark",
+        "canonical": "#EBC36F",
+        "oklch": "oklch(83.5% 0.113 84.5)",
+        "codeName": "Palette.earlyTintInkDark",
+        "theme": "dark",
+        "tonalRamp": [
+          "#110A00",
+          "#312200",
+          "#553E02",
+          "#7C5B01",
+          "#A27C22",
+          "#C69F4A",
+          "#EBC36F",
+          "#FEEDC9"
+        ]
+      },
+      "infected-tint-dark": {
+        "role": "secondary",
+        "displayName": "Infected Tint Dark",
+        "canonical": "#3B211E",
+        "oklch": "oklch(28.1% 0.041 27.1)",
+        "codeName": "Palette.infectedTintDark",
+        "theme": "dark",
+        "tonalRamp": [
+          "#190403",
+          "#371D1A",
+          "#563A36",
+          "#775955",
+          "#9A7975",
+          "#BE9C97",
+          "#E3C0BB",
+          "#FEE9E6"
+        ]
+      },
+      "infected-tint-ink-dark": {
+        "role": "secondary",
+        "displayName": "Infected Tint Ink Dark",
+        "canonical": "#F29A8E",
+        "oklch": "oklch(77.2% 0.108 28.2)",
+        "codeName": "Palette.infectedTintInkDark",
+        "theme": "dark",
+        "tonalRamp": [
+          "#1F0000",
+          "#4D0001",
+          "#70251F",
+          "#95463D",
+          "#BA685D",
+          "#E18A7F",
+          "#FEB3A8",
+          "#FEE9E6"
+        ]
+      },
+      "night": {
+        "role": "neutral",
+        "displayName": "Camera Night",
+        "canonical": "#111312",
+        "oklch": "oklch(18.4% 0.004 164.6)",
+        "codeName": "Palette.dark950",
+        "theme": "both",
+        "tonalRamp": [
+          "#0A0C0B",
+          "#232625",
+          "#404341",
+          "#5F6261",
+          "#808382",
+          "#A3A6A4",
+          "#C7CAC8",
+          "#ECEFEE"
+        ]
+      },
+      "lens": {
+        "role": "neutral",
+        "displayName": "Lens",
+        "canonical": "#191B1A",
+        "oklch": "oklch(22.0% 0.004 164.7)",
+        "codeName": "Palette.dark900",
+        "theme": "both",
+        "tonalRamp": [
+          "#0A0C0B",
+          "#232625",
+          "#404341",
+          "#5F6261",
+          "#808382",
+          "#A3A6A4",
+          "#C7CAC8",
+          "#ECEFEE"
+        ]
+      },
+      "lens-fill": {
+        "role": "neutral",
+        "displayName": "Lens Fill",
+        "canonical": "#222423",
+        "oklch": "oklch(25.8% 0.003 164.8)",
+        "codeName": "Palette.dark850",
+        "theme": "both",
+        "tonalRamp": [
+          "#0A0C0B",
+          "#242625",
+          "#404341",
+          "#5F6261",
+          "#808382",
+          "#A3A6A4",
+          "#C7CAC8",
+          "#ECEFEE"
+        ]
+      },
+      "lens-muted": {
+        "role": "neutral",
+        "displayName": "Lens Muted",
+        "canonical": "#A6A9A7",
+        "oklch": "oklch(73.2% 0.004 157.1)",
+        "codeName": "Palette.dark300",
+        "theme": "both",
+        "tonalRamp": [
+          "#0A0C0A",
+          "#232624",
+          "#404341",
+          "#5F6260",
+          "#808381",
+          "#A3A6A4",
+          "#C7CAC8",
+          "#ECEFED"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "headline": {
+        "displayName": "Headline",
+        "codeName": "YoloCType.headline / TypeVariant.Headline",
+        "purpose": "Screen title and the Home greeting."
+      },
+      "verdict": {
+        "displayName": "Verdict",
+        "codeName": "YoloCType.verdict",
+        "purpose": "Verdict line on Result and Scan Detail, the Home hero line, the Home guide card title."
+      },
+      "title": {
+        "displayName": "Title",
+        "codeName": "YoloCType.title",
+        "purpose": "Section, card, sheet and camera titles."
+      },
+      "body-strong": {
+        "displayName": "Body Strong",
+        "codeName": "YoloCType.bodyStrong",
+        "purpose": "Row labels, snackbar text, the camera hint."
+      },
+      "body": {
+        "displayName": "Body",
+        "codeName": "YoloCType.body",
+        "purpose": "Running text; the minimum size for it."
+      },
+      "label": {
+        "displayName": "Label",
+        "codeName": "YoloCType.label",
+        "purpose": "Buttons, chips, segments, arrow links."
+      },
+      "caption": {
+        "displayName": "Caption",
+        "codeName": "YoloCType.caption",
+        "purpose": "Meta lines, tab labels, the top-bar tagline, small chips, box labels."
+      },
+      "data": {
+        "displayName": "Data",
+        "codeName": "YoloCType.data",
+        "purpose": "Tabular numbers in running rows."
+      },
+      "figure": {
+        "displayName": "Figure",
+        "codeName": "YoloCType.figure",
+        "purpose": "Readout strip values."
+      },
+      "readout": {
+        "displayName": "Readout",
+        "codeName": "YoloCType.readout",
+        "purpose": "Home's stat counts."
+      },
+      "overline": {
+        "displayName": "Overline (unused)",
+        "codeName": "YoloCType.overline",
+        "value": "Inter 600, 12/16sp, +1.1sp",
+        "purpose": "Kept only as part of the type scale ported from RN. No use in the redesign; do not use for kickers or eyebrows."
+      }
+    },
+    "fontScale": {
+      "maxMultiplier": 1.6,
+      "source": "components/AppText.kt MAX_FONT_SCALE"
+    },
+    "shadows": [
+      {
+        "name": "card",
+        "value": "0 2dp 12dp rgba(15,42,29,0.06)",
+        "code": "Modifier.cardShadow, YoloCColors.cardShadow",
+        "purpose": "Under cards, the hero and settings groups, light only; transparent in dark."
+      },
+      {
+        "name": "floating",
+        "value": "0 6dp 20dp rgba(17,19,18,0.18)",
+        "valueDark": "0 6dp 20dp rgba(0,0,0,0.5)",
+        "code": "Modifier.floatingShadow, YoloCColors.floatingShadow",
+        "purpose": "Snackbar and the sheet panel: things that float over content."
+      },
+      {
+        "name": "camera-scrim-top",
+        "value": "linear-gradient(to bottom, rgba(0,0,0,0.6), transparent)",
+        "code": "CameraScreen.kt SCRIM = 0.6f",
+        "purpose": "Behind the camera's close button, title and mode switch."
+      },
+      {
+        "name": "camera-scrim-bottom",
+        "value": "linear-gradient(to bottom, transparent, rgba(0,0,0,0.6))",
+        "code": "CameraScreen.kt SCRIM = 0.6f",
+        "purpose": "Behind the hint, gallery, shutter and flash."
+      },
+      {
+        "name": "camera-text-halo",
+        "value": "0 0 4dp rgba(0,0,0,0.8)",
+        "code": "CameraScreen.kt textShadow()",
+        "purpose": "Text over the live preview."
+      }
+    ],
+    "motion": [
+      {
+        "name": "press",
+        "value": "100ms",
+        "code": "Motion.PRESS",
+        "purpose": "Press feedback (shutter core scale to 0.86)."
+      },
+      {
+        "name": "fast",
+        "value": "150ms",
+        "code": "Motion.FAST",
+        "purpose": "Fade outs (snackbar, History header)."
+      },
+      {
+        "name": "base",
+        "value": "200ms",
+        "code": "Motion.BASE",
+        "purpose": "Screen fades (none between tabs), snackbar enter, History header fold, shutter flash."
+      },
+      {
+        "name": "slow",
+        "value": "250ms",
+        "code": "Motion.SLOW",
+        "purpose": "Onboarding step fade."
+      },
+      {
+        "name": "ease-standard",
+        "value": "cubic-bezier(0.4, 0, 0.2, 1)",
+        "code": "Compose tween default (FastOutSlowInEasing)",
+        "purpose": "Every tween uses the default easing."
+      },
+      {
+        "name": "reduce-motion",
+        "value": "snap / none",
+        "code": "util/ReduceMotion.kt rememberReduceMotion()",
+        "purpose": "Animations are dropped when the system asks for reduced motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "tagline-hides",
+        "value": "fontScale > 1.15",
+        "code": "AppTopBar.kt"
+      },
+      {
+        "name": "segment-icons-hide",
+        "value": "fontScale > 1.2",
+        "code": "SegmentedControl.kt"
+      },
+      {
+        "name": "font-cap",
+        "value": "fontScale > 1.6 (text stops growing)",
+        "code": "AppText.kt"
+      },
+      {
+        "name": "hero-stacks",
+        "value": "button label width > hero width - 92dp photo - 32dp",
+        "code": "HomeScreen.kt Hero"
+      },
+      {
+        "name": "history-title-wraps",
+        "value": "FlowRow: New scan drops under the title when it does not fit",
+        "code": "HistoryScreen.kt HistoryTitle"
+      }
+    ],
+    "other": {
+      "touchTarget": "48dp (TouchTarget)",
+      "buttonLarge": "56dp (ButtonSize.Lg)",
+      "boxStroke": "3dp status stroke inside a 1dp white halo; 5dp when selected (BoxStroke)",
+      "iconStroke": "Feather line icons at 1.75 stroke; Lucide scan-line for Scan",
+      "ovalGuide": "dashed oval, 62% of width, aspect 0.62, 1.5dp stroke, 6dp/5dp dashes, white at 85% (Viewfinder.kt OvalGuide)",
+      "photos": "photo_cacao_cluster, photo_cacao_column only (docs/ASSETS.md); decorative, never disease-stage examples",
+      "languages": "English and Filipino (values-fil, draft awaiting a native speaker)"
+    }
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "YButton Primary: the one main action on a screen (Scan a pod, Save). Forest fill, white label, pressed to deep forest; no ripple.",
+      "html": "<button class=\"ds-btn-primary\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2M7 12h10\"/></svg><span>Scan a pod</span></button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 24px; background: #375534; color: #FFFFFF; border: 1px solid #375534; border-radius: 8px; font-family: Inter, system-ui, sans-serif; font-size: 15px; font-weight: 600; line-height: 20px; text-align: center; cursor: pointer; transition: background 100ms; } .ds-btn-primary:hover { background: #2E4A2C; } .ds-btn-primary:active { background: #0F2A1D; border-color: #0F2A1D; } .ds-btn-primary:focus-visible { outline: 2px solid #375534; outline-offset: 2px; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "YButton Secondary: white with forest text and a control-edge border; pressed to the leaf tint.",
+      "html": "<button class=\"ds-btn-secondary\"><span>Try again</span></button>",
+      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 24px; background: #FFFFFF; color: #375534; border: 1px solid #CAD2C8; border-radius: 8px; font-family: Inter, system-ui, sans-serif; font-size: 15px; font-weight: 600; line-height: 20px; cursor: pointer; transition: background 100ms; } .ds-btn-secondary:hover { background: #F0F3EE; } .ds-btn-secondary:active { background: #EBF1E6; color: #0F2A1D; } .ds-btn-secondary:focus-visible { outline: 2px solid #375534; outline-offset: 2px; }"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Card: white on the tinted ground, 16dp corners, a 1dp hairline and a 6% forest shadow (none in dark).",
+      "html": "<div class=\"ds-card\"><div class=\"ds-card-title\">Recent scans</div><div class=\"ds-card-body\">Your last three checks appear here.</div></div>",
+      "css": ".ds-card { background: #FFFFFF; border: 1px solid #E8ECE6; border-radius: 16px; box-shadow: 0 2px 12px rgba(15,42,29,0.06); padding: 16px; display: flex; flex-direction: column; gap: 8px; max-width: 320px; } .ds-card-title { font-family: Inter, system-ui, sans-serif; font-size: 18px; font-weight: 600; line-height: 24px; letter-spacing: -0.2px; color: #0F2A1D; } .ds-card-body { font-family: Inter, system-ui, sans-serif; font-size: 16px; line-height: 24px; color: #4F5E54; } .ds-card:active { background: #F0F3EE; }"
+    },
+    {
+      "name": "Hero Card",
+      "kind": "custom",
+      "refersTo": "hero-card",
+      "description": "Home's leaf-tint hero: Verdict line, caption, primary button, decorative pod photo at the right (moves above at large text).",
+      "html": "<div class=\"ds-hero\"><div class=\"ds-hero-text\"><div class=\"ds-hero-title\">One pod at a time. Protect your harvest.</div><div class=\"ds-hero-body\">Check pods for early signs of Frosty Pod Rot, right here, even without a connection.</div><button class=\"ds-hero-btn\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2M7 12h10\"/></svg><span>Scan a pod</span></button></div><div class=\"ds-hero-photo\" aria-hidden=\"true\"></div></div>",
+      "css": ".ds-hero { display: flex; background: #EBF1E6; border-radius: 16px; overflow: hidden; box-shadow: 0 2px 12px rgba(15,42,29,0.06); max-width: 360px; } .ds-hero-text { flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 8px; } .ds-hero-title { font-family: 'Inter Display', Inter, system-ui, sans-serif; font-size: 24px; font-weight: 600; line-height: 30px; letter-spacing: -0.4px; color: #0F2A1D; } .ds-hero-body { font-family: Inter, system-ui, sans-serif; font-size: 13px; font-weight: 500; line-height: 18px; color: #4F5E54; } .ds-hero-btn { align-self: flex-start; margin-top: 4px; display: inline-flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 24px; background: #375534; color: #FFFFFF; border: 0; border-radius: 8px; font-family: Inter, system-ui, sans-serif; font-size: 15px; font-weight: 600; line-height: 20px; cursor: pointer; } .ds-hero-btn:active { background: #0F2A1D; } .ds-hero-btn:focus-visible { outline: 2px solid #375534; outline-offset: 2px; } .ds-hero-photo { width: 92px; background: linear-gradient(160deg, #8E5A3A, #6B9071 55%, #375534); }"
+    },
+    {
+      "name": "Status Chips",
+      "kind": "chip",
+      "refersTo": "status-chip-healthy",
+      "description": "StatusChip: pale status tint, status icon and label in the tint ink. Never colour alone; the no-pod verdict is a neutral outlined chip.",
+      "html": "<div class=\"ds-chips\"><span class=\"ds-chip ds-chip-healthy\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M22 11.08V12a10 10 0 1 1-5.93-9.14\"/><path d=\"M22,4L12,14.01L9,11.01\"/></svg>Healthy</span><span class=\"ds-chip ds-chip-early\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z\"/><path d=\"M12,9L12,13\"/><path d=\"M12,17L12.01,17\"/></svg>Early stage 91%</span><span class=\"ds-chip ds-chip-infected\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M7.86,2L16.14,2L22,7.86L22,16.14L16.14,22L7.86,22L2,16.14L2,7.86L7.86,2Z\"/><path d=\"M12,8L12,12\"/><path d=\"M12,16L12.01,16\"/></svg>Infected</span><span class=\"ds-chip ds-chip-nopod\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#4F5E54\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3,11a8,8 0 1,0 16,0a8,8 0 1,0 -16,0\"/><path d=\"M21,21L16.65,16.65\"/></svg>No pods</span></div>",
+      "css": ".ds-chips { display: flex; flex-wrap: wrap; gap: 8px; } .ds-chip { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 0 12px; border-radius: 8px; font-family: Inter, system-ui, sans-serif; font-size: 15px; font-weight: 600; line-height: 20px; white-space: nowrap; } .ds-chip-healthy { background: #E6F0E1; color: #375534; } .ds-chip-early { background: #FAF0DA; color: #7A5810; } .ds-chip-infected { background: #FBE7E3; color: #9C3A2F; } .ds-chip-nopod { background: #FFFFFF; color: #0F2A1D; border: 1px solid #7A7E7C; }"
+    },
+    {
+      "name": "Filter Chip",
+      "kind": "chip",
+      "refersTo": "filter-chip",
+      "description": "History result filters: white with a hairline when off, solid forest when on; combinable; 48dp tall.",
+      "html": "<div class=\"ds-filters\"><button class=\"ds-filter is-on\" aria-pressed=\"true\">All</button><button class=\"ds-filter\" aria-pressed=\"false\">Infected</button><button class=\"ds-filter\" aria-pressed=\"false\">Early stage</button></div>",
+      "css": ".ds-filters { display: flex; gap: 8px; } .ds-filter { min-height: 48px; padding: 0 16px; background: #FFFFFF; color: #0F2A1D; border: 1px solid #E8ECE6; border-radius: 8px; font-family: Inter, system-ui, sans-serif; font-size: 15px; font-weight: 600; line-height: 20px; cursor: pointer; } .ds-filter:hover { background: #F0F3EE; } .ds-filter:active { background: #F0F3EE; } .ds-filter.is-on { background: #375534; color: #FFFFFF; border-color: #375534; } .ds-filter:focus-visible { outline: 2px solid #375534; outline-offset: 2px; }"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "text-field",
+      "description": "YTextField: white, 1dp hairline, 8dp corners (pill variant fully round), Body text, muted placeholder, forest cursor.",
+      "html": "<label class=\"ds-field\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#5F8465\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3,11a8,8 0 1,0 16,0a8,8 0 1,0 -16,0\"/><path d=\"M21,21L16.65,16.65\"/></svg><input class=\"ds-field-input\" placeholder=\"Search notes or plot\" /></label>",
+      "css": ".ds-field { display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 0 16px; background: #FFFFFF; border: 1px solid #E8ECE6; border-radius: 8px; max-width: 320px; } .ds-field-input { flex: 1; border: 0; outline: 0; background: transparent; font-family: Inter, system-ui, sans-serif; font-size: 16px; line-height: 24px; color: #0F2A1D; caret-color: #375534; } .ds-field-input::placeholder { color: #4F5E54; } .ds-field:focus-within { border-color: #E8ECE6; box-shadow: none; }"
+    },
+    {
+      "name": "Tab Bar",
+      "kind": "nav",
+      "refersTo": "tab-bar",
+      "description": "AppTabBar: Home, History, Scan, Guide, Settings. Active tab on a leaf pill with a heavier label; Scan in the centre on a solid forest pill, always.",
+      "html": "<nav class=\"ds-tabs\"><a class=\"ds-tab is-active\" aria-current=\"page\"><span class=\"ds-tab-pill\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\"/><path d=\"M9,22L9,12L15,12L15,22\"/></svg></span>Home</a><a class=\"ds-tab\"><span class=\"ds-tab-pill\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M2,12a10,10 0 1,0 20,0a10,10 0 1,0 -20,0\"/><path d=\"M12,6L12,12L16,14\"/></svg></span>History</a><a class=\"ds-tab ds-tab-scan\"><span class=\"ds-tab-pill\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2M7 12h10\"/></svg></span>Scan</a><a class=\"ds-tab\"><span class=\"ds-tab-pill\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z\"/><path d=\"M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z\"/></svg></span>Guide</a><a class=\"ds-tab\"><span class=\"ds-tab-pill\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M9,12a3,3 0 1,0 6,0a3,3 0 1,0 -6,0\"/><path d=\"M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z\"/></svg></span>Settings</a></nav>",
+      "css": ".ds-tabs { display: flex; background: #FFFFFF; border-top: 1px solid #E8ECE6; padding: 8px 4px 0; max-width: 360px; } .ds-tab { flex: 1; min-height: 64px; display: flex; flex-direction: column; align-items: center; gap: 4px; padding-bottom: 8px; color: #606A64; font-family: Inter, system-ui, sans-serif; font-size: 13px; font-weight: 500; line-height: 18px; text-decoration: none; cursor: pointer; } .ds-tab-pill { width: 48px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; } .ds-tab:hover .ds-tab-pill { background: #F0F3EE; } .ds-tab.is-active { color: #375534; font-weight: 600; } .ds-tab.is-active .ds-tab-pill { background: #EBF1E6; } .ds-tab-scan { color: #375534; font-weight: 600; } .ds-tab-scan .ds-tab-pill, .ds-tab-scan:hover .ds-tab-pill { width: 56px; background: #375534; color: #FFFFFF; } .ds-tab-scan:active .ds-tab-pill { background: #0F2A1D; } .ds-tab:focus-visible { outline: 2px solid #375534; outline-offset: -2px; border-radius: 8px; }"
+    },
+    {
+      "name": "Settings Row",
+      "kind": "custom",
+      "refersTo": "settings-row",
+      "description": "SettingsRow inside a SettingsGroup card: leaf icon disc, Body Strong label, muted detail, chevron; 64dp minimum.",
+      "html": "<div class=\"ds-group\"><button class=\"ds-row\"><span class=\"ds-disc\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#5F8465\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0z\"/></svg></span><span class=\"ds-row-text\"><span class=\"ds-row-label\">Your name</span><span class=\"ds-row-detail\">Juan</span></span><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#5F8465\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M9,18L15,12L9,6\"/></svg></button></div>",
+      "css": ".ds-group { background: #FFFFFF; border: 1px solid #E8ECE6; border-radius: 16px; box-shadow: 0 2px 12px rgba(15,42,29,0.06); overflow: hidden; max-width: 340px; } .ds-row { width: 100%; display: flex; align-items: center; gap: 12px; min-height: 64px; padding: 12px 16px; background: transparent; border: 0; text-align: left; cursor: pointer; } .ds-row:hover, .ds-row:active { background: #F0F3EE; } .ds-row:focus-visible { outline: 2px solid #375534; outline-offset: -2px; } .ds-disc { width: 40px; height: 40px; border-radius: 999px; background: #EBF1E6; display: flex; align-items: center; justify-content: center; flex: none; } .ds-row-text { flex: 1; display: flex; flex-direction: column; gap: 2px; } .ds-row-label { font-family: Inter, system-ui, sans-serif; font-size: 16px; font-weight: 500; line-height: 24px; color: #0F2A1D; } .ds-row-detail { font-family: Inter, system-ui, sans-serif; font-size: 13px; font-weight: 500; line-height: 18px; color: #4F5E54; }"
+    },
+    {
+      "name": "Camera Shutter",
+      "kind": "custom",
+      "refersTo": "camera-shutter",
+      "description": "The camera's shutter over the bottom scrim: 76dp, 4dp mist ring, 4dp gap, white core that scales to 0.86 on press.",
+      "html": "<div class=\"ds-cam\"><button class=\"ds-shutter\" aria-label=\"Take photo\"><span class=\"ds-shutter-core\"></span></button></div>",
+      "css": ".ds-cam { background: linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,0.6)), #111312; padding: 24px; display: flex; justify-content: center; max-width: 360px; border-radius: 16px; } .ds-shutter { width: 76px; height: 76px; border-radius: 999px; border: 4px solid #AEC3B0; background: transparent; padding: 0; display: flex; align-items: center; justify-content: center; cursor: pointer; } .ds-shutter-core { width: 60px; height: 60px; border-radius: 999px; background: #FFFFFF; transition: transform 100ms; } .ds-shutter:active .ds-shutter-core { transform: scale(0.86); } .ds-shutter:focus-visible { outline: 2px solid #FFFFFF; outline-offset: 3px; } @media (prefers-reduced-motion: reduce) { .ds-shutter-core { transition: none; } }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Calm Field Companion",
+    "overview": "A pale, leaf-tinted ground, crisp white cards, and one forest green that means \"do this\". The app is used outdoors, one-handed, in sun, often by people who read as little as possible, so every screen leads with a single large action and states its result in plain words with an icon. It refuses the category default of a dark \"AI scanner\" with neon boxes. The camera is the one dark place, because a viewfinder should be.\n\nDensity is relaxed: a 20dp screen gutter, 24dp between blocks, rows at least 48dp tall and settings rows at 64dp. Depth is quiet: a hairline on every card, a 6% forest shadow under it in light, none in dark. Colour is mostly neutral. Forest marks actions and the active state. The three status colours appear only where a pod's condition is being stated, and always with their own icon shape.\n\nThe visual direction is the owner's prototype recording, which is binding (PRODUCT.md). Type is Inter for everything, with Inter Display SemiBold for headlines and large numbers. Icons are Feather line icons at a 1.75 stroke, plus Lucide's scan-line for Scan.",
+    "keyCharacteristics": [
+      "One tinted ground (`ground`), white cards (`card-white`) with a hairline and a soft low shadow.",
+      "Forest (`forest`) for the primary action, links and the active tab. Sage (`sage`) takes that role in dark.",
+      "Pale status tint chips with icon plus label. Solid status fills are used only for box labels on photos.",
+      "Three radii only: 8dp for controls, 16dp for cards and photos, full for round things.",
+      "Text scales with the system font up to 1.6×. Layouts reflow instead of truncating.",
+      "A full-screen dark camera with floating controls over soft scrims and a dashed oval guide."
+    ],
+    "rules": [
+      {
+        "name": "The Status Is Meaning Rule",
+        "body": "Amber, brick and the status sage appear only where a pod's condition is being stated: chips, box strokes, box labels, verdict icons and the early-detections stat. They never decorate.",
+        "section": "colors"
+      },
+      {
+        "name": "The Never Colour Alone Rule",
+        "body": "Each status has its own icon shape: check-circle for healthy, alert-triangle for early and alert-octagon for infected. Each also has a text label. \"No pods\" is neutral, an outlined chip with a search icon, so it never reads as healthy.",
+        "section": "colors"
+      },
+      {
+        "name": "The Tint Not Fill Rule",
+        "body": "On the app's own surfaces a status chip is a pale tint with dark status ink. The solid status fill appears only on box labels drawn over a photo, where it must hold against any picture.",
+        "section": "colors"
+      },
+      {
+        "name": "The Checked Pair Rule",
+        "body": "Every text and icon pair that a component uses is listed in `contrastPairs()` (Contrast.kt) and checked by ContrastTest: 4.5:1 for text, 3:1 for icons, outlines and focus. A new pairing goes into that list before it ships.",
+        "section": "colors"
+      },
+      {
+        "name": "The No Kicker Rule",
+        "body": "There are no small all-caps labels above titles: no kickers, no eyebrows, no \"Field guide · 0N\" numbering. The owner removed them and the Overline component is deleted. The Home date is a plain muted Caption line.",
+        "section": "typography"
+      },
+      {
+        "name": "The Wrap Not Cut Rule",
+        "body": "Button labels may wrap to two lines and are centred. A status name in a chip is never cut short. Where a single line will not fit, the layout reflows.",
+        "section": "typography"
+      },
+      {
+        "name": "The Quiet Lift Rule",
+        "body": "Cards lift only by their hairline and a 6% shadow. Nothing else casts a shadow unless it floats over other content.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** read every colour through `YoloCTheme.colors` and every size through `Spacing`, `Radii`, `TouchTarget` and `YoloCType`. Never use a raw hex or dp in a screen.",
+      "**Do** show status as icon plus label on a pale tint chip (`StatusChip`). Keep the solid `status.fill` for box labels on photos.",
+      "**Do** give every new text or icon pairing an entry in `contrastPairs()` so ContrastTest checks it at 4.5:1 for text and 3:1 for icons.",
+      "**Do** make the next useful action the biggest thing on the screen: one primary `forest` button, with secondary and ghost buttons for the rest.",
+      "**Do** keep touch targets at 48dp or more, and let labels wrap to two lines rather than cut.",
+      "**Do** reflow when text grows or a language runs long: move the photo above, drop the button under the title, or hide the tagline.",
+      "**Do** put list rows edge to edge inside one white card, with hairline dividers inset to the text.",
+      "**Do** gate every animation on `rememberReduceMotion()` and keep durations within the `Motion` tokens."
+    ],
+    "donts": [
+      "**Don't** add small all-caps kicker, eyebrow or overline labels above titles. `TypeVariant.Overline` has no use in the redesign.",
+      "**Don't** use the pod photos as examples of a disease stage. They show healthy pods and are decorative.",
+      "**Don't** use amber, brick or the status sage for decoration, errors or destructive actions. Destructive settings rows use the inverse surface.",
+      "**Don't** show a status by colour alone, or let \"No pods\" look healthy.",
+      "**Don't** add a ripple, tonal elevation or a shadow to anything that does not float. Cards get the hairline and the 6% card shadow only.",
+      "**Don't** introduce a fourth corner radius. Use 8dp for controls, 16dp for cards and photos, and full for round things.",
+      "**Don't** put the tab bar or top bar on the camera, or turn the camera into a light screen.",
+      "**Don't** truncate a status name, a verdict or a button label with an ellipsis."
+    ]
+  }
+}
