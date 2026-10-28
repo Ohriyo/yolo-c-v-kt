@@ -90,6 +90,8 @@ fun contrastPairs(c: YoloCColors): List<ContrastPair> {
     add("active tab label", c.tabBar.active, c.tabBar.bg)
     add("active tab icon on indicator", c.tabBar.active, c.tabBar.indicator, ContrastKind.NonText)
     add("active tab label on indicator", c.tabBar.active, c.tabBar.indicator)
+    add("scan tab icon on its pill", c.primary.text, c.primary.bg, ContrastKind.NonText)
+    add("scan tab pill against the bar", c.primary.bg, c.tabBar.bg, ContrastKind.NonText)
 
     for (key in StatusKey.entries) {
         add("${key.token} label on status fill", c.status(key).onFill, c.status(key).fill)

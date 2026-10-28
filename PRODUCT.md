@@ -59,8 +59,9 @@ It is honest about its limits: it is a screening aid, not a diagnosis.
     System / Light / Dark choice.
   - Home stats: "Total scans" and "Early detections" over the last 7 days (rolling), replacing
     the three 30-day result counts.
-  - Navigation: five plain tabs, Home, Scan, History, Guide, Settings. Learn is renamed Guide;
-    Scan is a normal tab.
+  - Navigation: five tabs, Home, History, Scan, Guide, Settings. Learn is renamed Guide. Scan
+    sits in the middle, highlighted as the main action (the user's choice over the prototype's
+    plain Scan tab).
 - Out of scope: accounts, cloud sync, iOS, languages beyond English and Filipino.
 
 ## Brand Commitments

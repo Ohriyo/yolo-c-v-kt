@@ -10,6 +10,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.safeDrawing
@@ -103,11 +104,12 @@ fun YoloCNavHost(onboardingDone: Boolean) {
     CameraBars(destination.isCamera())
 
     val colors = YoloCTheme.colors
-    // Redesign 2026-10-28 (the prototype): Home, Scan, History, Guide, Settings, all plain tabs.
+    // Redesign 2026-10-28: Scan in the middle, highlighted as the main action (the user's choice
+    // over the prototype's plain Scan tab).
     val items = listOf<TabBarItem<Any>>(
         TabBarItem(Home, stringResource(R.string.tabs_home), IconName.Home),
-        TabBarItem(ScanButton, stringResource(R.string.tabs_scan), IconName.ScanLine),
         TabBarItem(History, stringResource(R.string.tabs_history), IconName.Clock),
+        TabBarItem(ScanButton, stringResource(R.string.tabs_scan), IconName.ScanLine),
         TabBarItem(Learn, stringResource(R.string.tabs_learn), IconName.BookOpen),
         TabBarItem(Settings, stringResource(R.string.tabs_settings), IconName.Settings),
     )
@@ -128,9 +130,10 @@ fun YoloCNavHost(onboardingDone: Boolean) {
             navController = nav,
             startDestination = start,
             // The top bar and tab bar keep the system bars clear, so tab screens must not pad for them too.
+            // One call: a second consumeWindowInsets on the same element replaces the first.
             modifier = Modifier
                 .weight(1f)
-                .then(if (onTab) Modifier.consumeWindowInsets(WindowInsets.navigationBars).consumeWindowInsets(WindowInsets.statusBars) else Modifier),
+                .then(if (onTab) Modifier.consumeWindowInsets(WindowInsets.navigationBars.union(WindowInsets.statusBars)) else Modifier),
             // RN: JS tabs switch without animation; stack screens fade (the camera's own "fade").
             enterTransition = { if (initialState.isTab() && targetState.isTab()) EnterTransition.None else fadeIn(tween(Motion.BASE)) },
             exitTransition = { if (initialState.isTab() && targetState.isTab()) ExitTransition.None else fadeOut(tween(Motion.BASE)) },
@@ -273,6 +276,7 @@ fun YoloCNavHost(onboardingDone: Boolean) {
             AppTabBar(
                 items = items,
                 activeKey = activeTab,
+                actionKey = ScanButton,
                 onSelect = { key ->
                     when {
                         key == ScanButton -> entry?.ifShown { nav.navigate(Camera) }

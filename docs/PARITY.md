@@ -122,7 +122,7 @@ truth and the analysis are unchanged. Compare the two apps' UI with this in mind
 | -------------- | -- | ------ | ---- |
 | Theme tokens | White ground, neutral surfaces, Barlow and Barlow Semi Condensed, corners 4 / 10 | Leaf-tinted ground `#F6F8F5`, white cards with a hairline and a soft shadow, Inter and Inter Display, corners 8 / 16 | 1 |
 | Status chips | Solid status fill | Pale status tint with the status ink (same icon and label); box labels on photos keep the solid fill | 1 |
-| Tab bar | Home, History, a filled Scan action, Learn, Settings | Five plain tabs: Home, Scan, History, Guide, Settings; the active one on a tint pill | 1 |
+| Tab bar | Home, History, a filled Scan action, Learn, Settings | Home, History, Scan, Guide, Settings: Scan in the middle as a filled primary pill (the user's choice over the prototype's plain Scan tab, 2026-10-28), the active tab on a tint pill | 1 |
 | Top bar on tab screens | None | "Your field companion", an "Offline ready" badge and a dark mode switch | 1 |
 | Icons | Feather at stroke 2 | Feather at stroke 1.75, plus Lucide's scan-line for the Scan tab | 1 |
 | Home | A heading, the Scan button, three 30-day count chips, recent scans, a photo tip | Date line and a greeting by part of the day (with the name), a hero card with a photo and Scan a pod, two stat cards (Total scans, Early detections) over the last 7 days, recent scans in one card, a card into the guide's stages topic, the photo tip with a link to the photos topic, and a footer naming the model | 2 |

@@ -367,18 +367,19 @@ private fun GalleryContent(theme: ThemeSetting, onTheme: (ThemeSetting) -> Unit)
             )
         }
 
-        Section("TabBar", "Tap to move the active tab. Five plain tabs, the active one on a tint pill.") {
+        Section("TabBar", "Tap to move the active tab. Scan, in the middle, is the filled main action.") {
             Box(Modifier.fillMaxWidth().clip(RoundedCornerShape(Radii.md)).border(1.dp, colors.border, RoundedCornerShape(Radii.md))) {
                 AppTabBar(
                     listOf(
                         TabBarItem("home", stringResource(R.string.tabs_home), IconName.Home),
-                        TabBarItem("scan", stringResource(R.string.tabs_scan), IconName.ScanLine),
                         TabBarItem("history", stringResource(R.string.tabs_history), IconName.Clock),
+                        TabBarItem("scan", stringResource(R.string.tabs_scan), IconName.ScanLine),
                         TabBarItem("learn", stringResource(R.string.tabs_learn), IconName.BookOpen),
                         TabBarItem("settings", stringResource(R.string.tabs_settings), IconName.Settings),
                     ),
                     activeTab,
                     { activeTab = it },
+                    actionKey = "scan",
                 )
             }
         }
