@@ -1,5 +1,20 @@
 package com.yoloc.app.screens.settings
 
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
+import com.yoloc.app.screens.appContainer
+import com.yoloc.app.store.USER_NAME_MAX
+import com.yoloc.app.features.settings.RowSwitch
+import com.yoloc.app.components.cardShadow
+import com.yoloc.app.components.ButtonSize
+import com.yoloc.app.components.YTextField
+import com.yoloc.app.components.BottomSheet
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.border
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
@@ -17,13 +32,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -44,15 +55,12 @@ import com.yoloc.app.components.ConfirmDialog
 import com.yoloc.app.components.IconName
 import com.yoloc.app.components.ScreenContainer
 import com.yoloc.app.components.HeaderedSection
-import com.yoloc.app.components.SegmentedControl
-import com.yoloc.app.components.SegmentedOption
 import com.yoloc.app.components.Toast
 import com.yoloc.app.components.ToastSlot
 import com.yoloc.app.components.ToastTone
 import com.yoloc.app.components.Tone
 import com.yoloc.app.components.YButton
 import com.yoloc.app.components.YSlider
-import com.yoloc.app.db.repositories.ThemeSetting
 import com.yoloc.app.features.export.RetrainingExportSheet
 import com.yoloc.app.features.settings.LOCATION_PERMISSIONS
 import com.yoloc.app.features.settings.LocationAccess
@@ -95,6 +103,7 @@ fun SettingsScreen(
         vm.onLocationChecked(hasLocationPermission(context), rationale())
         onPauseOrDispose {}
     }
+    var editingName by rememberSaveable { mutableStateOf(false) }
     // One prompt at a time: a second launch is answered at once with nothing granted.
     var asking by remember { mutableStateOf(false) }
     val askLocation = rememberLauncherForActivityResult(RequestMultiplePermissions()) { result ->
@@ -110,20 +119,43 @@ fun SettingsScreen(
 
     Box(Modifier.fillMaxSize()) {
         ScreenContainer(contentPadding = PaddingValues(start = Spacing.screen, top = Spacing.screen, end = Spacing.screen, bottom = 96.dp)) {
-            AppText(stringResource(R.string.settings_title), variant = TypeVariant.Headline)
-            HeaderedSection(stringResource(R.string.settings_detection_title)) { Threshold(s, vm) }
-            HeaderedSection(stringResource(R.string.settings_appearance_title)) {
-                SegmentedControl(
-                    options = listOf(
-                        SegmentedOption(ThemeSetting.System, stringResource(R.string.settings_theme_system), IconName.Smartphone),
-                        SegmentedOption(ThemeSetting.Light, stringResource(R.string.settings_theme_light), IconName.Sun),
-                        SegmentedOption(ThemeSetting.Dark, stringResource(R.string.settings_theme_dark), IconName.Moon),
-                    ),
-                    value = s.theme,
-                    onChange = vm::setTheme,
-                    accessibilityLabel = stringResource(R.string.settings_theme),
-                )
+            Column(verticalArrangement = Arrangement.spacedBy(Spacing.xxs)) {
+                AppText(stringResource(R.string.settings_title), variant = TypeVariant.Headline)
+                AppText(stringResource(R.string.settings_subtitle), tone = Tone.Muted)
             }
+            // Redesign 2026-10-28 (the prototype): the name, one Dark mode switch and the model.
+            HeaderedSection(stringResource(R.string.settings_profile_title)) {
+                val dark = YoloCTheme.colors.isDark
+                SettingsGroup {
+                    row {
+                        SettingsRow(
+                            IconName.User,
+                            stringResource(R.string.settings_name),
+                            detail = s.userName.ifEmpty { stringResource(R.string.settings_name_none) },
+                            onClick = { editingName = true },
+                        )
+                    }
+                    row {
+                        SettingsRow(
+                            if (dark) IconName.Moon else IconName.Sun,
+                            stringResource(R.string.settings_dark_mode),
+                            detail = stringResource(R.string.settings_dark_mode_detail),
+                            onClick = { vm.setDark(!dark) },
+                            checked = dark,
+                            trailing = { RowSwitch(dark) },
+                        )
+                    }
+                    row {
+                        SettingsRow(
+                            IconName.Cpu,
+                            stringResource(R.string.settings_model),
+                            detail = stringResource(R.string.settings_model_detail, appContainer().modelConfig.displayName),
+                            onClick = onOpenAbout,
+                        )
+                    }
+                }
+            }
+            HeaderedSection(stringResource(R.string.settings_detection_title)) { Threshold(s, vm) }
             HeaderedSection(stringResource(R.string.settings_location_title)) {
                 Location(s, onToggle = { on -> if (on) turnOnGps() else vm.toggleGps(false) }, onTryAgain = turnOnGps)
             }
@@ -164,6 +196,8 @@ fun SettingsScreen(
         },
     )
 
+    if (editingName) NameSheet(s.userName, onSave = { vm.setUserName(it); editingName = false }, onClose = { editingName = false })
+
     if (s.local.confirmingClear) {
         val summary = s.local.summary
         val res = LocalResources.current
@@ -191,8 +225,15 @@ private fun Threshold(s: SettingsViewModel.State, vm: SettingsViewModel) {
     val colors = YoloCTheme.colors
     val label = stringResource(R.string.settings_threshold)
     val res = LocalResources.current
+    val shape = RoundedCornerShape(Radii.md)
     Column(
-        Modifier.fillMaxWidth().background(colors.surface, RoundedCornerShape(Radii.md)).padding(Spacing.screen),
+        Modifier
+            .fillMaxWidth()
+            .cardShadow(shape)
+            .clip(shape)
+            .background(colors.card)
+            .border(1.dp, colors.border, shape)
+            .padding(Spacing.screen),
         verticalArrangement = Arrangement.spacedBy(Spacing.sm),
     ) {
         Row(horizontalArrangement = Arrangement.spacedBy(Spacing.sm), verticalAlignment = Alignment.CenterVertically) {
@@ -258,21 +299,7 @@ private fun Location(s: SettingsViewModel.State, onToggle: (Boolean) -> Unit, on
                     detail = stringResource(message),
                     onClick = { onToggle(!s.gpsOptIn) },
                     checked = s.gpsOptIn,
-                    trailing = {
-                        // The row is the control; the switch is its visual only.
-                        Switch(
-                            checked = s.gpsOptIn,
-                            onCheckedChange = null,
-                            modifier = Modifier.clearAndSetSemantics {},
-                            colors = SwitchDefaults.colors(
-                                checkedTrackColor = colors.primary.bg,
-                                checkedThumbColor = colors.surfaceRaised,
-                                uncheckedTrackColor = colors.border,
-                                uncheckedThumbColor = colors.surfaceRaised,
-                                uncheckedBorderColor = colors.border,
-                            ),
-                        )
-                    },
+                    trailing = { RowSwitch(s.gpsOptIn) },
                 )
                 if (s.locationProblem) {
                     Box(Modifier.padding(start = Spacing.md, end = Spacing.md, bottom = Spacing.md)) {
@@ -376,4 +403,26 @@ private fun ToastMessage(toast: SettingsViewModel.Toast) {
         }
     }
     Toast(message, tone = tone)
+}
+
+/** Redesign 2026-10-28 (Kotlin only): change or remove the name Home greets with. */
+@Composable
+private fun NameSheet(current: String, onSave: (String) -> Unit, onClose: () -> Unit) {
+    var name by rememberSaveable { mutableStateOf(current) }
+    val focus = remember { FocusRequester() }
+    BottomSheet(true, stringResource(R.string.settings_name_sheet_title), onClose = onClose) {
+        AppText(stringResource(R.string.settings_name_help), tone = Tone.Muted)
+        YTextField(
+            value = name,
+            onValueChange = { name = it },
+            placeholder = stringResource(R.string.onboarding_name_placeholder),
+            accessibilityLabel = stringResource(R.string.settings_name),
+            modifier = Modifier.focusRequester(focus),
+            maxLength = USER_NAME_MAX,
+            onDone = { onSave(name) },
+            selectAllOnFocus = true,
+        )
+        YButton(stringResource(R.string.settings_name_save), { onSave(name) }, size = ButtonSize.Lg, fullWidth = true)
+    }
+    LaunchedEffect(Unit) { runCatching { focus.requestFocus() } }
 }

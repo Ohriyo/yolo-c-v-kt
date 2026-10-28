@@ -1,5 +1,7 @@
 package com.yoloc.app.screens.home
 
+import androidx.compose.runtime.getValue
+import com.yoloc.app.components.Overline
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -21,7 +23,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -61,7 +62,6 @@ import com.yoloc.app.components.SectionHeader
 import com.yoloc.app.components.TextAction
 import com.yoloc.app.components.Tone
 import com.yoloc.app.components.YButton
-import com.yoloc.app.components.a11yLabel
 import com.yoloc.app.components.cardShadow
 import com.yoloc.app.features.detection.Verdict
 import com.yoloc.app.features.learn.LearnTopic
@@ -178,13 +178,6 @@ private fun Greeting(now: Long, name: String) {
     }
 }
 
-/** The small spaced line over a heading (the prototype's). Spoken as written, not spelled. */
-@Composable
-private fun Overline(text: String, color: Color = YoloCTheme.colors.textFaint) {
-    val locale = LocalConfiguration.current.locales[0]
-    AppText(text.uppercase(locale), Modifier.a11yLabel(text), variant = TypeVariant.Overline, color = color)
-}
-
 /** The leaf-tint hero: what the app is for and the scan action, with a pod photo at the side. */
 @Composable
 private fun Hero(onScan: () -> Unit) {
@@ -199,7 +192,7 @@ private fun Hero(onScan: () -> Unit) {
             .background(colors.selected),
     ) {
         Column(Modifier.weight(1f).padding(Spacing.md), verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
-            Overline(stringResource(R.string.home_hero_overline), colors.textMuted)
+            Overline(stringResource(R.string.home_hero_overline), color = colors.textMuted)
             AppText(stringResource(R.string.home_hero_title), variant = TypeVariant.Verdict)
             AppText(stringResource(R.string.home_hero_body), variant = TypeVariant.Caption, tone = Tone.Muted)
             YButton(stringResource(R.string.home_scan_cta), onScan, Modifier.padding(top = Spacing.xxs), icon = IconName.ScanLine)

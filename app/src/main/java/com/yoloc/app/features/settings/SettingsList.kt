@@ -1,5 +1,10 @@
 package com.yoloc.app.features.settings
 
+import com.yoloc.app.components.cardShadow
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.material3.SwitchDefaults
+import androidx.compose.material3.Switch
+import androidx.compose.foundation.border
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -46,13 +51,17 @@ class SettingsGroupScope internal constructor() {
     }
 }
 
-/** RN: SettingsList.tsx SettingsGroup. One rounded surface holding related rows, separated by hairlines. */
+/**
+ * RN: SettingsList.tsx SettingsGroup. Related rows separated by hairlines; redesigned 2026-10-28
+ * as one white card (the prototype).
+ */
 @Composable
 fun SettingsGroup(build: SettingsGroupScope.() -> Unit) {
     val colors = YoloCTheme.colors
     val rows = SettingsGroupScope().apply(build).rows
     val hairline = (1f / LocalDensity.current.density).dp
-    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(Radii.md)).background(colors.surface)) {
+    val shape = RoundedCornerShape(Radii.md)
+    Column(Modifier.fillMaxWidth().cardShadow(shape).clip(shape).background(colors.card).border(1.dp, colors.border, shape)) {
         rows.forEachIndexed { i, row ->
             if (i > 0) {
                 Box(Modifier.fillMaxWidth().padding(start = Spacing.md + ICON_DISC + Spacing.sm).height(hairline).background(colors.border))
@@ -94,7 +103,7 @@ fun SettingsRow(
         Modifier
             .a11yAction(spoken, onClick, role = if (checked != null) Role.Switch else Role.Button, enabled = enabled, checked = checked)
             .clickable(enabled = enabled, interactionSource = press.source, indication = null, onClick = onClick)
-            .background(if (press.pressed.value && enabled) colors.surfaceRaised else Color.Transparent)
+            .background(if (press.pressed.value && enabled) colors.surface else Color.Transparent)
     }
     Row(
         modifier
@@ -107,7 +116,7 @@ fun SettingsRow(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
-            Modifier.size(ICON_DISC).background(if (destructive) colors.inverse.bg else colors.surfaceRaised, CircleShape),
+            Modifier.size(ICON_DISC).background(if (destructive) colors.inverse.bg else colors.selected, CircleShape),
             contentAlignment = Alignment.Center,
         ) {
             Icon(icon, size = 20.dp, color = if (destructive) colors.inverse.text else colors.icon)
@@ -121,4 +130,23 @@ fun SettingsRow(
             onClick != null && chevron -> Icon(IconName.ChevronRight, size = 22.dp, color = colors.icon)
         }
     }
+}
+
+/** The switch drawn at the end of a switch row. The row is the control; this is its visual only. */
+@Composable
+fun RowSwitch(checked: Boolean) {
+    val colors = YoloCTheme.colors
+    Switch(
+        checked = checked,
+        onCheckedChange = null,
+        modifier = Modifier.clearAndSetSemantics {},
+        colors = SwitchDefaults.colors(
+            checkedTrackColor = colors.primary.bg,
+            checkedThumbColor = colors.surfaceRaised,
+            checkedBorderColor = colors.primary.bg,
+            uncheckedTrackColor = colors.border,
+            uncheckedThumbColor = colors.surfaceRaised,
+            uncheckedBorderColor = colors.outline,
+        ),
+    )
 }

@@ -1,7 +1,14 @@
 package com.yoloc.app.screens.learn
 
+import androidx.compose.runtime.getValue
+import com.yoloc.app.theme.TouchTarget
+import com.yoloc.app.features.learn.photo
+import com.yoloc.app.components.Overline
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,12 +25,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -44,10 +49,7 @@ import com.yoloc.app.components.ScreenContainer
 import com.yoloc.app.components.StatusChip
 import com.yoloc.app.components.Tone
 import com.yoloc.app.components.YButton
-import com.yoloc.app.components.a11yAction
-import com.yoloc.app.components.rememberPress
 import com.yoloc.app.features.learn.howSteps
-import com.yoloc.app.features.learn.iconName
 import com.yoloc.app.features.learn.photoTips
 import com.yoloc.app.features.learn.teaser
 import com.yoloc.app.features.learn.title
@@ -61,50 +63,45 @@ import com.yoloc.app.theme.YoloCTheme
 import com.yoloc.app.features.learn.LearnTopic as Topic
 
 /**
- * RN: app/(tabs)/learn.tsx. An offline field guide in three short topics (CLAUDE.md 3.2). Disease
- * content is a draft until an agronomist reviews it, and the screen says so plainly.
+ * RN: app/(tabs)/learn.tsx, redesigned 2026-10-28 as the Guide (the prototype): one photo card per
+ * topic, in reading order. Disease content is a draft until an agronomist reviews it, and the
+ * screen says so plainly. The photos are decorative (healthy pods, not examples of a stage).
  */
 @Composable
 fun LearnScreen(onOpenTopic: (Topic) -> Unit) {
     val colors = YoloCTheme.colors
-    ScreenContainer(contentPadding = PaddingValues(start = Spacing.screen, top = Spacing.screen, end = Spacing.screen, bottom = Spacing.xxl)) {
+    ScreenContainer(contentPadding = PaddingValues(start = Spacing.screen, top = Spacing.lg, end = Spacing.screen, bottom = Spacing.xxl)) {
         Column(verticalArrangement = Arrangement.spacedBy(Spacing.xxs)) {
-            AppText(stringResource(R.string.learn_title), variant = TypeVariant.Headline)
+            Overline(stringResource(R.string.learn_overline))
+            AppText(stringResource(R.string.learn_heading), variant = TypeVariant.Headline)
             AppText(stringResource(R.string.learn_subtitle), tone = Tone.Muted)
         }
 
-        Column(verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
+        Column(verticalArrangement = Arrangement.spacedBy(Spacing.md)) {
             Topic.entries.forEachIndexed { i, topic ->
-                // The first topic is the one to start with: filled in the primary color.
-                val lead = i == 0
                 val title = stringResource(topic.title)
-                val teaser = stringResource(topic.teaser)
-                val press = rememberPress()
-                val onClick = { onOpenTopic(topic) }
-                Row(
-                    Modifier
-                        .fillMaxWidth()
-                        .scale(if (press.pressed.value) 0.98f else 1f)
-                        .clip(RoundedCornerShape(Radii.md))
-                        .background(if (lead) colors.primary.bg else colors.surface)
-                        .a11yAction(title, onClick, hint = teaser)
-                        .clickable(interactionSource = press.source, indication = null, onClick = onClick)
-                        .heightIn(min = 96.dp)
-                        .padding(start = Spacing.md, end = Spacing.sm, top = Spacing.md, bottom = Spacing.md),
-                    horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Box(
-                        Modifier.size(44.dp).background(if (lead) colors.primary.text else colors.surfaceRaised, CircleShape),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Icon(topic.iconName, size = 22.dp, color = if (lead) colors.primary.bg else colors.icon)
+                Card(onClick = { onOpenTopic(topic) }, accessibilityLabel = title, spacing = Spacing.sm) {
+                    Image(
+                        painterResource(topic.photo),
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f).clip(RoundedCornerShape(Radii.sm)),
+                        contentScale = ContentScale.Crop,
+                    )
+                    Column(Modifier.padding(top = Spacing.xxs, start = Spacing.xxs, end = Spacing.xxs), verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
+                        // The topics are a reading order, so they are numbered.
+                        Overline(stringResource(R.string.learn_topic_number, i + 1))
+                        AppText(title, variant = TypeVariant.Title)
+                        AppText(stringResource(topic.teaser), tone = Tone.Muted)
+                        // The whole card opens the topic; this only says so.
+                        Row(
+                            Modifier.heightIn(min = TouchTarget),
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            AppText(stringResource(R.string.learn_read_topic), variant = TypeVariant.Label, color = colors.link)
+                            Icon(IconName.ArrowRight, size = 16.dp, color = colors.link)
+                        }
                     }
-                    Column(Modifier.weight(1f)) {
-                        AppText(title, variant = TypeVariant.Title, color = if (lead) colors.primary.text else colors.text)
-                        AppText(teaser, color = if (lead) colors.primary.text else colors.textMuted)
-                    }
-                    Icon(IconName.ChevronRight, size = 24.dp, color = if (lead) colors.primary.text else colors.icon)
                 }
             }
         }

@@ -52,7 +52,7 @@
     <string name="result_title">Result</string>
     <string name="scan_detail_title">Scan detail</string>
     <string name="about_title">About</string>
-    <string name="learn_title">Learn</string>
+    <string name="learn_title">Guide</string>
     <string name="plots_title">Plots</string>
     <string name="dev_seed_title">Fake scans (dev)</string>
     <string name="settings_dev_inference">Model test (dev)</string>
@@ -130,7 +130,11 @@
     <string name="home_footer_aid">YOLO-C is a screening aid, not a diagnosis.</string>
 
     <!-- learn (RN: strings.learn) -->
-    <string name="learn_subtitle">A short field guide. Works without internet.</string>
+    <string name="learn_overline">Know your crop</string>
+    <string name="learn_heading">A field guide to Frosty Pod Rot</string>
+    <string name="learn_subtitle">Recognize the signs. Act early. Works without internet.</string>
+    <string name="learn_topic_number">Field guide · %1$02d</string>
+    <string name="learn_read_topic">Read the guide</string>
     <string name="learn_draft_note">Disease information here is a draft and is still being checked by an agronomist.</string>
     <string name="learn_topic_stages_title">Frosty Pod Rot stages</string>
     <string name="learn_topic_stages_teaser">What healthy, early-stage and infected pods look like</string>
@@ -234,17 +238,16 @@
     <string name="history_search_placeholder">Search notes or plot</string>
     <string name="history_search_label">Search scans by notes or plot name</string>
     <string name="history_clear_search">Clear search</string>
-    <string name="history_filter_status">Result</string>
+    <string name="history_overline">Your field records</string>
+    <string name="history_title">Scan history</string>
+    <string name="history_subtitle">Every check is a step toward a healthier farm.</string>
+    <string name="history_new_scan">New scan</string>
+    <string name="history_filter_all">All</string>
     <!-- Only shown for two or more results (one shows that result's name). -->
-    <plurals name="history_filter_status_many">
-        <item quantity="one">%d result</item>
-        <item quantity="other">%d results</item>
-    </plurals>
     <string name="history_filter_date">Date</string>
     <string name="history_filter_plot">Plot</string>
     <string name="history_filter_hint">Opens filter options</string>
     <string name="history_clear_filters">Clear filters</string>
-    <string name="history_status_sheet_title">Show results</string>
     <string name="history_date_sheet_title">Date</string>
     <string name="history_plot_sheet_title">Plot</string>
     <string name="history_range_all">Any date</string>
@@ -255,7 +258,6 @@
     <string name="history_no_plot">No plot</string>
     <string name="history_no_plots_yet">No plots yet. You can add one when you save a scan.</string>
     <string name="history_plots_failed">Plots could not be loaded.</string>
-    <string name="history_done">Done</string>
     <string name="history_no_pods_short">No pods found</string>
     <string name="history_uncertain">Uncertain</string>
     <string name="history_notes_a11y">Notes: %1$s</string>
@@ -363,6 +365,17 @@
     <string name="processing_inference_error_body">Something went wrong while checking the photo. Try again.</string>
     <!-- settings (RN: strings.settings) -->
     <string name="settings_title">Settings</string>
+    <string name="settings_subtitle">Make YOLO-C work for you.</string>
+    <string name="settings_profile_title">Profile and display</string>
+    <string name="settings_name">Your name</string>
+    <string name="settings_name_none">Not set</string>
+    <string name="settings_name_sheet_title">Your name</string>
+    <string name="settings_name_help">Home greets you with it. Leave it empty to remove it.</string>
+    <string name="settings_name_save">Save</string>
+    <string name="settings_dark_mode">Dark mode</string>
+    <string name="settings_dark_mode_detail">Comfortable viewing in low light</string>
+    <string name="settings_model">On-device model</string>
+    <string name="settings_model_detail">%1$s · Runs on this phone, works offline</string>
     <string name="settings_detection_title">Detection</string>
     <string name="settings_threshold">Confidence threshold</string>
     <string name="settings_threshold_value">%1$d%%</string>
@@ -375,11 +388,6 @@
     <string name="settings_threshold_help">Pods scored below this are not shown. Lower it to catch more early-stage pods, at the cost of more false alarms.</string>
     <string name="settings_threshold_applies">Applies to your next scan. Saved scans keep their results.</string>
     <string name="settings_threshold_reset">Reset to %1$d%% (model default)</string>
-    <string name="settings_appearance_title">Appearance</string>
-    <string name="settings_theme">Theme</string>
-    <string name="settings_theme_system">System</string>
-    <string name="settings_theme_light">Light</string>
-    <string name="settings_theme_dark">Dark</string>
     <string name="settings_location_title">Location</string>
     <string name="settings_gps">Add location to saved scans</string>
     <string name="settings_gps_off">Off by default. Locations stay on this phone.</string>
@@ -449,8 +457,8 @@
     <string name="settings_app_title">App</string>
     <string name="settings_about">About</string>
     <string name="settings_about_detail">Model, accuracy and limitations</string>
-    <string name="settings_show_onboarding">Show onboarding again</string>
-    <string name="settings_dev_gallery">Component gallery (dev)</string>
+    <string name="settings_show_onboarding">View introduction</string>
+    <string name="settings_dev_gallery">View style guide (dev)</string>
     <string name="settings_dev_seed">Fake scans (dev)</string>
 
     <!-- about (RN: strings.about) -->

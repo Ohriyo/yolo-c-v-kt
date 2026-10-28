@@ -103,6 +103,8 @@ class SettingsViewModel(
         val defaultThreshold: Double,
         val theme: ThemeSetting,
         val gpsOptIn: Boolean,
+        /** The first name Home greets with (redesign 2026-10-28); empty when not given. */
+        val userName: String = "",
     ) {
         val shownThreshold: Double get() = local.thresholdDraft ?: confThreshold
         val isDefaultThreshold: Boolean get() = thresholdPercent(confThreshold) == thresholdPercent(defaultThreshold)
@@ -127,7 +129,7 @@ class SettingsViewModel(
     private var toastJob: Job? = null
 
     val state: StateFlow<State> = combine(local, settings.state) { l, s ->
-        State(l, s.confThreshold, defaultThreshold, s.theme, s.gpsOptIn)
+        State(l, s.confThreshold, defaultThreshold, s.theme, s.gpsOptIn, s.userName)
     }.stateIn(viewModelScope, SharingStarted.Eagerly, settings.state.value.let { State(Local(), it.confThreshold, defaultThreshold, it.theme, it.gpsOptIn) })
 
     init {
@@ -171,6 +173,16 @@ class SettingsViewModel(
 
     fun setTheme(theme: ThemeSetting) {
         viewModelScope.launch { settings.setTheme(theme) }
+    }
+
+    /**
+     * Redesign 2026-10-28: one Dark mode switch. It always stores an explicit choice; "follow the
+     * phone" stays the first-run default until the switch is used.
+     */
+    fun setDark(on: Boolean) = setTheme(if (on) ThemeSetting.Dark else ThemeSetting.Light)
+
+    fun setUserName(name: String) {
+        viewModelScope.launch { settings.setUserName(name) }
     }
 
     // Location

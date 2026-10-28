@@ -3,7 +3,6 @@ package com.yoloc.app.screens
 import android.app.Application
 import androidx.annotation.StringRes
 import androidx.compose.ui.semantics.SemanticsActions
-import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
@@ -142,14 +141,25 @@ class SettingsScreensTest {
         compose.waitUntil(5_000) { compose.onAllNodesWithContentDescription(reset).fetchSemanticsNodes().isEmpty() }
     }
 
+    /** Redesign 2026-10-28: one Dark mode switch instead of System / Light / Dark. */
     @Test
     fun switchesTheThemeAndSavesIt() {
         showSettings()
-        val dark = text(R.string.settings_theme_dark)
-        compose.onNodeWithText(dark).performScrollTo().performClick()
+        val dark = text(R.string.settings_dark_mode)
+        compose.onNodeWithContentDescription(dark, substring = true).performScrollTo().performClick()
         compose.waitUntil(5_000) { store.state.value.theme == ThemeSetting.Dark }
         compose.waitUntil(5_000) { runBlocking { SettingsRepository(holder).getSettings().theme } == ThemeSetting.Dark }
-        compose.onNodeWithText(dark).assertIsSelected()
+    }
+
+    @Test
+    fun changesAndRemovesTheName() {
+        showSettings()
+        compose.onNodeWithContentDescription(text(R.string.settings_name), substring = true).performScrollTo().performClick()
+        waitForLabel(text(R.string.settings_name_sheet_title))
+        compose.onAllNodesWithContentDescription(text(R.string.settings_name))[1].performTextReplacement("Ana")
+        compose.onNodeWithContentDescription(text(R.string.settings_name_save)).performClick()
+        compose.waitUntil(5_000) { store.state.value.userName == "Ana" }
+        compose.waitUntil(5_000) { runBlocking { SettingsRepository(holder).getSettings().userName } == "Ana" }
     }
 
     @Test

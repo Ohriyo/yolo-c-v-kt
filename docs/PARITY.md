@@ -128,6 +128,10 @@ truth and the analysis are unchanged. Compare the two apps' UI with this in mind
 | Home | A heading, the Scan button, three 30-day count chips, recent scans, a photo tip | Date line and a greeting by part of the day (with the name), a hero card with a photo and Scan a pod, two stat cards (Total scans, Early detections) over the last 7 days, recent scans in one card, a card into the guide's stages topic, the photo tip with a link to the photos topic, and a footer naming the model | 2 |
 | Name (onboarding primer, `user_name` setting) | None | An optional first name on the permission primer, saved in the key/value settings table (no schema change); Home greets with it | 2 |
 | `HistoryRequest.ByVerdict` | Home opens History by result over 30 days | Home's stat cards open History over the last 7 days, for every result or early stage only | 2 |
+| History | "History" with a count; one row of Result, Date and Plot pills, results picked in a sheet | "Scan history" with its own New scan button, folding away while the list scrolls; All and one chip per result (still combinable) in one row with the Date and Plot pills; each day's scans in one card | 3 |
+| Guide (RN: Learn) | Three topic rows, the first filled in the primary color | "A field guide to Frosty Pod Rot": one photo card per topic, numbered in reading order; the draft note stays | 3 |
+| Settings: theme | System / Light / Dark | One Dark mode switch (and the top bar's); "follow the phone" stays the first-run default until it is used | 3 |
+| Settings: new rows | None | Your name (a sheet to change or remove it) and On-device model (opens About), in a "Profile and display" group; "Show onboarding again" reads "View introduction" | 3 |
 
 ## Step 6 measurements (filled in as the port progresses)
 

@@ -1,5 +1,7 @@
 package com.yoloc.app.features.scans
 
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -13,13 +15,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,7 +33,6 @@ import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.onLongClick
 import androidx.compose.ui.semantics.role
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
@@ -126,7 +124,11 @@ fun ScanRow(
     ) {
         Thumbnail(scan)
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            AppText(subtitle, variant = TypeVariant.BodyStrong, maxLines = 1)
+            // The time shares the first line, so the chip below keeps the full width.
+            Row(horizontalArrangement = Arrangement.spacedBy(Spacing.xs)) {
+                AppText(subtitle, Modifier.weight(1f), variant = TypeVariant.BodyStrong, maxLines = 2)
+                AppText(time, Modifier.padding(top = 2.dp), variant = TypeVariant.Caption, tone = Tone.Muted, maxLines = 1)
+            }
             VerdictChip(scan.verdict)
             if (scan.lowConfidence || notes != null) {
                 Row(horizontalArrangement = Arrangement.spacedBy(Spacing.xs), verticalAlignment = Alignment.CenterVertically) {
@@ -140,8 +142,6 @@ fun ScanRow(
                 }
             }
         }
-        // Long times ("Yesterday" on Home) ellipsize instead of pushing the row.
-        AppText(time, Modifier.widthIn(max = 96.dp), variant = TypeVariant.Caption, tone = Tone.Muted, maxLines = 1, textAlign = TextAlign.End)
         Icon(IconName.ChevronRight, size = 18.dp, color = colors.textFaint)
     }
 }

@@ -1,5 +1,6 @@
 package com.yoloc.app.features.learn
 
+import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.yoloc.app.R
 import com.yoloc.app.components.IconName
@@ -33,6 +34,14 @@ val howSteps = listOf(
 
 /** RN: topicIcon. */
 val LearnTopic.iconName: IconName get() = IconName.fromKey(icon)
+
+/** Redesign 2026-10-28: the Guide card's photo (decorative; docs/ASSETS.md). */
+val LearnTopic.photo: Int
+    @DrawableRes get() = when (this) {
+        LearnTopic.Stages -> R.drawable.photo_cacao_column
+        LearnTopic.Photos -> R.drawable.photo_cacao_cluster
+        LearnTopic.How -> R.drawable.photo_cacao_opened
+    }
 
 /** RN: strings.learn.topics[topic].title. */
 @get:StringRes

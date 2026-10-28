@@ -79,6 +79,7 @@ enum class IconName(val key: String, @param:DrawableRes val drawable: Int) {
     Tag("tag", R.drawable.ic_tag),
     Trash2("trash-2", R.drawable.ic_trash_2),
     Umbrella("umbrella", R.drawable.ic_umbrella),
+    User("user", R.drawable.ic_user),
     WifiOff("wifi-off", R.drawable.ic_wifi_off),
     X("x", R.drawable.ic_x),
     Zap("zap", R.drawable.ic_zap),

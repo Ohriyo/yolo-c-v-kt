@@ -1,5 +1,26 @@
 package com.yoloc.app.screens.history
 
+import androidx.compose.runtime.getValue
+import com.yoloc.app.util.rememberReduceMotion
+import com.yoloc.app.theme.Motion
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.ui.draw.clip
+import com.yoloc.app.components.Overline
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawOutline
+import androidx.compose.ui.graphics.drawscope.clipRect
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,7 +43,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -100,6 +120,11 @@ fun HistoryScreen(
     val filtered = isFiltered(s.filter)
     val ready = s.status == HistoryViewModel.Status.Ready
     val hasRows = s.items.isNotEmpty()
+    val list = rememberLazyListState()
+    // Redesign 2026-10-28: the records title folds away while the list is scrolled, so the fixed
+    // search and chips leave the screen to the scans. Back at the top it returns.
+    val atTop by remember { derivedStateOf { list.firstVisibleItemIndex == 0 && list.firstVisibleItemScrollOffset == 0 } }
+    val reduceMotion = rememberReduceMotion()
 
     Box(Modifier.fillMaxSize().background(colors.background).windowInsetsPadding(WindowInsets.safeDrawing)) {
         Column(Modifier.fillMaxSize()) {
@@ -107,19 +132,21 @@ fun HistoryScreen(
                 Modifier.padding(start = Spacing.screen, end = Spacing.screen, top = Spacing.screen, bottom = Spacing.xs),
                 verticalArrangement = Arrangement.spacedBy(Spacing.sm),
             ) {
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Spacing.sm), verticalAlignment = Alignment.Bottom) {
-                    AppText(stringResource(R.string.tabs_history), Modifier.weight(1f), variant = TypeVariant.Headline)
-                    if (ready && (s.total > 0 || filtered)) {
-                        AppText(
-                            if (filtered) {
-                                pluralStringResource(R.plurals.history_count_filtered, s.total, s.total)
-                            } else {
-                                pluralStringResource(R.plurals.history_count, s.total, s.total)
-                            },
-                            Modifier.semantics { liveRegion = LiveRegionMode.Polite },
-                            variant = TypeVariant.Caption,
-                            tone = Tone.Muted,
-                        )
+                // Redesign 2026-10-28 (the prototype): the records header with its own New scan.
+                AnimatedVisibility(
+                    atTop,
+                    enter = if (reduceMotion) EnterTransition.None else expandVertically(tween(Motion.BASE)) + fadeIn(tween(Motion.BASE)),
+                    exit = if (reduceMotion) ExitTransition.None else shrinkVertically(tween(Motion.BASE)) + fadeOut(tween(Motion.FAST)),
+                ) {
+                    Column(verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Spacing.sm), verticalAlignment = Alignment.Top) {
+                            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(Spacing.xxs)) {
+                                Overline(stringResource(R.string.history_overline))
+                                AppText(stringResource(R.string.history_title), variant = TypeVariant.Headline)
+                            }
+                            YButton(stringResource(R.string.history_new_scan), onScan, icon = IconName.ScanLine)
+                        }
+                        AppText(stringResource(R.string.history_subtitle), tone = Tone.Muted)
                     }
                 }
                 // Hidden only when there is nothing to filter yet (the empty state takes over).
@@ -136,6 +163,18 @@ fun HistoryScreen(
                         onPlot = vm::selectPlot,
                         onClearPills = vm::clearPills,
                         onPlotSheet = vm::loadPlots,
+                    )
+                }
+                if (ready && (s.total > 0 || filtered)) {
+                    AppText(
+                        if (filtered) {
+                            pluralStringResource(R.plurals.history_count_filtered, s.total, s.total)
+                        } else {
+                            pluralStringResource(R.plurals.history_count, s.total, s.total)
+                        },
+                        Modifier.semantics { liveRegion = LiveRegionMode.Polite },
+                        variant = TypeVariant.Caption,
+                        tone = Tone.Muted,
                     )
                 }
             }
@@ -155,6 +194,7 @@ fun HistoryScreen(
                         )
                     }
                     else -> ScanList(
+                        list = list,
                         items = s.items,
                         loadingMore = s.loadingMore,
                         hasMore = s.hasMore,
@@ -201,6 +241,7 @@ fun HistoryScreen(
 
 @Composable
 private fun ScanList(
+    list: LazyListState,
     items: List<HistoryItem>,
     loadingMore: Boolean,
     hasMore: Boolean,
@@ -210,7 +251,6 @@ private fun ScanList(
     onDelete: (String) -> Unit,
     onClearFilters: () -> Unit,
 ) {
-    val list = rememberLazyListState()
     val dayFormat = rememberDayFormat()
     val focus = LocalFocusManager.current
     val optionsLabel = stringResource(R.string.history_options_title)
@@ -239,14 +279,21 @@ private fun ScanList(
                 )
             }
         }
-        items(items, key = { it.key }, contentType = { it.type }) { item ->
+        itemsIndexed(items, key = { _, it -> it.key }, contentType = { _, it -> it.type }) { i, item ->
             when (item) {
                 is HistoryItem.Day -> AppText(
                     item.label,
                     Modifier.padding(top = Spacing.lg, bottom = Spacing.xs).semantics { heading() },
                     variant = TypeVariant.Label,
+                    tone = Tone.Muted,
                 )
-                is HistoryItem.Scan -> Box(Modifier.padding(bottom = Spacing.xs)) {
+                // Redesign 2026-10-28: each day's scans read as one card (the prototype's list card).
+                is HistoryItem.Scan -> Box(
+                    Modifier.dayGroup(
+                        first = items.getOrNull(i - 1) !is HistoryItem.Scan,
+                        last = items.getOrNull(i + 1) !is HistoryItem.Scan,
+                    ),
+                ) {
                     SwipeToDelete(rowKey = item.scan.id, onDelete = { onDelete(item.scan.id) }) {
                         ScanRow(
                             item.scan,
@@ -268,6 +315,36 @@ private fun ScanList(
             }
         }
     }
+}
+
+/**
+ * One row's part of its day card: the card's top corners and edge on the first row, the bottom
+ * ones on the last, the sides on every row, and an inset hairline under all but the last.
+ */
+@Composable
+private fun Modifier.dayGroup(first: Boolean, last: Boolean): Modifier {
+    val colors = YoloCTheme.colors
+    val r = Radii.md
+    val shape = RoundedCornerShape(
+        topStart = if (first) r else 0.dp,
+        topEnd = if (first) r else 0.dp,
+        bottomStart = if (last) r else 0.dp,
+        bottomEnd = if (last) r else 0.dp,
+    )
+    val edge = colors.border
+    val inset = Spacing.md
+    return this
+        .clip(shape)
+        .background(colors.card)
+        .drawWithContent {
+            drawContent()
+            val w = 1.dp.toPx()
+            // Only this row's part of the card's edge: no line where it meets its neighbours.
+            clipRect(top = if (first) 0f else w, bottom = if (last) size.height else size.height - w) {
+                drawOutline(shape.createOutline(size, layoutDirection, this), edge, style = Stroke(w * 2))
+            }
+            if (!last) drawLine(edge, Offset(inset.toPx(), size.height - w / 2), Offset(size.width, size.height - w / 2), w)
+        }
 }
 
 /** Whether the list end is within [END_REACHED_THRESHOLD] viewport heights (rows not yet laid out are estimated). */
