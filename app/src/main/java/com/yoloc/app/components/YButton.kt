@@ -1,5 +1,6 @@
 package com.yoloc.app.components
 
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -87,6 +88,6 @@ fun YButton(
         } else if (icon != null) {
             Icon(icon, size = 20.dp, color = fg)
         }
-        AppText(label, variant = TypeVariant.Label, color = fg, maxLines = 1)
+        AppText(label, variant = TypeVariant.Label, color = fg, maxLines = 2, textAlign = TextAlign.Center)
     }
 }

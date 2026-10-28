@@ -102,7 +102,7 @@ fun contrastPairs(c: YoloCColors): List<ContrastPair> {
     val cam = c.camera
     val bar = composite(cam.bar, cam.screen, CAMERA_BAR_OPACITY)
     add("camera control icon on bar", cam.control, bar)
-    add("camera shutter ring on bar", cam.control, bar, ContrastKind.NonText)
+    add("camera shutter ring on bar", cam.shutterRing, bar, ContrastKind.NonText)
     add("camera active toggle icon", cam.lens, cam.control, ContrastKind.NonText)
     add("camera gallery placeholder icon", cam.control, cam.galleryFill, ContrastKind.NonText)
     add("camera text on screen", cam.lensText, cam.screen)

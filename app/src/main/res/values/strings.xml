@@ -314,7 +314,9 @@
     <!-- camera (RN: strings.camera) -->
     <string name="camera_shutter">Take photo</string>
     <string name="camera_close">Close camera</string>
-    <string name="camera_hint">Fill the frame with one pod, in shade.</string>
+    <string name="camera_title">Scan a pod</string>
+    <string name="camera_hint">Hold steady. Keep one pod inside the oval, in shade.</string>
+    <string name="camera_private">Your photo is checked privately on this phone.</string>
     <string name="camera_gallery">Choose a photo from the gallery</string>
     <string name="camera_flash">Flash</string>
     <string name="camera_ask_title">Scan pods with your camera</string>

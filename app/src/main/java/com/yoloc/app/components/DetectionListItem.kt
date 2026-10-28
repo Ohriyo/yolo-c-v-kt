@@ -44,6 +44,8 @@ fun DetectionListItem(
     selected: Boolean = false,
     correctedFrom: String? = null,
     onClick: (() -> Unit)? = null,
+    /** False on the last row of a card, whose edge already closes the list. */
+    divider: Boolean = true,
 ) {
     val colors = YoloCTheme.colors
     val pct = formatConfidence(confidence)
@@ -88,6 +90,6 @@ fun DetectionListItem(
                 if (selected) Icon(IconName.Eye, size = 18.dp, color = colors.text)
             }
         }
-        HorizontalDivider(thickness = 1.dp, color = colors.border)
+        if (divider) HorizontalDivider(thickness = 1.dp, color = colors.border)
     }
 }

@@ -58,9 +58,9 @@ private val SHUTTER_INNER = SHUTTER - (SHUTTER_RING + SHUTTER_GAP) * 2
 private val GALLERY = 52.dp
 
 /**
- * RN: features/camera/CameraControlBar.tsx. The bottom bar of the camera screen: gallery (left),
- * shutter (center), flash (right). It stays dark in both themes and pads itself above the
- * Android navigation bar.
+ * RN: features/camera/CameraControlBar.tsx. The camera's controls: gallery (left), shutter
+ * (center), flash (right). Redesign 2026-10-28: no bar of its own; the camera screen's bottom
+ * scrim carries it, and it no longer pads for the navigation bar (the screen does).
  *
  * @param galleryImage Newest saved scan photo for the gallery button, or null for the icon.
  * @param canCapture False until the camera is ready (or when there is no camera access).
@@ -82,12 +82,7 @@ fun CameraControlBar(
     Row(
         Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(topStart = Radii.md, topEnd = Radii.md))
-            .background(cam.bar.copy(alpha = CAMERA_BAR_OPACITY))
-            .drawBehind { drawLine(cam.barEdge, Offset.Zero, Offset(size.width, 0f), 1.dp.toPx()) }
-            .padding(top = Spacing.md, start = Spacing.screen, end = Spacing.screen)
-            .windowInsetsPadding(WindowInsets.navigationBars)
-            .padding(bottom = Spacing.md),
+            .padding(horizontal = Spacing.screen),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(Modifier.weight(1f).heightIn(min = TouchTarget), contentAlignment = Alignment.Center) {
@@ -144,7 +139,7 @@ private fun ShutterButton(enabled: Boolean, capturing: Boolean, onPress: () -> U
         Modifier
             .size(SHUTTER)
             .alpha(if (enabled) 1f else 0.45f)
-            .border(SHUTTER_RING, cam.control, CircleShape)
+            .border(SHUTTER_RING, cam.shutterRing, CircleShape)
             .a11yAction(label, onPress, enabled = !disabled)
             .clickable(enabled = !disabled, interactionSource = press.source, indication = null, onClick = onPress),
         contentAlignment = Alignment.Center,

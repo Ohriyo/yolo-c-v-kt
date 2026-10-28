@@ -132,6 +132,9 @@ truth and the analysis are unchanged. Compare the two apps' UI with this in mind
 | Guide (RN: Learn) | Three topic rows, the first filled in the primary color | "A field guide to Frosty Pod Rot": one photo card per topic, numbered in reading order; the draft note stays | 3 |
 | Settings: theme | System / Light / Dark | One Dark mode switch (and the top bar's); "follow the phone" stays the first-run default until it is used | 3 |
 | Settings: new rows | None | Your name (a sheet to change or remove it) and On-device model (opens About), in a "Profile and display" group; "Show onboarding again" reads "View introduction" | 3 |
+| Camera (photo) | A 3:4 framed viewfinder with corner ticks on black; gallery, shutter and flash on a dark bar | The preview fills the screen under soft scrims; a dashed oval guide; "Scan a pod" beside the close button; the white shutter with a sage ring between gallery and flash; a line saying the photo is checked on the phone. The 4:3 photo holds a little more than the screen shows | 4 |
+| Buttons | Labels on one line | Labels may wrap to a second line (Inter is wider than Barlow, and Filipino labels are longer); Preview's two buttons are equal halves | 4 |
+| Result and Scan Detail | Pod rows on the page | Pod rows in one white card, like the advice | 4 |
 
 ## Step 6 measurements (filled in as the port progresses)
 

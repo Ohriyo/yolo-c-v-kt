@@ -55,6 +55,8 @@ data class CameraColors(
     val control: Color,
     /** Quiet circle behind an off toggle. Decorative. */
     val controlFill: Color,
+    /** The ring around the white shutter (redesign 2026-10-28: the prototype's soft sage). */
+    val shutterRing: Color,
     val galleryFill: Color,
 )
 
@@ -132,6 +134,7 @@ private val camera = CameraColors(
     barEdge = p.white.copy(alpha = 0.08f),
     control = p.white,
     controlFill = p.white.copy(alpha = 0.1f),
+    shutterRing = p.mist300,
     galleryFill = p.dark850,
 )
 

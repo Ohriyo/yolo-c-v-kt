@@ -143,7 +143,8 @@ fun ScanReport(
             lowConfidence = lowConfidence,
         )
         SectionHeader(stringResource(R.string.result_detections_title), subtitle = podsFound)
-        Column(verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
+        // Redesign 2026-10-28: the pods in one white card, like the advice below.
+        Card(padding = Spacing.xs, spacing = Spacing.xs) {
             for (p in report.pods) {
                 key(p.id) {
                     DetectionListItem(
@@ -154,6 +155,7 @@ fun ScanReport(
                         selected = selectedId == p.id,
                         correctedFrom = if (p.corrected) classView(classes, p.detection.classId, modelClasses).label else null,
                         onClick = { toggle(p.id) },
+                        divider = p !== report.pods.last(),
                     )
                     if (selectedId == p.id && onCorrect != null) {
                         YButton(

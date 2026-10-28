@@ -1,5 +1,8 @@
 package com.yoloc.app.screens.scan
 
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.IntrinsicSize
 import android.content.ActivityNotFoundException
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -103,11 +106,11 @@ fun PreviewScreen(onBackToCamera: () -> Unit, onUsePhoto: () -> Unit, vm: Previe
     ScreenContainer(
         footer = {
             // Retake on the left, the primary action on the right where the thumb lands.
-            Row(horizontalArrangement = Arrangement.spacedBy(Spacing.xs)) {
+            Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(Spacing.xs)) {
                 YButton(
                     retakeLabel,
                     retake,
-                    Modifier.weight(2f),
+                    Modifier.weight(1f).fillMaxHeight(),
                     variant = ButtonVariant.Secondary,
                     icon = if (fromCamera) IconName.RotateCcw else IconName.Image,
                     size = ButtonSize.Lg,
@@ -116,7 +119,7 @@ fun PreviewScreen(onBackToCamera: () -> Unit, onUsePhoto: () -> Unit, vm: Previe
                 YButton(
                     stringResource(R.string.preview_use_photo),
                     onUsePhoto,
-                    Modifier.weight(3f),
+                    Modifier.weight(1f).fillMaxHeight(),
                     icon = IconName.Check,
                     size = ButtonSize.Lg,
                     fullWidth = true,

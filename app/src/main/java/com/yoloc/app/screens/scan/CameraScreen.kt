@@ -1,5 +1,13 @@
 package com.yoloc.app.screens.scan
 
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.text.TextStyle
+import com.yoloc.app.features.camera.OvalGuide
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.foundation.layout.navigationBars
 import android.Manifest
 import android.content.ActivityNotFoundException
 import android.content.Intent
@@ -60,7 +68,6 @@ import com.yoloc.app.components.a11yAction
 import com.yoloc.app.components.rememberPress
 import com.yoloc.app.features.camera.BoundCamera
 import com.yoloc.app.features.camera.CameraControlBar
-import com.yoloc.app.features.camera.Viewfinder
 import com.yoloc.app.features.camera.hasCameraPermission
 import com.yoloc.app.features.camera.ratio43
 import com.yoloc.app.features.camera.takePhotoTo
@@ -134,120 +141,161 @@ fun CameraScreen(
         }
     }
 
-    Column(Modifier.fillMaxSize().background(cam.screen)) {
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .windowInsetsPadding(WindowInsets.statusBars)
-                .padding(top = Spacing.xs, start = Spacing.xs, end = Spacing.xs)
-                .heightIn(min = TouchTarget),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            val press = rememberPress()
-            val close = stringResource(R.string.camera_close)
-            Box(
-                Modifier
-                    .size(TouchTarget)
-                    .alpha(if (press.pressed.value) 0.6f else 1f)
-                    .a11yAction(close, onClose)
-                    .clickable(interactionSource = press.source, indication = null, onClick = onClose),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(IconName.X, size = 26.dp, color = cam.control)
-            }
-            if (s.granted) ModeSwitch(CameraMode.Photo) { onLive() }
+    val notice = when (s.notice) {
+        CameraViewModel.Notice.CaptureFailed -> stringResource(R.string.camera_capture_failed)
+        CameraViewModel.Notice.GalleryFailed -> stringResource(R.string.camera_gallery_failed)
+        null -> null
+    }
+
+    // Redesign 2026-10-28 (the prototype; docs/PARITY.md): the preview fills the screen and the
+    // controls float over soft scrims. The 4:3 photo holds a little more than the screen shows.
+    Box(Modifier.fillMaxSize().background(cam.screen)) {
+        if (previewOn) {
+            BoundCamera(preview, others, Modifier.fillMaxSize(), onReady = vm::onCameraReady, onBindError = { vm.onMountError() })
+            Box(Modifier.fillMaxSize().graphicsLayer { alpha = shutter.value }.background(Color.Black))
         }
 
-        Viewfinder(Modifier.weight(1f)) {
-            when {
-                s.mountError -> LensPanel(
-                    IconName.CameraOff,
-                    stringResource(R.string.camera_unavailable_title),
-                    stringResource(R.string.camera_unavailable_body),
-                    stringResource(R.string.error_retry),
-                    IconName.RotateCcw,
-                    vm::retryMount,
-                )
-                s.access == CameraAccess.Ask -> LensPanel(
-                    IconName.Camera,
-                    stringResource(R.string.camera_ask_title),
-                    stringResource(R.string.camera_ask_body),
-                    stringResource(R.string.camera_allow),
-                    IconName.Camera,
-                ) { askCamera.launch(Manifest.permission.CAMERA) }
-                s.access == CameraAccess.Denied -> LensPanel(
-                    IconName.CameraOff,
-                    stringResource(R.string.camera_denied_title),
-                    stringResource(R.string.camera_denied_body),
-                    stringResource(R.string.camera_allow),
-                    IconName.Camera,
-                ) { askCamera.launch(Manifest.permission.CAMERA) }
-                s.access == CameraAccess.Blocked -> LensPanel(
-                    IconName.CameraOff,
-                    stringResource(R.string.camera_denied_title),
-                    stringResource(R.string.camera_blocked_body),
-                    stringResource(R.string.camera_open_settings),
-                    IconName.Settings,
+        Column(Modifier.fillMaxSize()) {
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .background(Brush.verticalGradient(listOf(Color.Black.copy(alpha = SCRIM), Color.Transparent)))
+                    .windowInsetsPadding(WindowInsets.statusBars)
+                    .padding(top = Spacing.xs, start = Spacing.xs, end = Spacing.md, bottom = Spacing.lg)
+                    .heightIn(min = TouchTarget),
+                horizontalArrangement = Arrangement.spacedBy(Spacing.xs),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                val press = rememberPress()
+                val close = stringResource(R.string.camera_close)
+                Box(
+                    Modifier
+                        .size(TouchTarget)
+                        .alpha(if (press.pressed.value) 0.6f else 1f)
+                        .a11yAction(close, onClose)
+                        .clickable(interactionSource = press.source, indication = null, onClick = onClose),
+                    contentAlignment = Alignment.Center,
                 ) {
-                    context.startActivity(
-                        Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", context.packageName, null)),
+                    Icon(IconName.X, size = 26.dp, color = cam.control)
+                }
+                AppText(
+                    stringResource(R.string.camera_title),
+                    Modifier.weight(1f).semantics { heading() },
+                    variant = TypeVariant.Title,
+                    color = cam.lensText,
+                    maxLines = 1,
+                    style = textShadow(),
+                )
+                if (s.granted) ModeSwitch(CameraMode.Photo) { onLive() }
+            }
+
+            Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+                when {
+                    s.mountError -> LensPanel(
+                        IconName.CameraOff,
+                        stringResource(R.string.camera_unavailable_title),
+                        stringResource(R.string.camera_unavailable_body),
+                        stringResource(R.string.error_retry),
+                        IconName.RotateCcw,
+                        vm::retryMount,
+                    )
+                    s.access == CameraAccess.Ask -> LensPanel(
+                        IconName.Camera,
+                        stringResource(R.string.camera_ask_title),
+                        stringResource(R.string.camera_ask_body),
+                        stringResource(R.string.camera_allow),
+                        IconName.Camera,
+                    ) { askCamera.launch(Manifest.permission.CAMERA) }
+                    s.access == CameraAccess.Denied -> LensPanel(
+                        IconName.CameraOff,
+                        stringResource(R.string.camera_denied_title),
+                        stringResource(R.string.camera_denied_body),
+                        stringResource(R.string.camera_allow),
+                        IconName.Camera,
+                    ) { askCamera.launch(Manifest.permission.CAMERA) }
+                    s.access == CameraAccess.Blocked -> LensPanel(
+                        IconName.CameraOff,
+                        stringResource(R.string.camera_denied_title),
+                        stringResource(R.string.camera_blocked_body),
+                        stringResource(R.string.camera_open_settings),
+                        IconName.Settings,
+                    ) {
+                        context.startActivity(
+                            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", context.packageName, null)),
+                        )
+                    }
+                    previewOn -> OvalGuide(Modifier.fillMaxSize().padding(vertical = Spacing.md))
+                }
+            }
+
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .background(Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = SCRIM))))
+                    .padding(top = Spacing.lg)
+                    .windowInsetsPadding(WindowInsets.navigationBars)
+                    .padding(bottom = Spacing.md),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(Spacing.sm),
+            ) {
+                Row(
+                    Modifier
+                        .padding(horizontal = Spacing.screen)
+                        .heightIn(min = 24.dp)
+                        .semantics { liveRegion = LiveRegionMode.Polite },
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.xs),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    if (notice != null) Icon(IconName.AlertCircle, size = 18.dp, color = cam.lensText)
+                    AppText(
+                        notice ?: if (s.granted) stringResource(R.string.camera_hint) else " ",
+                        variant = TypeVariant.BodyStrong,
+                        color = cam.lensText,
+                        textAlign = TextAlign.Center,
+                        style = textShadow(),
                     )
                 }
-                previewOn -> {
-                    BoundCamera(preview, others, Modifier.fillMaxSize(), onReady = vm::onCameraReady, onBindError = { vm.onMountError() })
-                    Box(Modifier.fillMaxSize().graphicsLayer { alpha = shutter.value }.background(Color.Black))
-                }
+                CameraControlBar(
+                    galleryImage = s.latestImage,
+                    galleryBusy = s.picking,
+                    onGallery = {
+                        if (vm.startGallery()) {
+                            // RN catches a picker that cannot open and says so.
+                            try {
+                                pick.launch(PickVisualMediaRequest(PickVisualMedia.ImageOnly))
+                            } catch (e: ActivityNotFoundException) {
+                                vm.onGalleryFailed(e)
+                            }
+                        }
+                    },
+                    canCapture = previewOn && s.ready,
+                    capturing = s.capturing,
+                    onCapture = takePhoto,
+                    flashAvailable = s.granted && !s.mountError,
+                    flashOn = s.flashOn,
+                    onToggleFlash = vm::toggleFlash,
+                )
+                AppText(
+                    stringResource(R.string.camera_private),
+                    Modifier.padding(horizontal = Spacing.screen),
+                    variant = TypeVariant.Caption,
+                    color = cam.lensText,
+                    textAlign = TextAlign.Center,
+                    style = textShadow(),
+                )
             }
         }
-
-        val notice = when (s.notice) {
-            CameraViewModel.Notice.CaptureFailed -> stringResource(R.string.camera_capture_failed)
-            CameraViewModel.Notice.GalleryFailed -> stringResource(R.string.camera_gallery_failed)
-            null -> null
-        }
-        // Aligned with the viewfinder's left edge (its 16dp margin).
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .heightIn(min = 24.dp)
-                .padding(start = Spacing.md, end = Spacing.md, bottom = Spacing.sm)
-                .semantics { liveRegion = LiveRegionMode.Polite },
-            horizontalArrangement = Arrangement.spacedBy(Spacing.xs),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            if (notice != null) Icon(IconName.AlertCircle, size = 18.dp, color = cam.lensText)
-            AppText(
-                notice ?: if (s.granted) stringResource(R.string.camera_hint) else " ",
-                Modifier.weight(1f),
-                color = if (notice != null) cam.lensText else cam.lensTextMuted,
-            )
-        }
-
-        CameraControlBar(
-            galleryImage = s.latestImage,
-            galleryBusy = s.picking,
-            onGallery = {
-                if (vm.startGallery()) {
-                    // RN catches a picker that cannot open and says so.
-                    try {
-                        pick.launch(PickVisualMediaRequest(PickVisualMedia.ImageOnly))
-                    } catch (e: ActivityNotFoundException) {
-                        vm.onGalleryFailed(e)
-                    }
-                }
-            },
-            canCapture = previewOn && s.ready,
-            capturing = s.capturing,
-            onCapture = takePhoto,
-            flashAvailable = s.granted && !s.mountError,
-            flashOn = s.flashOn,
-            onToggleFlash = vm::toggleFlash,
-        )
     }
 }
 
-/** Explanation inside the viewfinder when there is no preview, anchored to its lower left. */
+/** How dark the scrims behind the top row and the controls start. */
+private const val SCRIM = 0.6f
+
+/** A soft dark halo under text over the live picture (as on the Live screen). */
+@Composable
+private fun textShadow() = TextStyle(shadow = Shadow(Color.Black.copy(alpha = 0.8f), Offset.Zero, 4f * LocalDensity.current.density))
+
+/** Explanation in place of the preview when there is none, anchored to its lower left. */
 @Composable
 private fun LensPanel(
     icon: IconName,
