@@ -46,6 +46,12 @@ android {
     androidResources {
         noCompress += "tflite"
     }
+    // The Settings language picker switches in the app, so every install needs every language.
+    bundle {
+        language {
+            enableSplit = false
+        }
+    }
 }
 
 room3 {

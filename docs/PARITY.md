@@ -135,6 +135,9 @@ truth and the analysis are unchanged. Compare the two apps' UI with this in mind
 | Camera (photo) | A 3:4 framed viewfinder with corner ticks on black; gallery, shutter and flash on a dark bar | The preview fills the screen under soft scrims; a dashed oval guide; "Scan a pod" beside the close button; the white shutter with a sage ring between gallery and flash; a line saying the photo is checked on the phone. The 4:3 photo holds a little more than the screen shows | 4 |
 | Buttons | Labels on one line | Labels may wrap to a second line (Inter is wider than Barlow, and Filipino labels are longer); Preview's two buttons are equal halves | 4 |
 | Result and Scan Detail | Pod rows on the page | Pod rows in one white card, like the advice | 4 |
+| Language | English only | English and Filipino. Filipino (values-fil) is a draft by Claude, marked as such beside the choice, and needs a native speaker's check; the agronomic placeholders stay TODO in both. Settings > Language switches in the app (Android 13+: the per-app language, also in the phone's settings; older: saved in the app). Without a choice the app follows the phone. Class names stored in the database follow the language; scans keep their class ids | 5 |
+| Camera title | One line | Up to two lines, for longer languages | 5 |
+| App bundle | Language splits on | Off, so an install from a bundle has both languages | 5 |
 
 ## Step 6 measurements (filled in as the port progresses)
 

@@ -45,6 +45,7 @@ enum class IconName(val key: String, @param:DrawableRes val drawable: Int) {
     Edit3("edit-3", R.drawable.ic_edit_3),
     Eye("eye", R.drawable.ic_eye),
     Flag("flag", R.drawable.ic_flag),
+    Globe("globe", R.drawable.ic_globe),
     Grid("grid", R.drawable.ic_grid),
     HardDrive("hard-drive", R.drawable.ic_hard_drive),
     Home("home", R.drawable.ic_home),

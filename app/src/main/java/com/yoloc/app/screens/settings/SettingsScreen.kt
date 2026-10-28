@@ -1,5 +1,7 @@
 package com.yoloc.app.screens.settings
 
+import com.yoloc.app.util.AppLanguages
+import com.yoloc.app.util.AppLanguage
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import com.yoloc.app.screens.appContainer
@@ -104,6 +106,7 @@ fun SettingsScreen(
         onPauseOrDispose {}
     }
     var editingName by rememberSaveable { mutableStateOf(false) }
+    var choosingLanguage by rememberSaveable { mutableStateOf(false) }
     // One prompt at a time: a second launch is answered at once with nothing granted.
     var asking by remember { mutableStateOf(false) }
     val askLocation = rememberLauncherForActivityResult(RequestMultiplePermissions()) { result ->
@@ -133,6 +136,15 @@ fun SettingsScreen(
                             stringResource(R.string.settings_name),
                             detail = s.userName.ifEmpty { stringResource(R.string.settings_name_none) },
                             onClick = { editingName = true },
+                        )
+                    }
+                    row {
+                        val language = AppLanguages.current(LocalContext.current)
+                        SettingsRow(
+                            IconName.Globe,
+                            stringResource(R.string.settings_language),
+                            detail = languageName(language),
+                            onClick = { choosingLanguage = true },
                         )
                     }
                     row {
@@ -196,6 +208,7 @@ fun SettingsScreen(
         },
     )
 
+    if (choosingLanguage) LanguageSheet(onClose = { choosingLanguage = false })
     if (editingName) NameSheet(s.userName, onSave = { vm.setUserName(it); editingName = false }, onClose = { editingName = false })
 
     if (s.local.confirmingClear) {
@@ -425,4 +438,37 @@ private fun NameSheet(current: String, onSave: (String) -> Unit, onClose: () -> 
         YButton(stringResource(R.string.settings_name_save), { onSave(name) }, size = ButtonSize.Lg, fullWidth = true)
     }
     LaunchedEffect(Unit) { runCatching { focus.requestFocus() } }
+}
+
+/** A language in its own name; Filipino says it is a draft. */
+@Composable
+private fun languageName(language: AppLanguage): String = when (language) {
+    AppLanguage.English -> stringResource(R.string.language_english)
+    AppLanguage.Filipino -> stringResource(R.string.language_filipino) + " · " + stringResource(R.string.language_filipino_draft)
+}
+
+/** Redesign 2026-10-28 (Kotlin only): English or the draft Filipino. The screen restarts in it. */
+@Composable
+private fun LanguageSheet(onClose: () -> Unit) {
+    val context = LocalContext.current
+    val activity = LocalActivity.current
+    val current = AppLanguages.current(context)
+    BottomSheet(true, stringResource(R.string.settings_language_sheet_title), onClose = onClose) {
+        SettingsGroup {
+            for (language in AppLanguage.entries) {
+                row {
+                    SettingsRow(
+                        if (language == current) IconName.Disc else IconName.Circle,
+                        if (language == AppLanguage.English) stringResource(R.string.language_english) else stringResource(R.string.language_filipino),
+                        detail = if (language == AppLanguage.Filipino) stringResource(R.string.language_filipino_draft) else null,
+                        onClick = {
+                            onClose()
+                            if (language != current && activity != null) AppLanguages.set(activity, language)
+                        },
+                        chevron = false,
+                    )
+                }
+            }
+        }
+    }
 }

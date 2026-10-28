@@ -1,0 +1,532 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Filipino (fil). DRAFT translation by Claude, 2026-10-28 (UI redesign, part 5). It must be checked
+  by a native speaker before release; the app says so next to the language choice in Settings.
+  Choices: "pod" is "bunga"; Frosty Pod Rot keeps its English name; scan, plot, app, model and
+  similar words stay as farmers already use them. Agronomic text is still placeholder (TODO) in
+  both languages. Keep every placeholder (%1$s, %d, %%) exactly as in values/strings.xml.
+-->
+<resources>
+    <string name="app_name">yolo-c</string>
+
+    <!-- status -->
+    <string name="status_healthy">Malusog</string>
+    <string name="status_early">Maagang yugto</string>
+    <string name="status_infected">May impeksiyon</string>
+
+    <!-- verdict -->
+    <string name="verdict_no_pod_title">Walang nakitang bunga ng cacao</string>
+    <string name="verdict_uncertain">Hindi tiyak ang resulta: kumuha ulit sa mas maliwanag</string>
+    <string name="verdict_short_healthy">Malusog</string>
+    <string name="verdict_short_early_stage">Maagang yugto</string>
+    <string name="verdict_short_infected">May impeksiyon</string>
+    <string name="verdict_short_no_pod">Walang bunga</string>
+
+    <!-- detection -->
+    <string name="detection_corrected_from">Itinama mula sa %1$s</string>
+    <string name="detection_pod_number">Bunga %1$d</string>
+
+    <!-- image -->
+    <string name="image_load_failed_title">Hindi maipakita ang larawan</string>
+    <string name="image_load_failed_body">Maaaring nawawala o sira ang file ng larawan.</string>
+
+    <!-- error -->
+    <string name="error_default_title">May nangyaring mali</string>
+    <string name="error_retry">Subukan ulit</string>
+    <string name="error_back">Bumalik</string>
+
+    <!-- common -->
+    <string name="common_close">Isara</string>
+    <string name="common_confidence">%1$d%% kumpiyansa</string>
+
+    <!-- tabs and top bar -->
+    <string name="tabs_home">Home</string>
+    <string name="tabs_scan">I-scan</string>
+    <string name="tabs_history">Talaan</string>
+    <string name="tabs_learn">Gabay</string>
+    <string name="topbar_tagline">Katuwang mo sa bukid</string>
+    <string name="topbar_offline">Handa offline</string>
+    <string name="topbar_offline_a11y">Handa offline. Sa teleponong ito ginagawa ang pag-scan, walang ipinapadala.</string>
+    <string name="topbar_dark_mode">Madilim na tema</string>
+    <string name="tabs_settings">Setting</string>
+
+    <string name="placeholder">Pansamantalang screen. Gagawin sa susunod na yugto.</string>
+
+    <!-- stack screen titles -->
+    <string name="preview_title">Silip</string>
+    <string name="processing_title">Sinusuri</string>
+    <string name="result_title">Resulta</string>
+    <string name="scan_detail_title">Detalye ng scan</string>
+    <string name="about_title">Tungkol sa app</string>
+    <string name="learn_title">Gabay</string>
+    <string name="plots_title">Mga plot</string>
+    <string name="dev_seed_title">Pekeng scan (dev)</string>
+    <string name="settings_dev_inference">Pagsubok sa model (dev)</string>
+    <string name="nav_up">Bumalik</string>
+
+    <!-- startup -->
+    <string name="startup_db_error_body">Hindi mabuksan ng app ang storage nito sa teleponong ito. Subukan ulit, o i-restart ang app. Hindi apektado ang mga na-save mong scan.</string>
+
+    <!-- onboarding -->
+    <string name="onboarding_scan_title">Suriin ang mga bunga ng cacao sa bukid</string>
+    <string name="onboarding_scan_body">Kunan ng larawan ang isang bunga. Mamarkahan ng app ang bawat bunga bilang malusog, maagang yugto o may impeksiyon.</string>
+    <string name="onboarding_offline_title">Gumagana kahit walang internet</string>
+    <string name="onboarding_offline_body">Lahat ay tumatakbo sa iyong telepono. Hindi umaalis sa device ang iyong mga larawan.</string>
+    <string name="onboarding_tips_title">Kumuha ng malinaw na larawan</string>
+    <string name="onboarding_tips_body">Mas maganda ang resulta kapag malinaw ang larawan.</string>
+    <string name="onboarding_aid_title">Pantulong sa pagsusuri, hindi diyagnosis</string>
+    <string name="onboarding_aid_body">Maaaring makaligtaan ng app ang maagang palatandaan. Laging tingnan mismo ang mga kahina-hinalang bunga.</string>
+    <string name="onboarding_get_started">Magsimula</string>
+    <string name="onboarding_aid_detail">Sa mga pagsubok, nakaligtaan nito ang mga %1$d sa bawat 10 bungang nasa maagang yugto.</string>
+    <string name="onboarding_next">Susunod</string>
+    <string name="onboarding_skip">Laktawan</string>
+    <string name="onboarding_permissions_title">Camera at mga larawan</string>
+    <string name="onboarding_permissions_body">Hihingi ang app ng pahintulot sa camera sa unang beses mong buksan ang I-scan. Maaari ka ring pumili ng larawan mula sa gallery.</string>
+    <string name="onboarding_permissions_location">Nakapatay ang lokasyon maliban kung bubuksan mo ito sa Setting.</string>
+    <string name="onboarding_name_label">Ano ang itatawag namin sa iyo? (opsyonal)</string>
+    <string name="onboarding_name_placeholder">Pangalan</string>
+    <string name="onboarding_name_a11y">Ang iyong pangalan, opsyonal</string>
+    <string name="onboarding_continue">Magpatuloy</string>
+    <string name="onboarding_slide_counter">Hakbang %1$d sa %2$d</string>
+
+    <!-- home -->
+    <string name="home_greeting_morning">Magandang umaga.</string>
+    <string name="home_greeting_afternoon">Magandang hapon.</string>
+    <string name="home_greeting_evening">Magandang gabi.</string>
+    <string name="home_greeting_morning_name">Magandang umaga, %1$s.</string>
+    <string name="home_greeting_afternoon_name">Magandang hapon, %1$s.</string>
+    <string name="home_greeting_evening_name">Magandang gabi, %1$s.</string>
+    <string name="home_subtitle">Nagsisimula ang mas malusog na ani sa masusing pagtingin.</string>
+    <string name="home_hero_overline">Maagang pagtuklas. Mas matibay na proteksiyon.</string>
+    <string name="home_hero_title">Isa-isang suriin ang bunga.\nProtektahan ang iyong ani.</string>
+    <string name="home_hero_body">Suriin ang mga bunga para sa maagang palatandaan ng Frosty Pod Rot, dito mismo, kahit walang koneksiyon.</string>
+    <string name="home_scan_cta">Mag-scan ng bunga</string>
+    <string name="home_stat_total">Kabuuang scan</string>
+    <string name="home_stat_early">Maagang natuklasan</string>
+    <string name="home_stat_window">nakaraang 7 araw</string>
+    <plurals name="home_stat_total_a11y">
+        <item quantity="one">Kabuuang scan: %1$d sa nakaraang 7 araw. Binubuksan ang Talaan.</item>
+        <item quantity="other">Kabuuang scan: %1$d sa nakaraang 7 araw. Binubuksan ang Talaan.</item>
+    </plurals>
+    <plurals name="home_stat_early_a11y">
+        <item quantity="one">Maagang natuklasan: %1$d scan sa nakaraang 7 araw. Binubuksan ang Talaan.</item>
+        <item quantity="other">Maagang natuklasan: %1$d scan sa nakaraang 7 araw. Binubuksan ang Talaan.</item>
+    </plurals>
+    <string name="home_recent_title">Mga bagong scan</string>
+    <string name="home_see_all">Tingnan ang talaan</string>
+    <string name="home_no_scans_title">Wala pang naka-save na scan</string>
+    <string name="home_no_scans_body">Mag-scan ng bunga at i-save ang resulta para makita ito rito.</string>
+    <string name="home_load_failed">Hindi ma-load ang mga bagong scan.</string>
+    <string name="home_learn_overline">Malaki ang naitutulong ng kaunting kaalaman</string>
+    <string name="home_learn_title">Maliliit na palatandaan.\nMahahalagang babala.</string>
+    <string name="home_learn_body">Alamin ang itsura ng malusog, nasa maagang yugto at may impeksiyon na bunga, para alam mo ang titingnan.</string>
+    <string name="home_learn_link">Alamin ang mga yugto</string>
+    <string name="home_tip_title">Mas magandang larawan, mas maayos na pagsusuri</string>
+    <string-array name="home_tips">
+        <item>Isang bunga sa bawat larawan, sa lilim, at punuin ang halos buong frame.</item>
+        <item>Punasan muna ang lente ng camera. Pinalalabo ng dagta at alikabok ang larawan.</item>
+        <item>Isama ang buong bunga sa larawan, mula tangkay hanggang dulo.</item>
+        <item>Kung Hindi tiyak ang resulta, kumuha ulit mula sa ibang panig.</item>
+    </string-array>
+    <string name="home_tip_link">Tingnan ang mga tip sa larawan</string>
+    <string name="home_footer_title">Ginawa para sa bukid.</string>
+    <string name="home_footer_runs">Tumatakbo ang %1$s sa teleponong ito · Gumagana offline</string>
+    <string name="home_footer_aid">Ang YOLO-C ay pantulong sa pagsusuri, hindi diyagnosis.</string>
+
+    <!-- learn (guide) -->
+    <string name="learn_overline">Kilalanin ang iyong pananim</string>
+    <string name="learn_heading">Gabay sa bukid tungkol sa Frosty Pod Rot</string>
+    <string name="learn_subtitle">Kilalanin ang mga palatandaan. Kumilos nang maaga. Gumagana kahit walang internet.</string>
+    <string name="learn_topic_number">Gabay · %1$02d</string>
+    <string name="learn_read_topic">Basahin ang gabay</string>
+    <string name="learn_draft_note">Draft pa ang impormasyon tungkol sa sakit at sinusuri pa ito ng isang agronomist.</string>
+    <string name="learn_topic_stages_title">Mga yugto ng Frosty Pod Rot</string>
+    <string name="learn_topic_stages_teaser">Ang itsura ng malusog, nasa maagang yugto at may impeksiyon na bunga</string>
+    <string name="learn_topic_photos_title">Paano kunan ng larawan ang bunga</string>
+    <string name="learn_topic_photos_teaser">Kumuha ng malinaw na larawang mababasa ng detector</string>
+    <string name="learn_topic_how_title">Paano gumagana ang app</string>
+    <string name="learn_topic_how_teaser">Ano ang nangyayari sa iyong telepono, at gaano ito mapagkakatiwalaan</string>
+    <string name="learn_stages_intro">TODO(verify with agronomist): Maikling pagpapakilala sa Frosty Pod Rot at kung paano ito lumalala sa bunga.</string>
+    <string name="learn_signs_title">Mga palatandaang dapat hanapin</string>
+    <string name="learn_actions_title">Ano ang gagawin</string>
+    <string name="learn_photo_tip_fill">Punuin ang halos buong larawan ng isang bunga.</string>
+    <string name="learn_photo_tip_shade">Tumayo sa lilim, o liliman ang bunga gamit ang iyong katawan. Natatago ng tuwirang araw ang mga marka.</string>
+    <string name="learn_photo_tip_whole">Isama ang buong bunga sa larawan, mula tangkay hanggang dulo.</string>
+    <string name="learn_photo_tip_closer">Lumapit sa halip na mag-zoom. Pinalalabo ng zoom ang larawan.</string>
+    <string name="learn_photo_tip_still">Hawakan nang matatag ang telepono hanggang makuha ang larawan.</string>
+    <string name="learn_photo_tip_lens">Punasan muna ang lente. Pinalalabo ng dagta at alikabok ang larawan.</string>
+    <string name="learn_photo_tip_other_side">Kung Hindi tiyak ang resulta, kunan din ang kabilang panig.</string>
+    <string name="learn_how_photo_title">Kumukuha ka ng larawan</string>
+    <string name="learn_how_photo_body">Gamitin ang camera o pumili ng larawan sa gallery.</string>
+    <string name="learn_how_phone_title">Hinahanap ng telepono ang mga bunga</string>
+    <string name="learn_how_phone_body">May detection model na tumatakbo sa teleponong ito. Walang ina-upload at hindi kailangan ng internet.</string>
+    <string name="learn_how_label_title">Bawat bunga ay may label</string>
+    <string name="learn_how_label_body">Malusog, maagang yugto o may impeksiyon, kasama ang kumpiyansa. Itinatago ang mabababang marka.</string>
+    <string name="learn_how_verdict_title">Ipinapakita ng resulta ang pinakamabigat na label</string>
+    <string name="learn_how_verdict_body">Kapag may isang bungang nasa maagang yugto sa gitna ng malulusog, ang resulta ay \"maagang yugto\".</string>
+    <string name="learn_how_correct_title">Maaari mo itong itama</string>
+    <string name="learn_how_correct_body">Itama ang maling label bago o pagkatapos mag-save. Nakatutulong ang mga pagtatama mo sa pagsasanay ng mas mahusay na model.</string>
+    <string name="learn_how_trust_title">Gaano ito mapagkakatiwalaan</string>
+    <string name="learn_how_trust_body">Sa mga pagsubok, nakaligtaan ng model ang mga %1$d sa bawat 10 bungang nasa maagang yugto. Ituring itong pangalawang pares ng mata, hindi diyagnosis.</string>
+    <string name="learn_see_accuracy">Tingnan ang detalye ng katumpakan</string>
+    <string name="learn_threshold_link">Baguhin ang hangganan ng kumpiyansa</string>
+
+    <!-- about, used by onboarding too -->
+    <string name="about_recall_a11y">%1$d sa 10 bungang nasa maagang yugto ang natuklasan</string>
+
+    <!-- result -->
+    <plurals name="result_verdict_infected">
+        <item quantity="one">Malalang impeksiyon ang natuklasan sa %1$d sa %2$d bunga</item>
+        <item quantity="other">Malalang impeksiyon ang natuklasan sa %1$d sa %2$d bunga</item>
+    </plurals>
+    <plurals name="result_verdict_early">
+        <item quantity="one">Maagang palatandaan ang natuklasan sa %1$d sa %2$d bunga</item>
+        <item quantity="other">Maagang palatandaan ang natuklasan sa %1$d sa %2$d bunga</item>
+    </plurals>
+    <plurals name="result_verdict_healthy">
+        <item quantity="one">Walang palatandaan ng Frosty Pod Rot sa bungang ito</item>
+        <item quantity="other">Walang palatandaan ng Frosty Pod Rot sa %d bunga</item>
+    </plurals>
+    <plurals name="result_pods_found">
+        <item quantity="one">%d bunga ang nakita</item>
+        <item quantity="other">%d bunga ang nakita</item>
+    </plurals>
+    <string name="result_screening_note">Pantulong sa pagsusuri lamang. Tingnan mismo ang mga kahina-hinalang bunga.</string>
+    <string name="result_detections_title">Mga bunga</string>
+    <string name="result_advice_title">Ano ang gagawin</string>
+    <string name="result_tap_pod_hint">I-tap ang bunga sa larawan o sa listahan para i-highlight ito.</string>
+    <string name="result_correct_label">Itama ang label</string>
+    <string name="result_correct_title">Ano ang bungang ito?</string>
+    <string name="result_correct_body">Naka-save ang iyong label kasama ng scan at makatutulong ito sa pagpapabuti ng model.</string>
+    <string name="result_model_said">Sabi ng model: %1$s</string>
+    <string name="result_saved">Na-save ang scan</string>
+    <string name="result_no_pod_body">Walang nakitang bunga ng cacao ang detector sa larawang ito.</string>
+    <string name="result_no_pod_tip_fill">Punuin ang halos buong frame ng isang bunga.</string>
+    <string name="result_no_pod_tip_shade">Tumayo sa lilim o iwasan ang tuwirang araw sa bunga.</string>
+    <string name="result_no_pod_tip_steady">Hawakan nang matatag ang telepono para malinaw ang larawan.</string>
+    <string name="result_retake">Kumuha ulit</string>
+    <string name="result_missing_title">Walang resultang maipapakita</string>
+    <string name="result_missing_body">Kumuha o pumili ng larawan para magsimula ng bagong scan.</string>
+    <string name="result_save_scan">I-save ang scan</string>
+    <string name="result_save_title">I-save sa isang plot</string>
+    <string name="result_plot_label">Plot</string>
+    <string name="result_no_plot">Walang plot</string>
+    <string name="result_new_plot_placeholder">Pangalan ng bagong plot, hal. North block</string>
+    <string name="result_add_plot">Magdagdag ng plot</string>
+    <string name="result_manage_plots">Pamahalaan ang mga plot</string>
+    <string name="result_notes_label">Mga tala (opsyonal)</string>
+    <string name="result_notes_placeholder">Numero ng puno, hanay, anumang dapat tandaan</string>
+    <string name="result_saving">Sine-save</string>
+    <string name="result_save_failed">Hindi ma-save ang scan. Tiyaking may libreng espasyo ang telepono, saka subukan ulit.</string>
+    <string name="result_plot_failed">Hindi maidagdag ang plot. Subukan ulit.</string>
+    <string name="result_save">I-save</string>
+    <string name="result_discard">Itapon</string>
+    <string name="result_leave_title">I-save ang resultang ito?</string>
+    <string name="result_leave_body">Hindi pa naka-save ang resultang ito.</string>
+    <string name="result_stay">Manatili</string>
+
+    <!-- history -->
+    <string name="history_today">Ngayong araw</string>
+    <string name="history_yesterday">Kahapon</string>
+    <plurals name="history_count">
+        <item quantity="one">%d scan</item>
+        <item quantity="other">%d scan</item>
+    </plurals>
+    <plurals name="history_count_filtered">
+        <item quantity="one">%d tugmang scan</item>
+        <item quantity="other">%d tugmang scan</item>
+    </plurals>
+    <string name="history_search_placeholder">Hanapin sa tala o plot</string>
+    <string name="history_search_label">Hanapin ang mga scan ayon sa tala o pangalan ng plot</string>
+    <string name="history_clear_search">Burahin ang hinahanap</string>
+    <string name="history_overline">Ang iyong mga talaan sa bukid</string>
+    <string name="history_title">Talaan ng scan</string>
+    <string name="history_subtitle">Bawat pagsusuri ay hakbang tungo sa mas malusog na bukid.</string>
+    <string name="history_new_scan">Bagong scan</string>
+    <string name="history_filter_all">Lahat</string>
+    <string name="history_filter_date">Petsa</string>
+    <string name="history_filter_plot">Plot</string>
+    <string name="history_filter_hint">Binubuksan ang mga opsyon sa filter</string>
+    <string name="history_clear_filters">Alisin ang mga filter</string>
+    <string name="history_date_sheet_title">Petsa</string>
+    <string name="history_plot_sheet_title">Plot</string>
+    <string name="history_range_all">Kahit anong petsa</string>
+    <string name="history_range_today">Ngayong araw</string>
+    <string name="history_range_week">Nakaraang 7 araw</string>
+    <string name="history_range_month">Nakaraang 30 araw</string>
+    <string name="history_all_plots">Kahit anong plot</string>
+    <string name="history_no_plot">Walang plot</string>
+    <string name="history_no_plots_yet">Wala pang plot. Maaari kang magdagdag kapag nag-save ka ng scan.</string>
+    <string name="history_plots_failed">Hindi ma-load ang mga plot.</string>
+    <string name="history_no_pods_short">Walang nakitang bunga</string>
+    <string name="history_uncertain">Hindi tiyak</string>
+    <string name="history_notes_a11y">Mga tala: %1$s</string>
+    <string name="history_delete">Burahin</string>
+    <string name="history_deleted">Nabura ang scan</string>
+    <string name="history_undo">Ibalik</string>
+    <string name="history_undo_failed">Hindi maibalik ang scan.</string>
+    <string name="history_delete_scan">Burahin ang scan</string>
+    <string name="history_open_scan">Buksan ang scan</string>
+    <string name="history_options_title">Mga opsyon sa scan</string>
+    <string name="history_delete_failed">Hindi mabura ang scan. Subukan ulit.</string>
+    <string name="history_empty_title">Wala pang scan</string>
+    <string name="history_empty_body">Lalabas dito ang mga sine-save mong scan, pinakabago muna, nakapangkat ayon sa araw.</string>
+    <string name="history_no_match_title">Walang tugmang scan</string>
+    <string name="history_no_match_body">Subukan ang ibang salita o alisin ang mga filter.</string>
+    <string name="history_load_failed">Hindi ma-load ang mga naka-save na scan. Nasa teleponong ito pa rin ang iyong mga scan.</string>
+
+    <!-- scan detail -->
+    <string name="scan_detail_saved_on">Na-save %1$s</string>
+    <string name="scan_detail_notes_title">Mga tala</string>
+    <string name="scan_detail_notes_placeholder">Numero ng puno, hanay, ano ang ginawa mo pagkatapos</string>
+    <string name="scan_detail_notes_label">Mga tala para sa scan na ito</string>
+    <string name="scan_detail_save_notes">I-save ang mga tala</string>
+    <string name="scan_detail_notes_saved">Na-save ang mga tala</string>
+    <string name="scan_detail_notes_failed">Hindi ma-save ang mga tala. Subukan ulit.</string>
+    <string name="scan_detail_details_title">Mga detalye</string>
+    <string name="scan_detail_plot">Plot</string>
+    <string name="scan_detail_source">Larawan mula sa</string>
+    <string name="scan_detail_source_camera">Camera</string>
+    <string name="scan_detail_source_gallery">Gallery</string>
+    <string name="scan_detail_model">Model</string>
+    <string name="scan_detail_analysis_time">Tagal ng pagsusuri</string>
+    <string name="scan_detail_analysis_seconds">%1$s s</string>
+    <string name="scan_detail_threshold">Hangganan ng kumpiyansa</string>
+    <string name="scan_detail_location">Lokasyon</string>
+    <string name="scan_detail_delete_scan">Burahin ang scan</string>
+    <string name="scan_detail_delete_title">Burahin ang scan na ito?</string>
+    <string name="scan_detail_delete_body">Mawawala ito sa Talaan. Maaari mo itong ibalik kaagad pagkatapos.</string>
+    <string name="scan_detail_cancel">Kanselahin</string>
+    <string name="scan_detail_delete">Burahin</string>
+    <string name="scan_detail_delete_failed">Hindi mabura ang scan. Subukan ulit.</string>
+    <string name="scan_detail_correction_failed">Hindi ma-save ang label. Subukan ulit.</string>
+    <string name="scan_detail_no_pod_body">Walang nakitang bunga ng cacao ang detector sa larawang ito.</string>
+    <string name="scan_detail_not_found_title">Hindi makita ang scan</string>
+    <string name="scan_detail_not_found_body">Maaaring nabura na ito.</string>
+    <string name="scan_detail_load_failed">Hindi ma-load ang scan na ito. Nasa teleponong ito pa rin ang iyong mga scan.</string>
+    <string name="scan_detail_back_to_history">Bumalik sa Talaan</string>
+
+    <!-- share sheets -->
+    <string name="settings_export_dialog_title">Ibahagi ang mga scan ng YOLO-C</string>
+    <string name="settings_retrain_dialog_title">Ibahagi ang data ng YOLO-C para sa pagsasanay</string>
+
+    <!-- camera -->
+    <string name="camera_shutter">Kumuha ng larawan</string>
+    <string name="camera_close">Isara ang camera</string>
+    <string name="camera_title">Mag-scan ng bunga</string>
+    <string name="camera_hint">Huwag gumalaw. Panatilihin ang isang bunga sa loob ng oval, sa lilim.</string>
+    <string name="camera_private">Sinusuri nang pribado sa teleponong ito ang iyong larawan.</string>
+    <string name="camera_gallery">Pumili ng larawan sa gallery</string>
+    <string name="camera_flash">Flash</string>
+    <string name="camera_ask_title">Mag-scan ng bunga gamit ang camera</string>
+    <string name="camera_ask_body">Ginagamit ng YOLO-C ang camera para kunan ng larawan ang mga bunga. Nananatili sa teleponong ito ang mga larawan.</string>
+    <string name="camera_allow">Payagan ang camera</string>
+    <string name="camera_denied_title">Kailangan ng access sa camera</string>
+    <string name="camera_denied_body">Kailangan ng YOLO-C ang camera para kunan ng larawan ang mga bunga. Nananatili sa teleponong ito ang mga larawan. Maaari ka ring pumili ng larawan gamit ang button ng gallery.</string>
+    <string name="camera_blocked_body">Nakapatay ang access sa camera para sa YOLO-C. Buksan ito sa setting ng iyong telepono, o pumili ng larawan gamit ang button ng gallery.</string>
+    <string name="camera_open_settings">Buksan ang setting</string>
+    <string name="camera_gallery_failed">Hindi mabuksan ang gallery. Subukan ulit.</string>
+    <string name="camera_unavailable_title">Hindi magamit ang camera</string>
+    <string name="camera_unavailable_body">Hindi magsimula ang camera. Isara ang ibang camera app at subukan ulit.</string>
+    <string name="camera_capture_failed">Hindi makuha ang larawan. Subukan ulit.</string>
+
+    <!-- live -->
+    <string name="live_photo_mode">Larawan</string>
+    <string name="live_live_mode">Live</string>
+    <string name="live_mode_label">Mode ng camera</string>
+    <string name="live_looking">Naghahanap ng bunga</string>
+    <string name="live_preview_note">Pasilip lang ang live na resulta. Kumuha ng larawan para masuri nang maayos ang bunga at ma-save ito.</string>
+    <string name="live_capture_a11y">Kunan ang tanawing ito at suriin</string>
+    <string name="live_starting">Sinisimulan ang live detector</string>
+    <string name="live_load_failed_title">Hindi magamit ang Live mode</string>
+    <string name="live_load_failed_body">Hindi magsimula ang live detector sa teleponong ito. Gamitin na lang ang Larawan mode.</string>
+    <string name="live_use_photo">Gamitin ang Larawan mode</string>
+    <string name="live_no_permission_body">Kailangan ng access sa camera para sa Live mode. Payagan muna ito sa Larawan mode.</string>
+    <string name="live_capture_failed">Hindi makuha ang larawan. Subukan ulit.</string>
+    <string name="live_gpu_fallback">Walang GPU sa teleponong ito; CPU ang ginagamit.</string>
+
+    <!-- preview -->
+    <string name="preview_retake">Kumuha ulit</string>
+    <string name="preview_choose_another">Pumili ng iba</string>
+    <string name="preview_use_photo">Gamitin ang larawan</string>
+    <string name="preview_missing_title">Walang larawang susuriin</string>
+    <string name="preview_missing_body">Kumuha o pumili muna ng larawan.</string>
+    <string name="preview_back_to_scan">Bumalik sa I-scan</string>
+
+    <!-- processing -->
+    <string name="processing_body">Sinusuri sa iyong device</string>
+    <string name="processing_detail">Ilang segundo lang ito.</string>
+    <string name="processing_image_error_title">Hindi mabasa ang larawan</string>
+    <string name="processing_image_error_body">Maaaring sira ang file o hindi suportado ang format. Subukan ang ibang larawan.</string>
+    <string name="processing_model_error_title">Hindi magsimula ang detector</string>
+    <string name="processing_model_error_body">Isara ang app at buksan ulit. Kung patuloy itong nangyayari, i-install ulit ang app.</string>
+    <string name="processing_memory_error_title">Kulang ang memory</string>
+    <string name="processing_memory_error_body">Isara ang ibang app at subukan ulit, o gumamit ng mas maliit na larawan.</string>
+    <string name="processing_inference_error_title">Nabigo ang pagsusuri</string>
+    <string name="processing_inference_error_body">May nangyaring mali habang sinusuri ang larawan. Subukan ulit.</string>
+
+    <!-- settings -->
+    <string name="settings_title">Setting</string>
+    <string name="settings_subtitle">Iangkop ang YOLO-C sa iyong pangangailangan.</string>
+    <string name="settings_profile_title">Profile at display</string>
+    <string name="settings_name">Ang iyong pangalan</string>
+    <string name="settings_name_none">Hindi pa nakatakda</string>
+    <string name="settings_name_sheet_title">Ang iyong pangalan</string>
+    <string name="settings_name_help">Gagamitin ito ng Home sa pagbati sa iyo. Iwanang blangko para alisin ito.</string>
+    <string name="settings_name_save">I-save</string>
+    <string name="settings_language">Wika</string>
+    <string name="settings_language_sheet_title">Wika</string>
+    <string name="language_filipino_draft">Draft na salin, sinusuri pa</string>
+    <string name="settings_dark_mode">Madilim na tema</string>
+    <string name="settings_dark_mode_detail">Komportableng tingnan sa madilim na lugar</string>
+    <string name="settings_model">Model sa device</string>
+    <string name="settings_model_detail">%1$s · Tumatakbo sa teleponong ito, gumagana offline</string>
+    <string name="settings_detection_title">Pagtuklas</string>
+    <string name="settings_threshold">Hangganan ng kumpiyansa</string>
+    <string name="settings_threshold_value">%1$d%%</string>
+    <plurals name="settings_threshold_a11y">
+        <item quantity="one">%d porsiyento</item>
+        <item quantity="other">%d porsiyento</item>
+    </plurals>
+    <string name="settings_threshold_more">Mas maraming bunga ang nakikita</string>
+    <string name="settings_threshold_fewer">Mas kaunting maling alarma</string>
+    <string name="settings_threshold_help">Hindi ipinapakita ang mga bungang mas mababa rito ang marka. Ibaba ito para makita ang mas maraming bungang nasa maagang yugto, kapalit ng mas maraming maling alarma.</string>
+    <string name="settings_threshold_applies">Para sa susunod mong scan. Hindi nagbabago ang resulta ng mga naka-save na scan.</string>
+    <string name="settings_threshold_reset">Ibalik sa %1$d%% (default ng model)</string>
+    <string name="settings_location_title">Lokasyon</string>
+    <string name="settings_gps">Idagdag ang lokasyon sa mga naka-save na scan</string>
+    <string name="settings_gps_off">Nakapatay bilang default. Nananatili sa teleponong ito ang mga lokasyon.</string>
+    <string name="settings_gps_on">Kasama sa mga bagong naka-save na scan kung saan ito kinuha.</string>
+    <string name="settings_gps_ask">Kailangan ng YOLO-C ng pahintulot sa lokasyon para idagdag ito sa mga scan.</string>
+    <string name="settings_gps_blocked">Nakapatay ang lokasyon para sa YOLO-C. Buksan ito sa setting ng iyong telepono.</string>
+    <string name="settings_gps_revoked">Inalis ang pahintulot sa lokasyon, kaya sine-save ang mga bagong scan nang wala ito.</string>
+    <string name="settings_try_again">Subukan ulit</string>
+    <string name="settings_open_settings">Buksan ang setting</string>
+    <string name="settings_data_title">Ang iyong data</string>
+    <string name="settings_plots">Mga plot</string>
+    <plurals name="settings_plot_count">
+        <item quantity="one">%d plot</item>
+        <item quantity="other">%d plot</item>
+    </plurals>
+    <plurals name="settings_scan_count">
+        <item quantity="one">%d scan</item>
+        <item quantity="other">%d scan</item>
+    </plurals>
+    <string name="settings_storage">Storage sa teleponong ito</string>
+    <string name="settings_storage_unknown">Hindi mabasa sa ngayon.</string>
+    <string name="settings_storage_detail">%1$s · %2$s</string>
+    <string name="settings_export">I-export ang mga scan (CSV)</string>
+    <string name="settings_export_detail">Ibahagi ang spreadsheet ng lahat ng naka-save na scan</string>
+    <string name="settings_export_empty">Wala pang naka-save na scan na mai-export.</string>
+    <string name="settings_export_failed">Hindi magawa ang export. Subukan ulit.</string>
+    <string name="settings_retrain">I-export para sa pagsasanay</string>
+    <string name="settings_retrain_detail">Mga larawan at label para mapabuti ang model</string>
+    <string name="settings_retrain_body">Isang zip ng mga larawan kasama ang kanilang label, pati ang iyong mga pagtatama, sa format na ginagamit sa pagsasanay ng model. Ang mga label na hindi mo itinama ay hula ng model at kailangang suriin.</string>
+    <string name="settings_retrain_scope_corrected">Mga scan na may itinamang label</string>
+    <string name="settings_retrain_scope_early">Mga scan na may bungang nasa maagang yugto</string>
+    <string name="settings_retrain_scope_all">Lahat ng naka-save na scan</string>
+    <string name="settings_retrain_hint_corrected">Pinakakapaki-pakinabang: ikaw mismo ang sumuri sa bawat itinamang label</string>
+    <string name="settings_retrain_hint_early">Ang yugtong pinakamadalas makaligtaan ng model</string>
+    <string name="settings_retrain_hint_all">Lahat ng naka-save sa teleponong ito</string>
+    <plurals name="settings_retrain_size">
+        <item quantity="one">%1$d larawan, mga %2$s</item>
+        <item quantity="other">%1$d larawan, mga %2$s</item>
+    </plurals>
+    <string name="settings_retrain_none">Wala pang scan sa grupong ito.</string>
+    <string name="settings_retrain_sizing_failed">Hindi mabilang ang mga scan. Isara ito at buksan ulit.</string>
+    <string name="settings_retrain_no_space">Kulang ang libreng espasyo. Kailangan ng export ang mga %1$s.</string>
+    <string name="settings_retrain_export">Gumawa at ibahagi ang zip</string>
+    <plurals name="settings_retrain_done">
+        <item quantity="one">Na-export ang %d scan</item>
+        <item quantity="other">Na-export ang %d scan</item>
+    </plurals>
+    <plurals name="settings_retrain_skipped">
+        <item quantity="one">%d na walang file ng larawan ang hindi isinama.</item>
+        <item quantity="other">%d na walang file ng larawan ang hindi isinama.</item>
+    </plurals>
+    <string name="settings_retrain_failed">Hindi magawa ang zip. Tiyaking may libreng espasyo at subukan ulit.</string>
+    <string name="settings_clear">Burahin ang lahat ng data</string>
+    <string name="settings_clear_title">Burahin ang lahat ng scan?</string>
+    <string name="settings_clear_body">Buburahin nito ang %1$s, ang kanilang mga larawan at %2$s sa teleponong ito. Mananatili ang iyong mga setting. Hindi na ito maibabalik.</string>
+    <string name="settings_clear_body_unknown">Buburahin nito ang lahat ng scan, ang kanilang mga larawan at mga plot sa teleponong ito. Mananatili ang iyong mga setting. Hindi na ito maibabalik.</string>
+    <string name="settings_clear_confirm">Burahin lahat</string>
+    <string name="settings_cancel">Kanselahin</string>
+    <string name="settings_cleared">Nabura ang lahat ng scan</string>
+    <string name="settings_clear_failed">Hindi mabura ang data. Subukan ulit.</string>
+    <string name="settings_clear_nothing">Walang naka-save na scan o plot na buburahin.</string>
+    <string name="settings_app_title">App</string>
+    <string name="settings_about">Tungkol sa app</string>
+    <string name="settings_about_detail">Model, katumpakan at mga limitasyon</string>
+    <string name="settings_show_onboarding">Tingnan ang panimula</string>
+    <string name="settings_dev_gallery">Tingnan ang style guide (dev)</string>
+    <string name="settings_dev_seed">Pekeng scan (dev)</string>
+
+    <!-- about -->
+    <string name="about_disclaimer">Ang app na ito ay pantulong sa pagsusuri at hindi pumapalit sa inspeksiyon ng isang eksperto.</string>
+    <string name="about_app_version">YOLO-C app %1$s</string>
+    <string name="about_model_title">Model</string>
+    <string name="about_model">Pangalan</string>
+    <string name="about_version">Bersiyon</string>
+    <string name="about_input_size">Laki ng input</string>
+    <string name="about_input_size_value">%1$d × %1$d px</string>
+    <string name="about_labels">Mga label</string>
+    <string name="about_accuracy_title">Gaano ito katumpak?</string>
+    <string name="about_recall_headline">Natutuklasan ang mga %1$d sa bawat 10 bungang nasa maagang yugto</string>
+    <string name="about_recall_body">Sa mga pagsubok sa mga larawang hindi pa nito nakikita, natuklasan nito ang %1$s ng mga bungang nasa maagang yugto. Mga %2$d sa 10 ang nakaligtaan.</string>
+    <string name="about_metrics_note">Sinusukat ng mAP50 kung gaano tumutugma ang mga kahon at label sa label ng mga eksperto, mula 0 hanggang 100%. Mas mataas, mas mahusay.</string>
+    <string name="about_metric_test_map50">Kabuuang marka (mAP50, mga larawang pang-test)</string>
+    <string name="about_metric_val_map50">Kabuuang marka (mAP50, mga larawang pang-validation)</string>
+    <string name="about_metric_early_test_map50">Marka sa maagang yugto (mAP50, mga larawang pang-test)</string>
+    <string name="about_limitations_title">Mga limitasyon</string>
+    <string name="about_limitation_aid">Ito ay pantulong sa pagsusuri. Tingnan mismo ang mga kahina-hinalang bunga.</string>
+    <string name="about_limitation_misses">Nakaligtaan nito ang mga %1$d sa bawat 10 bungang nasa maagang yugto.</string>
+    <string name="about_limitation_conditions">Mas hindi maaasahan ang resulta sa tuwirang araw, madilim na lugar, malabong larawan, o kapag malayo o bahagyang natatakpan ang mga bunga.</string>
+    <string name="about_limitation_labels">Tatlong label lang ang alam nito: malusog, maagang yugto at ganap na may impeksiyon. Maaaring mabigyan ng isa sa mga label na ito ang ibang sakit o pinsala.</string>
+    <string name="about_limitation_retrain">Muling sasanayin ang model gamit ang mas maraming larawan, kaya maaaring magbago ang resulta pagkatapos ng update.</string>
+    <string name="about_privacy_title">Privacy</string>
+    <string name="about_privacy_body">Lahat ay tumatakbo sa teleponong ito. Hindi umaalis dito ang mga larawan, resulta at lokasyon maliban kung i-export mo ang mga ito.</string>
+
+    <!-- plots -->
+    <string name="plots_intro">Pinagsasama ng mga plot ang mga scan ayon sa bahagi ng bukid, tulad ng \"North block\". I-tap ang isang plot para makita ang mga scan nito.</string>
+    <string name="plots_new_placeholder">Pangalan ng bagong plot</string>
+    <string name="plots_add">Idagdag</string>
+    <plurals name="plots_scan_count">
+        <item quantity="one">%d scan</item>
+        <item quantity="other">%d scan</item>
+    </plurals>
+    <string name="plots_rename_a11y">Palitan ang pangalan ng %1$s</string>
+    <string name="plots_delete_a11y">Burahin ang %1$s</string>
+    <string name="plots_rename_title">Palitan ang pangalan ng plot</string>
+    <string name="plots_save">I-save</string>
+    <string name="plots_delete_title">Burahin ang %1$s?</string>
+    <string name="plots_delete_body_none">Walang scan ang plot.</string>
+    <plurals name="plots_delete_body">
+        <item quantity="one">Mananatili sa Talaan ang scan nito, nang walang plot.</item>
+        <item quantity="other">Mananatili sa Talaan ang %d scan nito, nang walang plot.</item>
+    </plurals>
+    <string name="plots_delete">Burahin</string>
+    <string name="plots_cancel">Kanselahin</string>
+    <string name="plots_empty_title">Wala pang plot</string>
+    <string name="plots_empty_body">Magdagdag sa itaas, o kapag nag-save ka ng scan.</string>
+    <string name="plots_failed">Hindi iyon gumana. Subukan ulit.</string>
+    <string name="plots_duplicate">May plot na may ganitong pangalan na.</string>
+    <string name="plots_load_failed">Hindi ma-load ang mga plot.</string>
+
+    <!-- dev seed -->
+    <string name="dev_seed_body">Nagdadagdag ng pekeng scan na may sample na larawan para masubukan ang Talaan. Para sa development build lang.</string>
+    <plurals name="dev_seed_seed">
+        <item quantity="one">Magdagdag ng %d pekeng scan</item>
+        <item quantity="other">Magdagdag ng %d pekeng scan</item>
+    </plurals>
+    <string name="dev_seed_remove">Alisin ang mga pekeng scan</string>
+    <string name="dev_seed_count">Pekeng scan sa Talaan: %1$d</string>
+    <plurals name="dev_seed_added">
+        <item quantity="one">Naidagdag ang %d pekeng scan.</item>
+        <item quantity="other">Naidagdag ang %d pekeng scan.</item>
+    </plurals>
+    <plurals name="dev_seed_removed">
+        <item quantity="one">Naalis ang %d pekeng scan.</item>
+        <item quantity="other">Naalis ang %d pekeng scan.</item>
+    </plurals>
+    <string name="dev_seed_failed">Hindi mabago ang mga pekeng scan. Tingnan ang Logcat log para sa detalye.</string>
+</resources>

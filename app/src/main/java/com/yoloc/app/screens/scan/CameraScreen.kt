@@ -183,7 +183,8 @@ fun CameraScreen(
                     Modifier.weight(1f).semantics { heading() },
                     variant = TypeVariant.Title,
                     color = cam.lensText,
-                    maxLines = 1,
+                    // Two lines for longer languages ("Mag-scan ng bunga") beside the mode switch.
+                    maxLines = 2,
                     style = textShadow(),
                 )
                 if (s.granted) ModeSwitch(CameraMode.Photo) { onLive() }

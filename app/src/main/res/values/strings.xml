@@ -374,6 +374,12 @@
     <string name="settings_name_sheet_title">Your name</string>
     <string name="settings_name_help">Home greets you with it. Leave it empty to remove it.</string>
     <string name="settings_name_save">Save</string>
+    <string name="settings_language">Language</string>
+    <string name="settings_language_sheet_title">Language</string>
+    <!-- Each language in its own name, the same in every locale. -->
+    <string name="language_english" translatable="false">English</string>
+    <string name="language_filipino" translatable="false">Filipino</string>
+    <string name="language_filipino_draft">Draft translation, still being checked</string>
     <string name="settings_dark_mode">Dark mode</string>
     <string name="settings_dark_mode_detail">Comfortable viewing in low light</string>
     <string name="settings_model">On-device model</string>
