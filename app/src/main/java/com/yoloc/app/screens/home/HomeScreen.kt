@@ -213,7 +213,7 @@ private fun Hero(onScan: () -> Unit) {
 }
 
 private val HERO_PHOTO = 92.dp
-private val HERO_BANNER = 120.dp
+private val HERO_BANNER = 88.dp
 
 @Composable
 private fun HeroText(cta: String, onScan: () -> Unit, modifier: Modifier = Modifier) {
@@ -263,7 +263,7 @@ private fun StatCard(
         }
         // The numbers line up across the two cards even when one label wraps.
         Spacer(Modifier.weight(1f))
-        AppText(count?.toString() ?: "–", Modifier.padding(top = Spacing.xs), variant = TypeVariant.Readout)
+        AppText(count?.toString() ?: "–", variant = TypeVariant.Readout)
         AppText(stringResource(R.string.home_stat_window), variant = TypeVariant.Caption, tone = Tone.Faint)
     }
 }

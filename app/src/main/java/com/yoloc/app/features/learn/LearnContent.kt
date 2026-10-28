@@ -40,7 +40,7 @@ val LearnTopic.photo: Int
     @DrawableRes get() = when (this) {
         LearnTopic.Stages -> R.drawable.photo_cacao_column
         LearnTopic.Photos -> R.drawable.photo_cacao_cluster
-        LearnTopic.How -> R.drawable.photo_cacao_opened
+        LearnTopic.How -> R.drawable.photo_cacao_column
     }
 
 /** RN: strings.learn.topics[topic].title. */
