@@ -105,7 +105,8 @@ fun YoloCNavHost(onboardingDone: Boolean) {
         TabBarItem(Learn, stringResource(R.string.tabs_learn), IconName.BookOpen),
         TabBarItem(Settings, stringResource(R.string.tabs_settings), IconName.Settings),
     )
-    val activeTab: Any = items.firstOrNull { destination?.hasRoute(it.key::class) == true }?.key ?: Home
+    // Only real routes: ScanButton is not one (no serializer), so hasRoute on it throws.
+    val activeTab: Any = items.firstOrNull { it.key != ScanButton && destination?.hasRoute(it.key::class) == true }?.key ?: Home
 
     Column(Modifier.fillMaxSize().background(colors.background)) {
         NavHost(
