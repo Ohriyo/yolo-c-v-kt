@@ -3,7 +3,6 @@ package com.yoloc.app.screens.learn
 import androidx.compose.runtime.getValue
 import com.yoloc.app.theme.TouchTarget
 import com.yoloc.app.features.learn.photo
-import com.yoloc.app.components.Overline
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.foundation.layout.aspectRatio
@@ -72,13 +71,12 @@ fun LearnScreen(onOpenTopic: (Topic) -> Unit) {
     val colors = YoloCTheme.colors
     ScreenContainer(contentPadding = PaddingValues(start = Spacing.screen, top = Spacing.lg, end = Spacing.screen, bottom = Spacing.xxl)) {
         Column(verticalArrangement = Arrangement.spacedBy(Spacing.xxs)) {
-            Overline(stringResource(R.string.learn_overline))
             AppText(stringResource(R.string.learn_heading), variant = TypeVariant.Headline)
             AppText(stringResource(R.string.learn_subtitle), tone = Tone.Muted)
         }
 
         Column(verticalArrangement = Arrangement.spacedBy(Spacing.md)) {
-            Topic.entries.forEachIndexed { i, topic ->
+            Topic.entries.forEach { topic ->
                 val title = stringResource(topic.title)
                 Card(onClick = { onOpenTopic(topic) }, accessibilityLabel = title, spacing = Spacing.sm) {
                     Image(
@@ -88,8 +86,6 @@ fun LearnScreen(onOpenTopic: (Topic) -> Unit) {
                         contentScale = ContentScale.Crop,
                     )
                     Column(Modifier.padding(top = Spacing.xxs, start = Spacing.xxs, end = Spacing.xxs), verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
-                        // The topics are a reading order, so they are numbered.
-                        Overline(stringResource(R.string.learn_topic_number, i + 1))
                         AppText(title, variant = TypeVariant.Title)
                         AppText(stringResource(topic.teaser), tone = Tone.Muted)
                         // The whole card opens the topic; this only says so.

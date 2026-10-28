@@ -1,5 +1,7 @@
 package com.yoloc.app.components
 
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -51,7 +53,12 @@ fun AppTopBar(dark: Boolean, onToggleDark: () -> Unit, modifier: Modifier = Modi
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(Spacing.xs),
         ) {
-            AppText(stringResource(R.string.topbar_tagline), Modifier.weight(1f), variant = TypeVariant.Caption, tone = Tone.Muted, maxLines = 1)
+            // Large text leaves no room for both; the badge says more, so the tagline gives way.
+            if (LocalDensity.current.fontScale > 1.15f) {
+                Spacer(Modifier.weight(1f))
+            } else {
+                AppText(stringResource(R.string.topbar_tagline), Modifier.weight(1f), variant = TypeVariant.Caption, tone = Tone.Muted, maxLines = 1)
+            }
             OfflineBadge()
             val press = rememberPress()
             Box(

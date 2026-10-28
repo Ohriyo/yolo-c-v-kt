@@ -14,6 +14,9 @@ import kotlinx.serialization.Serializable
 
 @Serializable data object Permissions
 
+/** Redesign 2026-10-28 (Kotlin only): the optional name, after the primer. */
+@Serializable data object OnboardingName
+
 /** RN: (tabs) and every screen pushed over them. */
 @Serializable data object MainGraph
 

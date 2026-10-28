@@ -11,5 +11,8 @@ enum class OnboardingSlide(val key: String, @param:StringRes val title: Int, @pa
     Aid("aid", R.string.onboarding_aid_title, R.string.onboarding_aid_body),
 }
 
-/** RN: onboarding/steps.ts. First-run steps: the welcome slides plus the permission primer. */
-val ONBOARDING_STEPS = OnboardingSlide.entries.size + 1
+/**
+ * RN: onboarding/steps.ts. First-run steps: the welcome slides, the permission primer and (Kotlin
+ * only, redesign 2026-10-28) the optional name.
+ */
+val ONBOARDING_STEPS = OnboardingSlide.entries.size + 2

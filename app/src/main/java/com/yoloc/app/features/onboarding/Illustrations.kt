@@ -1,5 +1,9 @@
 package com.yoloc.app.features.onboarding
 
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.foundation.Image
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -31,41 +35,23 @@ import com.yoloc.app.theme.Spacing
 import com.yoloc.app.theme.YoloCTheme
 
 /*
- * RN: features/onboarding/Illustrations.tsx. First-run illustrations, drawn from the palette's own
- * shapes (overlapping capsules, a cream disc) instead of image assets, so they stay crisp, offline
- * and theme-aware. All decorative: the frame hides them from screen readers.
+ * RN: features/onboarding/Illustrations.tsx. First-run illustrations. RN draws every panel from the
+ * palette's own shapes; the redesign (docs/PARITY.md) shows the owner's pod photos instead and
+ * keeps the drawn viewfinder and recall chart. All decorative: the frame hides them from screen
+ * readers.
  */
 
 private val cream = Palette.cream100
 private val forest = Palette.forest700
 private val deep = Palette.forest900
 
-/** A cream disc holding one icon, with two soft capsules stacked behind it. */
+/**
+ * Redesign 2026-10-28 (finish review): one of the owner's cacao photos fills the panel. They show
+ * healthy pods, so they are decoration only, never an example of a stage.
+ */
 @Composable
-fun DiscIllustration(icon: IconName, flip: Boolean = false) {
-    BoxWithConstraints(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        val w = maxWidth
-        // RN: absolute capsules pinned 128 / 96 dp past the panel's right or left edge.
-        Box(
-            Modifier
-                .align(Alignment.TopStart)
-                .offset(x = if (flip) (-128).dp else w - 180.dp + 128.dp, y = 62.dp)
-                .size(180.dp, 56.dp)
-                .alpha(0.4f)
-                .background(deep, RoundedCornerShape(Radii.full)),
-        )
-        Box(
-            Modifier
-                .align(Alignment.TopStart)
-                .offset(x = if (flip) w - 140.dp + 96.dp else (-96).dp, y = 92.dp)
-                .size(140.dp, 56.dp)
-                .alpha(0.6f)
-                .background(forest, RoundedCornerShape(Radii.full)),
-        )
-        Box(Modifier.size(112.dp).background(cream, CircleShape), contentAlignment = Alignment.Center) {
-            Icon(icon, size = 48.dp, color = deep)
-        }
-    }
+fun PhotoIllustration(@DrawableRes photo: Int) {
+    Image(painterResource(photo), contentDescription = null, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
 }
 
 /** A viewfinder framing one upright pod under an umbrella of shade: "fill the frame, use shade". */

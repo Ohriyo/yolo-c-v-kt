@@ -1,5 +1,6 @@
 package com.yoloc.app.screens
 
+import com.yoloc.app.screens.onboarding.NameScreen
 import androidx.annotation.StringRes
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -120,23 +121,32 @@ class FirstScreensTest {
     }
 
     @Test
-    fun thePrimerAsksForNothingAndContinueFinishesOnboarding() {
+    fun thePrimerAsksForNothingAndContinueGoesToTheNameStep() {
+        var next = 0
+        compose.setContent { YoloCTheme { PermissionsScreen(onNext = { next++ }) } }
+        compose.onNodeWithText(text(R.string.onboarding_permissions_location)).assertIsDisplayed()
+        compose.onNodeWithContentDescription(text(R.string.onboarding_continue)).performClick()
+        assertEquals(1, next)
+    }
+
+    /** Redesign 2026-10-28 (Kotlin only): the name step is optional and ends onboarding. */
+    @Test
+    fun theNameStepFinishesOnboardingWithoutAName() {
         val (vm, store) = onboarding()
         runBlocking { store.hydrate() }
-        compose.setContent { YoloCTheme { PermissionsScreen(vm = vm) } }
-        compose.onNodeWithText(text(R.string.onboarding_permissions_location)).assertIsDisplayed()
+        compose.setContent { YoloCTheme { NameScreen(vm = vm) } }
         compose.onNodeWithContentDescription(text(R.string.onboarding_continue)).performClick()
         compose.waitUntil(5_000) { store.state.value.onboardingDone }
         // No name typed: none saved.
         assertEquals("", store.state.value.userName)
     }
 
-    /** Redesign 2026-10-28 (Kotlin only): the primer's optional name, saved before onboarding ends. */
+    /** Redesign 2026-10-28 (Kotlin only): the optional name, saved before onboarding ends. */
     @Test
-    fun thePrimerSavesTheOptionalName() {
+    fun theNameStepSavesTheOptionalName() {
         val (vm, store) = onboarding()
         runBlocking { store.hydrate() }
-        compose.setContent { YoloCTheme { PermissionsScreen(vm = vm) } }
+        compose.setContent { YoloCTheme { NameScreen(vm = vm) } }
         compose.onNodeWithContentDescription(text(R.string.onboarding_name_a11y)).performTextInput("  Juan  ")
         compose.onNodeWithContentDescription(text(R.string.onboarding_continue)).performClick()
         compose.waitUntil(5_000) { store.state.value.onboardingDone }

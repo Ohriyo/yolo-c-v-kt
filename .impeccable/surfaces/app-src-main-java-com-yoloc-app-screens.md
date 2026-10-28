@@ -21,7 +21,7 @@ prototype recording) is pinned and binding.
 
 OWN-WORLD: Ground #F6F8F5, leaf tint #EBF1E6 (hero, active tab pill, selected), white cards
 with a hairline #E8ECE6 border and a soft low shadow, forest #375534 for primary actions and
-the active state, ink #0F2A1D. Status chips are pale tints with an icon and dark status ink.
+the active state, ink #0F2A1D. Faint ink #606A64 (darkened from the first #66706A so it passes AA 4.5:1 on the leaf tint). Status chips are pale tints with an icon and dark status ink.
 Inter for text, Inter Display SemiBold for headlines. Line icons (Feather).
 
 STORY: The farmer opens to a greeting and one clear action, sees how many pods were checked

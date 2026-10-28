@@ -129,7 +129,7 @@ class ScanLogicTest {
         assertEquals(LearnTopic.Photos, LearnTopic.fromKey("photos"))
         assertNull(LearnTopic.fromKey("nope"))
         assertNull(LearnTopic.fromKey(null))
-        // 4 welcome slides + the permission primer.
-        assertEquals(5, ONBOARDING_STEPS)
+        // 4 welcome slides + the permission primer, + the name step (Kotlin only, redesign).
+        assertEquals(6, ONBOARDING_STEPS)
     }
 }

@@ -38,7 +38,7 @@ object Palette {
     // Redesign 2026-10-28 (the prototype recording): the leaf-tinted ground and its tints
     val ground = Color(0xFFF6F8F5)
     val leaf = Color(0xFFEBF1E6)
-    val hairline = Color(0xFFE2E7E0)
+    val hairline = Color(0xFFE8ECE6)
     val pressLight = Color(0xFFF0F3EE)
     val inkMuted = Color(0xFF4F5E54)
     val inkFaint = Color(0xFF606A64)

@@ -79,6 +79,7 @@
     <string name="onboarding_permissions_body">The app asks for the camera the first time you open Scan. You can also pick photos from your gallery.</string>
     <string name="onboarding_permissions_location">Location stays off unless you turn it on in Settings.</string>
     <string name="onboarding_name_label">What should we call you? (optional)</string>
+    <string name="onboarding_name_body">Home greets you with it. You can change it in Settings.</string>
     <string name="onboarding_name_placeholder">First name</string>
     <string name="onboarding_name_a11y">Your first name, optional</string>
     <string name="onboarding_continue">Continue</string>
@@ -93,7 +94,6 @@
     <string name="home_greeting_afternoon_name">Good afternoon, %1$s.</string>
     <string name="home_greeting_evening_name">Good evening, %1$s.</string>
     <string name="home_subtitle">A healthier harvest starts with a closer look.</string>
-    <string name="home_hero_overline">Early detection. Better protection.</string>
     <string name="home_hero_title">One pod at a time.\nProtect your harvest.</string>
     <string name="home_hero_body">Check pods for early signs of Frosty Pod Rot, right here, even without a connection.</string>
     <string name="home_scan_cta">Scan a pod</string>
@@ -113,7 +113,6 @@
     <string name="home_no_scans_title">No saved scans yet</string>
     <string name="home_no_scans_body">Scan a pod and save the result to see it here.</string>
     <string name="home_load_failed">Recent scans could not be loaded.</string>
-    <string name="home_learn_overline">A little knowledge goes a long way</string>
     <string name="home_learn_title">Small signs.\nImportant signals.</string>
     <string name="home_learn_body">Learn what healthy, early-stage and infected pods look like, so you know what to check.</string>
     <string name="home_learn_link">Know the stages</string>
@@ -130,10 +129,8 @@
     <string name="home_footer_aid">YOLO-C is a screening aid, not a diagnosis.</string>
 
     <!-- learn (RN: strings.learn) -->
-    <string name="learn_overline">Know your crop</string>
     <string name="learn_heading">A field guide to Frosty Pod Rot</string>
     <string name="learn_subtitle">Recognize the signs. Act early. Works without internet.</string>
-    <string name="learn_topic_number">Field guide · %1$02d</string>
     <string name="learn_read_topic">Read the guide</string>
     <string name="learn_draft_note">Disease information here is a draft and is still being checked by an agronomist.</string>
     <string name="learn_topic_stages_title">Frosty Pod Rot stages</string>
@@ -238,7 +235,6 @@
     <string name="history_search_placeholder">Search notes or plot</string>
     <string name="history_search_label">Search scans by notes or plot name</string>
     <string name="history_clear_search">Clear search</string>
-    <string name="history_overline">Your field records</string>
     <string name="history_title">Scan history</string>
     <string name="history_subtitle">Every check is a step toward a healthier farm.</string>
     <string name="history_new_scan">New scan</string>

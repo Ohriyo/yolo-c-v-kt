@@ -1,5 +1,7 @@
 package com.yoloc.app.screens.history
 
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.runtime.getValue
 import com.yoloc.app.util.rememberReduceMotion
 import com.yoloc.app.theme.Motion
@@ -14,7 +16,6 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.ui.draw.clip
-import com.yoloc.app.components.Overline
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawOutline
@@ -139,13 +140,7 @@ fun HistoryScreen(
                     exit = if (reduceMotion) ExitTransition.None else shrinkVertically(tween(Motion.BASE)) + fadeOut(tween(Motion.FAST)),
                 ) {
                     Column(verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Spacing.sm), verticalAlignment = Alignment.Top) {
-                            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(Spacing.xxs)) {
-                                Overline(stringResource(R.string.history_overline))
-                                AppText(stringResource(R.string.history_title), variant = TypeVariant.Headline)
-                            }
-                            YButton(stringResource(R.string.history_new_scan), onScan, icon = IconName.ScanLine)
-                        }
+                        HistoryTitle(onScan)
                         AppText(stringResource(R.string.history_subtitle), tone = Tone.Muted)
                     }
                 }
@@ -389,5 +384,23 @@ private fun SkeletonRows() {
                 }
             }
         }
+    }
+}
+
+/**
+ * The records title with its own New scan. With large text or a longer language the button moves
+ * under the title instead of breaking it (finish review, 2026-10-28).
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun HistoryTitle(onScan: () -> Unit) {
+    FlowRow(
+        Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalArrangement = Arrangement.spacedBy(Spacing.xs),
+        itemVerticalAlignment = Alignment.CenterVertically,
+    ) {
+        AppText(stringResource(R.string.history_title), Modifier.padding(end = Spacing.sm), variant = TypeVariant.Headline)
+        YButton(stringResource(R.string.history_new_scan), onScan, icon = IconName.ScanLine)
     }
 }

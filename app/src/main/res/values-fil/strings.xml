@@ -84,6 +84,7 @@
     <string name="onboarding_permissions_body">Hihingi ang app ng pahintulot sa camera sa unang beses mong buksan ang I-scan. Maaari ka ring pumili ng larawan mula sa gallery.</string>
     <string name="onboarding_permissions_location">Nakapatay ang lokasyon maliban kung bubuksan mo ito sa Setting.</string>
     <string name="onboarding_name_label">Ano ang itatawag namin sa iyo? (opsyonal)</string>
+    <string name="onboarding_name_body">Gagamitin ito ng Home sa pagbati sa iyo. Mababago mo ito sa Setting.</string>
     <string name="onboarding_name_placeholder">Pangalan</string>
     <string name="onboarding_name_a11y">Ang iyong pangalan, opsyonal</string>
     <string name="onboarding_continue">Magpatuloy</string>
@@ -97,7 +98,6 @@
     <string name="home_greeting_afternoon_name">Magandang hapon, %1$s.</string>
     <string name="home_greeting_evening_name">Magandang gabi, %1$s.</string>
     <string name="home_subtitle">Nagsisimula ang mas malusog na ani sa masusing pagtingin.</string>
-    <string name="home_hero_overline">Maagang pagtuklas. Mas matibay na proteksiyon.</string>
     <string name="home_hero_title">Isa-isang suriin ang bunga.\nProtektahan ang iyong ani.</string>
     <string name="home_hero_body">Suriin ang mga bunga para sa maagang palatandaan ng Frosty Pod Rot, dito mismo, kahit walang koneksiyon.</string>
     <string name="home_scan_cta">Mag-scan ng bunga</string>
@@ -117,7 +117,6 @@
     <string name="home_no_scans_title">Wala pang naka-save na scan</string>
     <string name="home_no_scans_body">Mag-scan ng bunga at i-save ang resulta para makita ito rito.</string>
     <string name="home_load_failed">Hindi ma-load ang mga bagong scan.</string>
-    <string name="home_learn_overline">Malaki ang naitutulong ng kaunting kaalaman</string>
     <string name="home_learn_title">Maliliit na palatandaan.\nMahahalagang babala.</string>
     <string name="home_learn_body">Alamin ang itsura ng malusog, nasa maagang yugto at may impeksiyon na bunga, para alam mo ang titingnan.</string>
     <string name="home_learn_link">Alamin ang mga yugto</string>
@@ -134,10 +133,8 @@
     <string name="home_footer_aid">Ang YOLO-C ay pantulong sa pagsusuri, hindi diyagnosis.</string>
 
     <!-- learn (guide) -->
-    <string name="learn_overline">Kilalanin ang iyong pananim</string>
     <string name="learn_heading">Gabay sa bukid tungkol sa Frosty Pod Rot</string>
     <string name="learn_subtitle">Kilalanin ang mga palatandaan. Kumilos nang maaga. Gumagana kahit walang internet.</string>
-    <string name="learn_topic_number">Gabay · %1$02d</string>
     <string name="learn_read_topic">Basahin ang gabay</string>
     <string name="learn_draft_note">Draft pa ang impormasyon tungkol sa sakit at sinusuri pa ito ng isang agronomist.</string>
     <string name="learn_topic_stages_title">Mga yugto ng Frosty Pod Rot</string>
@@ -239,7 +236,6 @@
     <string name="history_search_placeholder">Hanapin sa tala o plot</string>
     <string name="history_search_label">Hanapin ang mga scan ayon sa tala o pangalan ng plot</string>
     <string name="history_clear_search">Burahin ang hinahanap</string>
-    <string name="history_overline">Ang iyong mga talaan sa bukid</string>
     <string name="history_title">Talaan ng scan</string>
     <string name="history_subtitle">Bawat pagsusuri ay hakbang tungo sa mas malusog na bukid.</string>
     <string name="history_new_scan">Bagong scan</string>

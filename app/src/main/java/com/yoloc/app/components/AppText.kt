@@ -63,7 +63,7 @@ fun AppText(
 }
 
 @Composable
-private fun capFontScale(style: TextStyle): TextStyle {
+internal fun capFontScale(style: TextStyle): TextStyle {
     val scale = LocalDensity.current.fontScale
     if (scale <= MAX_FONT_SCALE) return style
     val k = MAX_FONT_SCALE / scale

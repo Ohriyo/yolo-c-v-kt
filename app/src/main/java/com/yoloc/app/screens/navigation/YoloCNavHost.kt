@@ -1,5 +1,6 @@
 package com.yoloc.app.screens.navigation
 
+import com.yoloc.app.screens.onboarding.NameScreen
 import android.app.Activity
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -140,7 +141,8 @@ fun YoloCNavHost(onboardingDone: Boolean) {
         ) {
             navigation<OnboardingGraph>(startDestination = Welcome) {
                 composable<Welcome> { entry -> WelcomeScreen(onToPrimer = { entry.ifShown { nav.navigate(Permissions) } }) }
-                composable<Permissions> { PermissionsScreen() }
+                composable<Permissions> { entry -> PermissionsScreen(onNext = { entry.ifShown { nav.navigate(OnboardingName) } }) }
+                composable<OnboardingName> { NameScreen() }
             }
             navigation<MainGraph>(startDestination = Home) {
                 composable<Home> { entry ->

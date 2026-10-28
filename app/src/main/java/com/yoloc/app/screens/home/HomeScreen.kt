@@ -1,7 +1,13 @@
 package com.yoloc.app.screens.home
 
+import androidx.compose.ui.draw.paint
+import androidx.compose.ui.draw.clipToBounds
+import com.yoloc.app.theme.YoloCType
+import com.yoloc.app.components.capFontScale
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.runtime.getValue
-import com.yoloc.app.components.Overline
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -172,7 +178,7 @@ private fun Greeting(now: Long, name: String) {
         )
     }
     Column(verticalArrangement = Arrangement.spacedBy(Spacing.xxs)) {
-        Overline(date)
+        AppText(date, variant = TypeVariant.Caption, tone = Tone.Muted)
         AppText(greeting, variant = TypeVariant.Headline)
         AppText(stringResource(R.string.home_subtitle), tone = Tone.Muted)
     }
@@ -183,30 +189,59 @@ private fun Greeting(now: Long, name: String) {
 private fun Hero(onScan: () -> Unit) {
     val colors = YoloCTheme.colors
     val shape = RoundedCornerShape(Radii.md)
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .height(IntrinsicSize.Min)
-            .cardShadow(shape)
-            .clip(shape)
-            .background(colors.selected),
-    ) {
-        Column(Modifier.weight(1f).padding(Spacing.md), verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
-            Overline(stringResource(R.string.home_hero_overline), color = colors.textMuted)
-            AppText(stringResource(R.string.home_hero_title), variant = TypeVariant.Verdict)
-            AppText(stringResource(R.string.home_hero_body), variant = TypeVariant.Caption, tone = Tone.Muted)
-            YButton(stringResource(R.string.home_scan_cta), onScan, Modifier.padding(top = Spacing.xxs), icon = IconName.ScanLine)
+    val cta = stringResource(R.string.home_scan_cta)
+    val measurer = rememberTextMeasurer()
+    val labelStyle = capFontScale(YoloCType.of(TypeVariant.Label))
+    val density = LocalDensity.current
+    BoxWithConstraints(Modifier.fillMaxWidth().cardShadow(shape).clip(shape).background(colors.selected)) {
+        // The button keeps its label on one line: with large text or a longer language the photo
+        // moves above the text instead of squeezing it (finish review, 2026-10-28).
+        val label = remember(cta, labelStyle) { measurer.measure(cta, labelStyle, maxLines = 1).size.width }
+        val needed = with(density) { label.toDp() } + 20.dp + Spacing.xs + Spacing.lg * 2
+        if (needed > maxWidth - HERO_PHOTO - Spacing.md * 2) {
+            Column {
+                HeroPhoto(Modifier.fillMaxWidth().height(HERO_BANNER))
+                HeroText(cta, onScan)
+            }
+        } else {
+            Row(Modifier.height(IntrinsicSize.Min)) {
+                HeroText(cta, onScan, Modifier.weight(1f))
+                HeroPhoto(Modifier.width(HERO_PHOTO).fillMaxHeight())
+            }
         }
-        // Decorative (a healthy pod, not an example of a stage), so screen readers skip it.
-        Image(
-            painterResource(R.drawable.photo_cacao_single),
-            contentDescription = null,
-            modifier = Modifier.width(108.dp).fillMaxHeight(),
-            contentScale = ContentScale.Crop,
-            // The pod sits left of centre in the photo.
-            alignment = BiasAlignment(-0.2f, 0f),
-        )
     }
+}
+
+private val HERO_PHOTO = 92.dp
+private val HERO_BANNER = 120.dp
+
+@Composable
+private fun HeroText(cta: String, onScan: () -> Unit, modifier: Modifier = Modifier) {
+    val colors = YoloCTheme.colors
+    Column(modifier.padding(Spacing.md), verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
+        AppText(stringResource(R.string.home_hero_title), variant = TypeVariant.Verdict)
+        AppText(stringResource(R.string.home_hero_body), variant = TypeVariant.Caption, tone = Tone.Muted)
+        YButton(cta, onScan, Modifier.padding(top = Spacing.xxs), icon = IconName.ScanLine)
+    }
+}
+
+/**
+ * Decorative (healthy pods, not an example of a stage), so it has no semantics. Painted on a
+ * Spacer, so the text alone sets the hero's height.
+ */
+@Composable
+private fun HeroPhoto(modifier: Modifier) {
+    Spacer(
+        modifier
+            .clipToBounds()
+            .paint(
+                painterResource(R.drawable.photo_cacao_column),
+                sizeToIntrinsics = false,
+                // The pods hang left of centre in the photo.
+                alignment = BiasAlignment(-0.3f, 0f),
+                contentScale = ContentScale.Crop,
+            ),
+    )
 }
 
 @Composable
@@ -302,10 +337,7 @@ private fun RecentSkeleton() {
 private fun LearnCard(onOpen: () -> Unit) {
     Card(padding = 20.dp, spacing = Spacing.sm) {
         Row(horizontalArrangement = Arrangement.spacedBy(Spacing.md)) {
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
-                Overline(stringResource(R.string.home_learn_overline))
-                AppText(stringResource(R.string.home_learn_title), variant = TypeVariant.Verdict)
-            }
+            AppText(stringResource(R.string.home_learn_title), Modifier.weight(1f), variant = TypeVariant.Verdict)
             PodMark()
         }
         AppText(stringResource(R.string.home_learn_body), tone = Tone.Muted)

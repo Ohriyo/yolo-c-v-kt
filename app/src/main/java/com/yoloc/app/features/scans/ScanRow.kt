@@ -55,20 +55,22 @@ val THUMB_SIZE = 56.dp
 
 /** RN: scanSubtitle. Second line of a row: "3 pods found · North block". */
 @Composable
-fun scanSubtitle(scan: ScanSummary): String {
-    val pods = if (scan.totalPods > 0) {
-        pluralStringResource(R.plurals.result_pods_found, scan.totalPods, scan.totalPods)
-    } else {
-        stringResource(R.string.history_no_pods_short)
-    }
-    return listOfNotNull(pods, scan.plotName?.takeIf { it.isNotEmpty() }).joinToString(" · ")
+fun scanSubtitle(scan: ScanSummary): String =
+    listOfNotNull(scanPods(scan), scan.plotName?.takeIf { it.isNotEmpty() }).joinToString(" · ")
+
+/** "3 pods found", or "No pods found". */
+@Composable
+private fun scanPods(scan: ScanSummary): String = if (scan.totalPods > 0) {
+    pluralStringResource(R.plurals.result_pods_found, scan.totalPods, scan.totalPods)
+} else {
+    stringResource(R.string.history_no_pods_short)
 }
 
 /**
  * RN: features/scans/ScanRow.tsx. One saved scan: thumbnail, verdict chip, pods and plot, time,
  * and the first line of the notes. One spoken label for the whole row. Redesign 2026-10-28: the
- * prototype's list row (what was found, then the chip; time and a chevron at the end), drawn
- * edge to edge inside a card.
+ * prototype's list row (what was found and the time, the chip, then plot and notes; a chevron at
+ * the end), drawn edge to edge inside a card.
  *
  * @param time Time shown on the row. History has day headers, so it passes the time only.
  * @param onLongPress With [longPressLabel], opens the row's options (History).
@@ -123,14 +125,16 @@ fun ScanRow(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Thumbnail(scan)
+        val meta = listOfNotNull(scan.plotName?.takeIf { it.isNotEmpty() }, notes).joinToString(" · ").ifEmpty { null }
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            // The time shares the first line, so the chip below keeps the full width.
+            // The plot sits on the meta line, so the time fits beside what was found and the chip
+            // below keeps the full width (a status name is never cut short).
             Row(horizontalArrangement = Arrangement.spacedBy(Spacing.xs)) {
-                AppText(subtitle, Modifier.weight(1f), variant = TypeVariant.BodyStrong, maxLines = 2)
+                AppText(scanPods(scan), Modifier.weight(1f), variant = TypeVariant.BodyStrong, maxLines = 2)
                 AppText(time, Modifier.padding(top = 2.dp), variant = TypeVariant.Caption, tone = Tone.Muted, maxLines = 1)
             }
             VerdictChip(scan.verdict)
-            if (scan.lowConfidence || notes != null) {
+            if (scan.lowConfidence || meta != null) {
                 Row(horizontalArrangement = Arrangement.spacedBy(Spacing.xs), verticalAlignment = Alignment.CenterVertically) {
                     if (scan.lowConfidence) {
                         Row(horizontalArrangement = Arrangement.spacedBy(Spacing.xxs), verticalAlignment = Alignment.CenterVertically) {
@@ -138,7 +142,7 @@ fun ScanRow(
                             AppText(uncertain, variant = TypeVariant.Caption, tone = Tone.Muted)
                         }
                     }
-                    if (notes != null) AppText(notes, Modifier.weight(1f), variant = TypeVariant.Caption, tone = Tone.Muted, maxLines = 1)
+                    if (meta != null) AppText(meta, Modifier.weight(1f), variant = TypeVariant.Caption, tone = Tone.Muted, maxLines = 1)
                 }
             }
         }

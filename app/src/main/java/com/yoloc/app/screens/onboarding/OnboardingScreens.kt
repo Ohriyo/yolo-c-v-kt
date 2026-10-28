@@ -31,7 +31,7 @@ import com.yoloc.app.components.IconName
 import com.yoloc.app.components.Tone
 import com.yoloc.app.features.learn.onboardingTipPicks
 import com.yoloc.app.features.learn.photoTips
-import com.yoloc.app.features.onboarding.DiscIllustration
+import com.yoloc.app.features.onboarding.PhotoIllustration
 import com.yoloc.app.features.onboarding.FrameAction
 import com.yoloc.app.features.onboarding.ONBOARDING_STEPS
 import com.yoloc.app.features.onboarding.OnboardingFrame
@@ -76,11 +76,11 @@ fun WelcomeScreen(onToPrimer: () -> Unit, vm: OnboardingViewModel = viewModel(fa
 @Composable
 private fun SlideIllustration(slide: OnboardingSlide, found: Int?) {
     when (slide) {
-        OnboardingSlide.Scan -> DiscIllustration(IconName.Camera)
-        OnboardingSlide.Offline -> DiscIllustration(IconName.WifiOff, flip = true)
+        OnboardingSlide.Scan -> PhotoIllustration(R.drawable.photo_cacao_cluster)
+        OnboardingSlide.Offline -> PhotoIllustration(R.drawable.photo_cacao_column)
         OnboardingSlide.Tips -> ViewfinderIllustration()
         OnboardingSlide.Aid -> if (found == null) {
-            DiscIllustration(IconName.Eye)
+            PhotoIllustration(R.drawable.photo_cacao_cluster)
         } else {
             RecallIllustration(found, stringResource(R.string.about_recall_a11y, found))
         }
@@ -112,31 +112,19 @@ private fun PhotoTipsPanel() {
 /**
  * RN: app/(onboarding)/permissions.tsx. Permission primer (CLAUDE.md 3.1/3.3): explains, but
  * requests nothing. The camera is asked for only when the user first opens Scan; location only if
- * turned on in Settings. Continue flips the flag, and the NavHost swaps onboarding for the tabs.
+ * turned on in Settings. Continue leads to the name step (RN: Continue ends onboarding).
  */
 @Composable
-fun PermissionsScreen(vm: OnboardingViewModel = viewModel(factory = OnboardingViewModel.Factory)) {
+fun PermissionsScreen(onNext: () -> Unit) {
     val colors = YoloCTheme.colors
-    // Redesign 2026-10-28 (Kotlin only): the optional first name Home greets with.
-    var name by rememberSaveable { mutableStateOf("") }
     OnboardingFrame(
-        step = ONBOARDING_STEPS - 1,
+        step = ONBOARDING_STEPS - 2,
         total = ONBOARDING_STEPS,
         title = stringResource(R.string.onboarding_permissions_title),
         body = stringResource(R.string.onboarding_permissions_body),
-        primary = FrameAction(stringResource(R.string.onboarding_continue), { vm.complete(name) }),
-        illustration = { DiscIllustration(IconName.Image) },
+        primary = FrameAction(stringResource(R.string.onboarding_continue), onNext),
+        illustration = { PhotoIllustration(R.drawable.photo_cacao_cluster) },
     ) {
-        Column(Modifier.padding(bottom = Spacing.xs), verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
-            AppText(stringResource(R.string.onboarding_name_label), variant = TypeVariant.BodyStrong)
-            YTextField(
-                value = name,
-                onValueChange = { name = it },
-                placeholder = stringResource(R.string.onboarding_name_placeholder),
-                accessibilityLabel = stringResource(R.string.onboarding_name_a11y),
-                maxLength = USER_NAME_MAX,
-            )
-        }
         Row(
             Modifier.padding(top = Spacing.xs),
             horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
@@ -145,5 +133,31 @@ fun PermissionsScreen(vm: OnboardingViewModel = viewModel(factory = OnboardingVi
             Icon(IconName.MapPin, size = 20.dp, color = colors.icon)
             AppText(stringResource(R.string.onboarding_permissions_location), Modifier.weight(1f), tone = Tone.Muted)
         }
+    }
+}
+
+/**
+ * Redesign 2026-10-28 (Kotlin only): the optional first name Home greets with, as its own last
+ * step. Continue saves it (when given) and flips the flag; the NavHost then swaps onboarding for
+ * the tabs.
+ */
+@Composable
+fun NameScreen(vm: OnboardingViewModel = viewModel(factory = OnboardingViewModel.Factory)) {
+    var name by rememberSaveable { mutableStateOf("") }
+    OnboardingFrame(
+        step = ONBOARDING_STEPS - 1,
+        total = ONBOARDING_STEPS,
+        title = stringResource(R.string.onboarding_name_label),
+        body = stringResource(R.string.onboarding_name_body),
+        primary = FrameAction(stringResource(R.string.onboarding_continue), { vm.complete(name) }),
+        illustration = { PhotoIllustration(R.drawable.photo_cacao_column) },
+    ) {
+        YTextField(
+            value = name,
+            onValueChange = { name = it },
+            placeholder = stringResource(R.string.onboarding_name_placeholder),
+            accessibilityLabel = stringResource(R.string.onboarding_name_a11y),
+            maxLength = USER_NAME_MAX,
+        )
     }
 }

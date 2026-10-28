@@ -138,6 +138,10 @@ truth and the analysis are unchanged. Compare the two apps' UI with this in mind
 | Language | English only | English and Filipino. Filipino (values-fil) is a draft by Claude, marked as such beside the choice, and needs a native speaker's check; the agronomic placeholders stay TODO in both. Settings > Language switches in the app (Android 13+: the per-app language, also in the phone's settings; older: saved in the app). Without a choice the app follows the phone. Class names stored in the database follow the language; scans keep their class ids | 5 |
 | Camera title | One line | Up to two lines, for longer languages | 5 |
 | App bundle | Language splits on | Off, so an install from a bundle has both languages | 5 |
+| Onboarding panels | Drawn capsules and a disc around an icon | The owner's pod photos (finish review); the drawn viewfinder and recall chart stay. The optional name is its own sixth step after the primer (RN: five steps, the primer ends onboarding) | finish |
+| Small all-caps labels | None | None either: the prototype's date line, kickers and "Field guide · 0N" numbers were built, then removed at the owner's choice in the finish review. The Home date is a plain muted line. The Home hero shows red pods on the tree (`photo_cacao_column`) | finish |
+| Scan rows | Pods and plot on one line | What was found and the time on the first line, the chip, then plot and notes on one line (finish review) | finish |
+| Home hero, History title, top bar | Fixed layout | With large text or a longer language: the hero photo moves above the text, the History New scan button moves under the title, and the top-bar tagline gives way to the Offline badge (finish review) | finish |
 
 ## Step 6 measurements (filled in as the port progresses)
 
