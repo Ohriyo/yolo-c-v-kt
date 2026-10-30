@@ -85,8 +85,9 @@ class ResultViewModel(
     private val _state = MutableStateFlow(State(result = session.state.value.result))
     val state: StateFlow<State> = _state.asStateFlow()
 
+    // Named: a bare CompletableDeferred(null) picks the (parent: Job?) overload and never completes.
     private val location: Deferred<ScanLocation?> =
-        if (gpsOptIn) viewModelScope.async { captureScanLocation(locationSource) } else CompletableDeferred(null)
+        if (gpsOptIn) viewModelScope.async { captureScanLocation(locationSource) } else CompletableDeferred(value = null)
 
     init {
         viewModelScope.launch {

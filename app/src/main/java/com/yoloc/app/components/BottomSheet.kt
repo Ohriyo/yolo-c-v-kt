@@ -78,13 +78,14 @@ fun BottomSheet(
             )
         },
     ) {
-        SheetBody(title, { if (currentDismissable) onClose() }, content, Modifier.windowInsetsPadding(WindowInsets.navigationBars))
+        SheetBody(title, { if (currentDismissable) onClose() }, content, Modifier.windowInsetsPadding(WindowInsets.navigationBars), scroll = true)
     }
 }
 
 /**
  * RN: BottomSheetPanel. The sheet's surface, handle, header and body drawn in place, without the
- * modal. Dev gallery only (an inline preview next to the real sheet).
+ * modal. Dev gallery only (an inline preview next to the real sheet). The body does not scroll:
+ * the panel sits inside a scrolling screen, and a nested vertical scroll would crash.
  */
 @Composable
 fun BottomSheetPanel(title: String, onClose: () -> Unit, modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
@@ -100,13 +101,19 @@ fun BottomSheetPanel(title: String, onClose: () -> Unit, modifier: Modifier = Mo
                 .size(width = 32.dp, height = 4.dp)
                 .background(colors.outline, RoundedCornerShape(Radii.full)),
         )
-        SheetBody(title, onClose, content)
+        SheetBody(title, onClose, content, scroll = false)
     }
 }
 
-/** Header (title, close) and the scrolling body: long content scrolls inside the sheet. */
+/** Header (title, close) and the body; with [scroll], long content scrolls inside the sheet. */
 @Composable
-private fun SheetBody(title: String, onClose: () -> Unit, content: @Composable ColumnScope.() -> Unit, modifier: Modifier = Modifier) {
+private fun SheetBody(
+    title: String,
+    onClose: () -> Unit,
+    content: @Composable ColumnScope.() -> Unit,
+    modifier: Modifier = Modifier,
+    scroll: Boolean,
+) {
     val colors = YoloCTheme.colors
     Column(
         Modifier
@@ -134,7 +141,7 @@ private fun SheetBody(title: String, onClose: () -> Unit, content: @Composable C
             }
         }
         Column(
-            Modifier.fillMaxWidth().verticalScroll(rememberScrollState()),
+            Modifier.fillMaxWidth().then(if (scroll) Modifier.verticalScroll(rememberScrollState()) else Modifier),
             verticalArrangement = Arrangement.spacedBy(Spacing.md),
             content = content,
         )
