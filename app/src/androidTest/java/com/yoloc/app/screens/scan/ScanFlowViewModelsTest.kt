@@ -55,7 +55,12 @@ class ScanFlowViewModelsTest {
     }
 
     @Before
-    fun open() = runBlocking { holder.get(); Unit }
+    fun open() = runBlocking {
+        // The app's own use on this phone may have left "camera asked" behind.
+        context.getSharedPreferences("permissions", 0).edit().clear().commit()
+        holder.get()
+        Unit
+    }
 
     @After
     fun close() {

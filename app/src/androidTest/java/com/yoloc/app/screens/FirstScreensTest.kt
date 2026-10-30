@@ -240,9 +240,9 @@ class FirstScreensTest {
     fun learnListsThreeTopicsAndOpensOne() {
         var topic: LearnTopic? = null
         compose.setContent { YoloCTheme { LearnScreen(onOpenTopic = { topic = it }) } }
-        compose.onNodeWithContentDescription(text(R.string.learn_topic_photos_title)).assertIsDisplayed()
-        compose.onNodeWithContentDescription(text(R.string.learn_topic_how_title)).assertIsDisplayed()
-        compose.onNodeWithContentDescription(text(R.string.learn_topic_stages_title)).performClick()
+        compose.onNodeWithContentDescription(text(R.string.learn_topic_photos_title)).performScrollTo().assertIsDisplayed()
+        compose.onNodeWithContentDescription(text(R.string.learn_topic_how_title)).performScrollTo().assertIsDisplayed()
+        compose.onNodeWithContentDescription(text(R.string.learn_topic_stages_title)).performScrollTo().performClick()
         assertEquals(LearnTopic.Stages, topic)
     }
 

@@ -3,6 +3,10 @@ package com.yoloc.app.screens
 import android.app.Application
 import androidx.annotation.StringRes
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasStateDescription
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
@@ -133,7 +137,8 @@ class SettingsScreensTest {
         waitForLabel(slider)
         compose.onNodeWithContentDescription(slider).performSemanticsAction(SemanticsActions.SetProgress) { it(0.3f) }
         compose.waitUntil(5_000) { runBlocking { SettingsRepository(holder).getSettings().confThreshold } == 0.3 }
-        compose.onNodeWithText(text(R.string.settings_threshold_value, 30)).assertExists()
+        // The "30%" headline is hidden from TalkBack; the slider speaks the value.
+        compose.onNodeWithContentDescription(slider).assert(hasStateDescription(plural(R.plurals.settings_threshold_a11y, 30, 30)))
 
         val reset = text(R.string.settings_threshold_reset, 25)
         compose.onNodeWithContentDescription(reset).performScrollTo().performClick()
@@ -156,7 +161,7 @@ class SettingsScreensTest {
         showSettings()
         compose.onNodeWithContentDescription(text(R.string.settings_name), substring = true).performScrollTo().performClick()
         waitForLabel(text(R.string.settings_name_sheet_title))
-        compose.onAllNodesWithContentDescription(text(R.string.settings_name))[1].performTextReplacement("Ana")
+        compose.onNode(hasContentDescription(text(R.string.settings_name)) and hasSetTextAction()).performTextReplacement("Ana")
         compose.onNodeWithContentDescription(text(R.string.settings_name_save)).performClick()
         compose.waitUntil(5_000) { store.state.value.userName == "Ana" }
         compose.waitUntil(5_000) { runBlocking { SettingsRepository(holder).getSettings().userName } == "Ana" }
@@ -251,7 +256,7 @@ class SettingsScreensTest {
     fun aboutShowsTheModelItsMetricsLimitationsAndTheDisclaimer() {
         val vm = AboutViewModel(config, classes, "1.0")
         compose.setContent { YoloCTheme { AboutScreen(vm) } }
-        waitForText(text(R.string.about_disclaimer))
+        waitForLabel(text(R.string.about_disclaimer))
         compose.onNodeWithText(config.displayName).performScrollTo().assertExists()
         compose.onNodeWithText(text(R.string.about_recall_headline, 6)).assertExists()
         compose.onNodeWithContentDescription(text(R.string.about_recall_a11y, 6)).assertExists()

@@ -83,7 +83,7 @@ class LibraryViewModelsTest {
     private fun HistoryViewModel.State.scanIds() = items.filterIsInstance<HistoryItem.Scan>().map { it.scan.id }
 
     @Test
-    fun homeShowsTheLastThreeScansAndThirtyDayCountsAndReloadsOnRevision() = runBlocking {
+    fun homeShowsTheLastThreeScansAndThirtyDayCountsAndReloadsOnRevision(): Unit = runBlocking {
         repeat(4) { save(createdAt = System.currentTimeMillis() - it * 1000L) }
         val home = HomeViewModel(scans, library)
         val ready = home.summary.await("Home ready") { it is HomeViewModel.Summary.Ready } as HomeViewModel.Summary.Ready
@@ -130,7 +130,7 @@ class LibraryViewModelsTest {
     }
 
     @Test
-    fun historyHidesADeletedRowAtOnceAndUndoBringsItBack() = runBlocking {
+    fun historyHidesADeletedRowAtOnceAndUndoBringsItBack(): Unit = runBlocking {
         val id = save()
         val vm = history()
         vm.state.await("loaded") { id in it.scanIds() }

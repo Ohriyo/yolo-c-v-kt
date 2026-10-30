@@ -59,6 +59,8 @@ class SettingsViewModelsTest {
 
     @Before
     fun open() = runBlocking {
+        // The app's own use on this phone may have left "location asked" behind.
+        context.getSharedPreferences("permissions", 0).edit().clear().commit()
         holder.get()
         store.hydrate()
     }
@@ -98,10 +100,11 @@ class SettingsViewModelsTest {
         SettingsViewModel(application, store, scans, plots, files, library, PermissionHistory(context), config.confThreshold)
 
     @Test
-    fun theSliderSnapsAndSavesOnReleaseAndResetGoesBackToTheDefault() = runBlocking {
+    fun theSliderSnapsAndSavesOnReleaseAndResetGoesBackToTheDefault(): Unit = runBlocking {
         val vm = settingsVm()
         vm.onThresholdChange(0.4123)
-        assertEquals(0.4123, vm.state.value.shownThreshold, 0.0)
+        // state is combined on the main thread, so it is awaited rather than read at once.
+        vm.state.await("shown 0.4123") { it.shownThreshold == 0.4123 }
         vm.onThresholdChangeEnd(0.4123)
         vm.state.await("saved 0.4") { it.confThreshold == 0.4 && it.local.thresholdDraft == null }
         store.state.await("stored") { it.confThreshold == 0.4 }
@@ -111,18 +114,18 @@ class SettingsViewModelsTest {
     }
 
     @Test
-    fun locationTurnsOnOnlyWithPermission() = runBlocking {
+    fun locationTurnsOnOnlyWithPermission(): Unit = runBlocking {
         val vm = settingsVm()
         vm.onLocationChecked(granted = false, showRationale = false)
-        assertEquals(LocationAccess.Ask, vm.state.value.local.locationAccess)
+        vm.state.await("ask") { it.local.locationAccess == LocationAccess.Ask }
         assertTrue(vm.toggleGps(true)) // the screen shows the prompt
         vm.onLocationResult(granted = false, showRationale = true) // refused
-        assertEquals(SettingsViewModel.LocationMessage.Ask, vm.state.value.locationMessage)
+        vm.state.await("message ask") { it.locationMessage == SettingsViewModel.LocationMessage.Ask }
         vm.onLocationResult(granted = false, showRationale = false) // refused again: blocked
-        assertEquals(SettingsViewModel.LocationMessage.Blocked, vm.state.value.locationMessage)
+        vm.state.await("message blocked") { it.locationMessage == SettingsViewModel.LocationMessage.Blocked }
         vm.onLocationResult(granted = true, showRationale = false) // allowed in system settings
         vm.state.await("gps on") { it.gpsOptIn }
-        assertEquals(SettingsViewModel.LocationMessage.On, vm.state.value.locationMessage)
+        vm.state.await("message on") { it.locationMessage == SettingsViewModel.LocationMessage.On }
         assertTrue(!vm.toggleGps(false))
         vm.state.await("gps off") { !it.gpsOptIn }
     }
@@ -140,7 +143,7 @@ class SettingsViewModelsTest {
         library.deleteScan(id)
         vm.state.await("counted") { it.local.summary?.scans == 1 && it.local.summary?.plots == 1 }
         vm.askClear()
-        assertTrue(vm.state.value.local.confirmingClear)
+        vm.state.await("confirming") { it.local.confirmingClear }
         vm.confirmClear()
         vm.state.await("cleared") { it.local.toast == SettingsViewModel.Toast.Cleared }
         assertNull(library.pendingUndo.value)

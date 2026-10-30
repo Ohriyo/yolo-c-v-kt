@@ -149,7 +149,8 @@ class HistoryScreensTest {
         showHistory()
         waitFor { hasRow("No plot") }
 
-        compose.onNodeWithContentDescription(text(R.string.history_filter_plot)).performClick()
+        // The pill row scrolls sideways; on a narrow phone Plot starts off screen.
+        compose.onNodeWithContentDescription(text(R.string.history_filter_plot)).performScrollTo().performClick()
         waitFor { compose.onAllNodesWithContentDescription("North block").fetchSemanticsNodes().isNotEmpty() }
         compose.onNodeWithContentDescription("North block").performClick()
         waitFor { !hasRow("No plot") }
@@ -171,7 +172,8 @@ class HistoryScreensTest {
         waitFor { !hasRow("Tree 3") }
         assertNull(runBlocking { scans.getScan(id) })
 
-        compose.onNodeWithContentDescription(text(R.string.history_undo)).performClick()
+        // The toast merges into one node; tap the Undo button itself, not the toast's center.
+        compose.onNodeWithContentDescription(text(R.string.history_undo), useUnmergedTree = true).performClick()
         waitFor { hasRow("Tree 3") }
         assertNotNull(runBlocking { scans.getScan(id) })
     }

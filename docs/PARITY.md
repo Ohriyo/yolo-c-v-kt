@@ -30,6 +30,12 @@ Kotlin: debug build, 2026-10-27, CPU with default options. Same result against
 `expected_pt.json`. The screen shows the worst IoU only; confidence deltas are within the 0.05
 tolerance (all pairs passed) but were not recorded per image.
 
+`GoldenDeviceTest` (debug build, 2026-10-31, run alone with `am instrument`) gives the same
+5/5 PASS and records the confidence deltas. Worst IoU and largest |Δ confidence| per image:
+golden_01 0.996 / 0.004, golden_02 0.998 / 0.034, golden_03 0.999 / 0.003,
+golden_04 0.994 / 0.009, golden_05 0.998 / 0.002; no extra boxes. Inference in the test took
+2182–2408 ms per image, in line with the 2168 ms median below.
+
 Expected difference: Kotlin reads the resized bitmap directly instead of re-encoding a JPEG, so
 IoU and confidence deltas may differ slightly from RN.
 

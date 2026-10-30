@@ -30,7 +30,7 @@ class GalleryScreenTest {
         compose.setContent { GalleryScreen() }
         compose.onNodeWithText("Component gallery").assertExists()
         for (component in coreComponents) compose.onNodeWithText(component).performScrollTo().assertExists()
-        compose.onNodeWithText("Uncertain result: retake in better light", substring = true).assertExists()
+        compose.onNodeWithText("Uncertain result: retake in better light", substring = true, useUnmergedTree = true).assertExists()
         // Disabled and loading states for each of the three button variants.
         val disabled = SemanticsMatcher.keyIsDefined(SemanticsProperties.Disabled)
         assertEquals(3, compose.onAllNodes(hasContentDescription("Disabled") and disabled).fetchSemanticsNodes().size)
