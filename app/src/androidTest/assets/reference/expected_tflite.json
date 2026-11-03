@@ -1,0 +1,334 @@
+[
+  {
+    "image": "1-s2-0-S0261219417300200-gr21_jpg.rf.d41976294c816b12e4a3269547738fe9.jpg",
+    "width": 1024,
+    "height": 1024,
+    "conf_threshold": 0.25,
+    "iou_threshold": 0.45,
+    "imgsz": 640,
+    "detections": [
+      {
+        "class_id": 0,
+        "class_name": "early_stage",
+        "confidence": 0.9495,
+        "x1": 0.6846,
+        "y1": 0.2154,
+        "x2": 0.8702,
+        "y2": 0.7804
+      },
+      {
+        "class_id": 2,
+        "class_name": "healthy_pod",
+        "confidence": 0.7266,
+        "x1": 0.0747,
+        "y1": 0.2176,
+        "x2": 0.2997,
+        "y2": 0.7448
+      }
+    ]
+  },
+  {
+    "image": "11_png.rf.20438d470ad521eee1b47ed5731e4c6d.jpg",
+    "width": 1024,
+    "height": 1024,
+    "conf_threshold": 0.25,
+    "iou_threshold": 0.45,
+    "imgsz": 640,
+    "detections": [
+      {
+        "class_id": 1,
+        "class_name": "fully_infected_pod",
+        "confidence": 0.9164,
+        "x1": 0.3275,
+        "y1": 0.1482,
+        "x2": 0.6813,
+        "y2": 0.7319
+      }
+    ]
+  },
+  {
+    "image": "1515671450y_pod_rot_cacao_Mycologia_alme_et_al_jpg.rf.08b8f1bca148f47916ded74e31cc895c.jpg",
+    "width": 1024,
+    "height": 1024,
+    "conf_threshold": 0.25,
+    "iou_threshold": 0.45,
+    "imgsz": 640,
+    "detections": [
+      {
+        "class_id": 0,
+        "class_name": "early_stage",
+        "confidence": 0.9581,
+        "x1": 0.2198,
+        "y1": 0.3084,
+        "x2": 0.4952,
+        "y2": 0.7653
+      },
+      {
+        "class_id": 1,
+        "class_name": "fully_infected_pod",
+        "confidence": 0.9239,
+        "x1": 0.4685,
+        "y1": 0.2816,
+        "x2": 0.7881,
+        "y2": 0.6156
+      }
+    ]
+  },
+  {
+    "image": "1728667862952_jpg.rf.06b99a9398a987016c3927fe2efb13f9.jpg",
+    "width": 1024,
+    "height": 1024,
+    "conf_threshold": 0.25,
+    "iou_threshold": 0.45,
+    "imgsz": 640,
+    "detections": [
+      {
+        "class_id": 2,
+        "class_name": "healthy_pod",
+        "confidence": 0.9561,
+        "x1": 0.365,
+        "y1": 0.1135,
+        "x2": 0.6686,
+        "y2": 0.834
+      }
+    ]
+  },
+  {
+    "image": "20241011_105617_jpg.rf.4a8fb93987c3dc4419a2e787e3ed6510.jpg",
+    "width": 1024,
+    "height": 1024,
+    "conf_threshold": 0.25,
+    "iou_threshold": 0.45,
+    "imgsz": 640,
+    "detections": [
+      {
+        "class_id": 2,
+        "class_name": "healthy_pod",
+        "confidence": 0.9486,
+        "x1": 0.2866,
+        "y1": 0.185,
+        "x2": 0.5737,
+        "y2": 0.8671
+      },
+      {
+        "class_id": 2,
+        "class_name": "healthy_pod",
+        "confidence": 0.3474,
+        "x1": 0.0,
+        "y1": 0.0,
+        "x2": 0.0831,
+        "y2": 0.2321
+      }
+    ]
+  },
+  {
+    "image": "IMG_20241010_141553704_HDR_jpg.rf.0dbc43f20db1615d52d33f3883a446a3.jpg",
+    "width": 1024,
+    "height": 1024,
+    "conf_threshold": 0.25,
+    "iou_threshold": 0.45,
+    "imgsz": 640,
+    "detections": [
+      {
+        "class_id": 0,
+        "class_name": "early_stage",
+        "confidence": 0.9631,
+        "x1": 0.4607,
+        "y1": 0.1829,
+        "x2": 0.753,
+        "y2": 0.8029
+      },
+      {
+        "class_id": 2,
+        "class_name": "healthy_pod",
+        "confidence": 0.8888,
+        "x1": 0.9063,
+        "y1": 0.6695,
+        "x2": 0.9526,
+        "y2": 0.7082
+      },
+      {
+        "class_id": 2,
+        "class_name": "healthy_pod",
+        "confidence": 0.8755,
+        "x1": 0.9028,
+        "y1": 0.4754,
+        "x2": 0.9399,
+        "y2": 0.5449
+      },
+      {
+        "class_id": 2,
+        "class_name": "healthy_pod",
+        "confidence": 0.772,
+        "x1": 0.8684,
+        "y1": 0.7174,
+        "x2": 0.8896,
+        "y2": 0.7457
+      },
+      {
+        "class_id": 2,
+        "class_name": "healthy_pod",
+        "confidence": 0.746,
+        "x1": 0.2988,
+        "y1": 0.776,
+        "x2": 0.3268,
+        "y2": 0.811
+      },
+      {
+        "class_id": 2,
+        "class_name": "healthy_pod",
+        "confidence": 0.6751,
+        "x1": 0.3225,
+        "y1": 0.7765,
+        "x2": 0.3605,
+        "y2": 0.811
+      },
+      {
+        "class_id": 0,
+        "class_name": "early_stage",
+        "confidence": 0.5891,
+        "x1": 0.1281,
+        "y1": 0.1174,
+        "x2": 0.1876,
+        "y2": 0.1835
+      },
+      {
+        "class_id": 2,
+        "class_name": "healthy_pod",
+        "confidence": 0.5447,
+        "x1": 0.3184,
+        "y1": 0.8044,
+        "x2": 0.3402,
+        "y2": 0.8323
+      },
+      {
+        "class_id": 2,
+        "class_name": "healthy_pod",
+        "confidence": 0.4518,
+        "x1": 0.3182,
+        "y1": 0.801,
+        "x2": 0.3409,
+        "y2": 0.8179
+      },
+      {
+        "class_id": 2,
+        "class_name": "healthy_pod",
+        "confidence": 0.3605,
+        "x1": 0.4561,
+        "y1": 0.822,
+        "x2": 0.4732,
+        "y2": 0.848
+      },
+      {
+        "class_id": 2,
+        "class_name": "healthy_pod",
+        "confidence": 0.3189,
+        "x1": 0.3823,
+        "y1": 0.7606,
+        "x2": 0.4126,
+        "y2": 0.7828
+      },
+      {
+        "class_id": 2,
+        "class_name": "healthy_pod",
+        "confidence": 0.2819,
+        "x1": 0.9855,
+        "y1": 0.6756,
+        "x2": 0.9998,
+        "y2": 0.7173
+      }
+    ]
+  },
+  {
+    "image": "1b6d3dd979b5d3193270d803634494e6_jpg.rf.329c6bb70280b490d9cd93bc5e827280.jpg",
+    "width": 1024,
+    "height": 1024,
+    "conf_threshold": 0.25,
+    "iou_threshold": 0.45,
+    "imgsz": 640,
+    "detections": []
+  },
+  {
+    "image": "IMG_1629.JPG",
+    "width": 452,
+    "height": 678,
+    "conf_threshold": 0.25,
+    "iou_threshold": 0.45,
+    "imgsz": 640,
+    "detections": [
+      {
+        "class_id": 0,
+        "class_name": "early_stage",
+        "confidence": 0.9048,
+        "x1": 0.5102,
+        "y1": 0.6622,
+        "x2": 0.7161,
+        "y2": 0.8827
+      },
+      {
+        "class_id": 0,
+        "class_name": "early_stage",
+        "confidence": 0.8022,
+        "x1": 0.1157,
+        "y1": 0.319,
+        "x2": 0.2434,
+        "y2": 0.4796
+      },
+      {
+        "class_id": 1,
+        "class_name": "fully_infected_pod",
+        "confidence": 0.4954,
+        "x1": 0.3045,
+        "y1": 0.6313,
+        "x2": 0.5188,
+        "y2": 0.8809
+      },
+      {
+        "class_id": 0,
+        "class_name": "early_stage",
+        "confidence": 0.3865,
+        "x1": 0.305,
+        "y1": 0.6315,
+        "x2": 0.5202,
+        "y2": 0.8804
+      },
+      {
+        "class_id": 1,
+        "class_name": "fully_infected_pod",
+        "confidence": 0.3166,
+        "x1": 0.7915,
+        "y1": 0.6322,
+        "x2": 0.9038,
+        "y2": 0.7726
+      }
+    ]
+  },
+  {
+    "image": "IMG_1631.JPG",
+    "width": 480,
+    "height": 639,
+    "conf_threshold": 0.25,
+    "iou_threshold": 0.45,
+    "imgsz": 640,
+    "detections": [
+      {
+        "class_id": 0,
+        "class_name": "early_stage",
+        "confidence": 0.873,
+        "x1": 0.5277,
+        "y1": 0.2634,
+        "x2": 0.9242,
+        "y2": 0.7423
+      },
+      {
+        "class_id": 0,
+        "class_name": "early_stage",
+        "confidence": 0.7972,
+        "x1": 0.1593,
+        "y1": 0.3134,
+        "x2": 0.564,
+        "y2": 0.8126
+      }
+    ]
+  }
+]

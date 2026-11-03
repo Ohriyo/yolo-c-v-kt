@@ -1,0 +1,3 @@
+early_stage
+fully_infected_pod
+healthy_pod

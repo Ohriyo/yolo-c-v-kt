@@ -1,0 +1,30 @@
+{
+  "file": "yolo_c_v3_640.tflite",
+  "inputSize": 640,
+  "inputShape": [
+    1,
+    3,
+    640,
+    640
+  ],
+  "outputShape": [
+    1,
+    7,
+    8400
+  ],
+  "classes": [
+    "early_stage",
+    "fully_infected_pod",
+    "healthy_pod"
+  ],
+  "iouThreshold": 0.45,
+  "confThresholdByClass": {
+    "early_stage": 0.5,
+    "fully_infected_pod": 0.4,
+    "healthy_pod": 0.5
+  },
+  "letterboxPad": 114,
+  "preprocess": "RGB, divide by 255, letterbox to 640x640 with pad 114, planar NCHW (all R, then all G, then all B)",
+  "outputLayout": "channels first: value for channel c of candidate i is at index c*8400+i; channels 0-3 = center x, center y, width, height; 4-6 = class scores",
+  "boxCoordinates": "normalized 0-1 relative to the 640x640 letterboxed input; scores are already probabilities (no sigmoid)"
+}
