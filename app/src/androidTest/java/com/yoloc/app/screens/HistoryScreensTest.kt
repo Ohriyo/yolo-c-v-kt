@@ -92,13 +92,13 @@ class HistoryScreensTest {
                 imageWidth = 800,
                 imageHeight = 600,
                 source = ScanSource.Camera,
-                confThreshold = 0.25,
+                confThresholds = mapOf("early_stage" to 0.25),
                 iouThreshold = 0.45,
                 notes = notes,
                 createdAt = System.currentTimeMillis() - hoursAgo * 3_600_000L,
                 detections = classIds.mapIndexed { i, c -> NewDetection(c, 0.9 - i * 0.1, 0.1, 0.1, 0.2, 0.2) },
             ),
-            config.lowConfidenceThreshold,
+            config.uncertainBelow,
         )
     }
 
@@ -191,7 +191,7 @@ class HistoryScreensTest {
     }
 
     private fun showDetail(id: String, onBack: () -> Unit = {}): ScanDetailViewModel {
-        val vm = ScanDetailViewModel(id, false, scans, classes, library, files, dayFormat, scope)
+        val vm = ScanDetailViewModel(id, false, scans, classes, library, files, dayFormat, scope, config.uncertainBelow)
         compose.setContent { YoloCTheme { ScanDetailScreen(onBack = onBack, vm = vm) } }
         return vm
     }
@@ -206,6 +206,10 @@ class HistoryScreensTest {
         waitFor { compose.onAllNodesWithContentDescription(early, substring = true).fetchSemanticsNodes().isNotEmpty() }
         // The classes table (names, advice) is in before acting on pods.
         waitFor { compose.onAllNodesWithText(text(R.string.result_advice_title)).fetchSemanticsNodes().isNotEmpty() }
+
+        // The thresholds this scan ran with, by class.
+        compose.onNodeWithText(text(R.string.scan_detail_thresholds)).performScrollTo().assertExists()
+        compose.onNodeWithText("25%").assertExists()
 
         compose.onNodeWithContentDescription(text(R.string.scan_detail_notes_label)).performScrollTo().performTextReplacement("Tree 7, sprayed")
         compose.onNodeWithContentDescription(text(R.string.scan_detail_save_notes)).performScrollTo().performClick()

@@ -7,7 +7,7 @@ import java.io.File
 data class DetectionTimings(
     /** Decode, orient, resize and build the input tensor. */
     val preprocessMs: Double,
-    /** Interpreter.run only: the number stored as scans.inference_ms. */
+    /** The runner's model call only: the number stored as scans.inference_ms. */
     val inferenceMs: Double,
     val postprocessMs: Double,
     val totalMs: Double,
@@ -22,17 +22,13 @@ data class DetectionRun(
     val timings: DetectionTimings,
 )
 
-/** Runs the full pipeline on one still image with the CPU model (photo scans). */
-suspend fun runDetection(loaded: LoadedModel, image: File, padValue: Int, thresholds: Thresholds): DetectionRun =
-    runDetection(loaded, loaded.spec, image, padValue, thresholds)
-
-/** Same pipeline on any backend; `spec` comes from the CPU model, which reads the same file. */
+/** Runs the full pipeline on one still image on any backend, with the caller's postprocessing. */
 suspend fun runDetection(
     runner: LiveRunner,
     spec: ModelSpec,
     image: File,
     padValue: Int,
-    thresholds: Thresholds,
+    postprocessOutput: (FloatArray, Letterbox) -> PostprocessResult,
 ): DetectionRun =
     withContext(Dispatchers.Default) {
         val t0 = System.nanoTime()
@@ -54,7 +50,7 @@ suspend fun runDetection(
         val rawOutput = inStage(DetectionErrorKind.Inference) { runner.run(input) }
         val t2 = System.nanoTime()
 
-        val result = inStage(DetectionErrorKind.Inference) { postprocess(rawOutput, spec, lb, thresholds) }
+        val result = inStage(DetectionErrorKind.Inference) { postprocessOutput(rawOutput, lb) }
         val t3 = System.nanoTime()
 
         fun ms(from: Long, to: Long) = (to - from) / 1e6

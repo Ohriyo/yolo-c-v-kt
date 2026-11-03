@@ -30,6 +30,8 @@ import com.yoloc.app.db.repositories.SettingsRepository
 import com.yoloc.app.db.repositories.ThemeSetting
 import com.yoloc.app.features.scans.SaveScanInput
 import com.yoloc.app.features.scans.saveScan
+import com.yoloc.app.features.detection.ModelConfig
+import com.yoloc.app.features.detection.DetectionSensitivity
 import com.yoloc.app.screens.about.AboutScreen
 import com.yoloc.app.screens.about.AboutViewModel
 import com.yoloc.app.screens.plots.PlotsScreen
@@ -77,7 +79,7 @@ class SettingsScreensTest {
     private val library = ScanLibrary(scans)
     private val config = TestDb.config
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    private val store = SettingsStore(SettingsRepository(holder), config, scope)
+    private val store = SettingsStore(SettingsRepository(holder), scope)
 
     @Before
     fun open() = runBlocking {
@@ -113,36 +115,35 @@ class SettingsScreensTest {
                 imageWidth = 800,
                 imageHeight = 600,
                 source = ScanSource.Camera,
-                confThreshold = 0.25,
+                confThresholds = mapOf("early_stage" to 0.25),
                 iouThreshold = 0.45,
                 detections = listOf(NewDetection(2, 0.9, 0.1, 0.1, 0.2, 0.2)),
             ),
-            config.lowConfidenceThreshold,
+            config.uncertainBelow,
         )
     }
 
     private fun showSettings() {
         val vm = SettingsViewModel(
-            context.applicationContext as Application, store, scans, plots, files, library, PermissionHistory(context), config.confThreshold,
-        )
+            context.applicationContext as Application, store, scans, plots, files, library, PermissionHistory(context))
         compose.setContent {
             YoloCTheme { SettingsScreen(onOpenPlots = {}, onOpenAbout = {}, onOpenGallery = {}, onOpenSeed = {}, onOpenInference = {}, vm = vm) }
         }
     }
 
     @Test
-    fun savesTheConfidenceThresholdAndCanResetIt() {
+    fun savesTheDetectionSensitivityAndCanResetIt() {
         showSettings()
-        val slider = text(R.string.settings_threshold)
+        val slider = text(R.string.settings_sensitivity)
         waitForLabel(slider)
-        compose.onNodeWithContentDescription(slider).performSemanticsAction(SemanticsActions.SetProgress) { it(0.3f) }
-        compose.waitUntil(5_000) { runBlocking { SettingsRepository(holder).getSettings().confThreshold } == 0.3 }
-        // The "30%" headline is hidden from TalkBack; the slider speaks the value.
-        compose.onNodeWithContentDescription(slider).assert(hasStateDescription(plural(R.plurals.settings_threshold_a11y, 30, 30)))
+        compose.onNodeWithContentDescription(slider).performSemanticsAction(SemanticsActions.SetProgress) { it(0f) }
+        compose.waitUntil(5_000) { runBlocking { SettingsRepository(holder).getSettings().sensitivity } == DetectionSensitivity.Strict }
+        // The headline is hidden from TalkBack; the slider speaks the level.
+        compose.onNodeWithContentDescription(slider).assert(hasStateDescription(text(R.string.settings_sensitivity_strict)))
 
-        val reset = text(R.string.settings_threshold_reset, 25)
+        val reset = text(R.string.settings_sensitivity_reset)
         compose.onNodeWithContentDescription(reset).performScrollTo().performClick()
-        compose.waitUntil(5_000) { runBlocking { SettingsRepository(holder).getSettings().confThreshold } == 0.25 }
+        compose.waitUntil(5_000) { runBlocking { SettingsRepository(holder).getSettings().sensitivity } == DetectionSensitivity.Standard }
         compose.waitUntil(5_000) { compose.onAllNodesWithContentDescription(reset).fetchSemanticsNodes().isEmpty() }
     }
 
@@ -260,7 +261,20 @@ class SettingsScreensTest {
         compose.onNodeWithText(config.displayName).performScrollTo().assertExists()
         compose.onNodeWithText(text(R.string.about_recall_headline, 6)).assertExists()
         compose.onNodeWithContentDescription(text(R.string.about_recall_a11y, 6)).assertExists()
-        compose.onNodeWithContentDescription("72.7%", substring = true).assertExists()
+        // Labelled as validation, with the whole table: all classes and each class.
+        compose.onNodeWithText(context.getString(R.string.about_metrics_source, "validation (243 images)")).assertExists()
+        compose.waitUntil(5_000) { compose.onAllNodesWithContentDescription("83.9%", substring = true).fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithContentDescription("${text(R.string.about_metrics_all)}:", substring = true).assertExists()
         compose.onNodeWithText(text(R.string.about_limitation_misses, 4)).performScrollTo().assertExists()
+    }
+
+    @Test
+    fun aboutClaimsNoAccuracyForAModelWithoutMeasuredMetrics() {
+        val vm = AboutViewModel(config.copy(metrics = ModelConfig.Metrics()), classes, "1.0")
+        compose.setContent { YoloCTheme { AboutScreen(vm) } }
+        waitForLabel(text(R.string.about_disclaimer))
+        compose.onNodeWithText(config.displayName).performScrollTo().assertExists()
+        compose.onNodeWithText(text(R.string.about_accuracy_title)).assertDoesNotExist()
+        compose.onNodeWithText(text(R.string.about_limitation_misses, 4)).assertDoesNotExist()
     }
 }

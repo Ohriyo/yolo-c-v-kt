@@ -24,7 +24,7 @@ suspend fun saveResult(
     scans: ScanRepository,
     files: ScanFileStore,
     result: ScanResult,
-    lowConfidenceThreshold: Double,
+    uncertainBelow: Double,
     options: SaveResultOptions,
 ): String {
     val notes = options.notes.trim()
@@ -38,7 +38,7 @@ suspend fun saveResult(
             imageWidth = result.imageWidth,
             imageHeight = result.imageHeight,
             source = result.photo.source,
-            confThreshold = result.confThreshold,
+            confThresholds = result.confThresholds,
             iouThreshold = result.iouThreshold,
             inferenceMs = result.inferenceMs,
             notes = notes.ifEmpty { null },
@@ -49,6 +49,6 @@ suspend fun saveResult(
                 NewDetection(it.classId, it.confidence, it.x, it.y, it.w, it.h, it.correctedClassId)
             },
         ),
-        lowConfidenceThreshold,
+        uncertainBelow,
     )
 }

@@ -5,10 +5,8 @@ import com.yoloc.app.db.repositories.SettingsRepository
 import com.yoloc.app.features.detection.DetectionErrorKind
 import com.yoloc.app.features.detection.ModelConfig
 import com.yoloc.app.features.detection.ModelLoader
-import com.yoloc.app.features.detection.Thresholds
 import com.yoloc.app.features.detection.VerdictInput
 import com.yoloc.app.features.detection.inStage
-import com.yoloc.app.features.detection.runDetection
 import com.yoloc.app.features.detection.summarizeDetections
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -16,7 +14,7 @@ import kotlin.math.roundToInt
 
 /**
  * RN: analyzePhoto.ts. Runs on-device detection on an unsaved photo and builds the Result
- * screen's data. Thresholds come from the user's settings (seeded from model.config.json) and
+ * screen's data. Per-class thresholds come from model_config.json at the user's sensitivity, and
  * class severities from the classes table. Writes nothing. Throws DetectionError
  * (see describeDetectionError).
  */
@@ -34,9 +32,7 @@ class AnalyzePhoto(
                 s.await() to c.await().associate { it.id to it.severity }
             }
         }
-        val loaded = loader.loadCpu()
-        val thresholds = Thresholds(s.confThreshold, s.iouThreshold)
-        val run = runDetection(loaded, photo.file, config.letterboxPadValue, thresholds)
+        val run = loader.withDetector { it.detect(photo.file, config.confThresholdsFor(s.sensitivity), s.iouThreshold) }
 
         // RN falls back to severity 0 (healthy) for a class the table lacks. That can only happen
         // if the model and the seeded classes disagree, and a screening aid must never report a
@@ -47,7 +43,7 @@ class AnalyzePhoto(
         }
         val summary = summarizeDetections(
             run.detections.map { VerdictInput(severities.getValue(it.classId), it.confidence) },
-            config.lowConfidenceThreshold,
+            config.uncertainBelow,
         )
         return ScanResult(
             photo = photo,
@@ -58,8 +54,8 @@ class AnalyzePhoto(
             totalPods = summary.totalPods,
             lowConfidence = summary.lowConfidence,
             modelVersionId = s.activeModelId.ifEmpty { config.id },
-            confThreshold = thresholds.confThreshold,
-            iouThreshold = thresholds.iouThreshold,
+            confThresholds = config.confThresholdsByClass(s.sensitivity),
+            iouThreshold = s.iouThreshold,
             inferenceMs = run.timings.inferenceMs.roundToInt(),
             totalMs = run.timings.totalMs.roundToInt(),
             analyzedAt = System.currentTimeMillis(),

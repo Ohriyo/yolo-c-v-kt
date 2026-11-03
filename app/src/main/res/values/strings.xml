@@ -43,6 +43,10 @@
     <string name="topbar_dark_mode">Dark mode</string>
     <string name="tabs_settings">Settings</string>
 
+    <!-- Launch intro (redesign 2026-10-31). The tagline is topbar_tagline. -->
+    <string name="intro_name" translatable="false">YOLO-C</string>
+    <string name="intro_skip">Skip the intro</string>
+
     <!-- Screens not built yet (RN: strings.placeholder). -->
     <string name="placeholder">Placeholder screen. Built in a later phase.</string>
 
@@ -72,7 +76,7 @@
     <string name="onboarding_aid_title">A screening aid, not a diagnosis</string>
     <string name="onboarding_aid_body">The app can miss early signs. Always check doubtful pods by eye.</string>
     <string name="onboarding_get_started">Get started</string>
-    <string name="onboarding_aid_detail">In tests it missed about %1$d in 10 early-stage pods.</string>
+    <string name="onboarding_aid_detail">In validation it missed about %1$d in 10 early-stage pods.</string>
     <string name="onboarding_next">Next</string>
     <string name="onboarding_skip">Skip</string>
     <string name="onboarding_permissions_title">Camera and photos</string>
@@ -84,6 +88,21 @@
     <string name="onboarding_name_a11y">Your first name, optional</string>
     <string name="onboarding_continue">Continue</string>
     <string name="onboarding_slide_counter">Step %1$d of %2$d</string>
+    <!-- Onboarding panels (redesign 2026-10-31): chips, feature lines and the class legend. -->
+    <string name="onboarding_chip_on_device">On-device</string>
+    <string name="onboarding_chip_one_pod">One pod at a time</string>
+    <string name="onboarding_chip_offline">Works offline</string>
+    <string name="onboarding_chip_private">Stays on your phone</string>
+    <string name="onboarding_scan_point">Point at one pod</string>
+    <string name="onboarding_scan_shutter">Tap the shutter</string>
+    <string name="onboarding_scan_seconds">See the result in seconds</string>
+    <string name="onboarding_offline_signal">No signal needed</string>
+    <string name="onboarding_offline_plots">Group scans by plot</string>
+    <string name="onboarding_offline_csv">Export to CSV when you need it</string>
+    <string name="onboarding_legend_line">The app sorts each pod into one of these.</string>
+    <string name="onboarding_aid_limit">It can miss some early-stage pods, so check suspicious pods closely.</string>
+    <string name="onboarding_aid_verdict">One early-stage pod makes the result early stage</string>
+    <string name="onboarding_aid_confidence">Each pod comes with a confidence score</string>
 
     <!-- home (RN: strings.home) -->
     <!-- Home, redesign 2026-10-28 (the prototype; Kotlin only) -->
@@ -161,9 +180,9 @@
     <string name="learn_how_correct_title">You can correct it</string>
     <string name="learn_how_correct_body">Fix a wrong label before or after saving. Your corrections help train a better model.</string>
     <string name="learn_how_trust_title">How far to trust it</string>
-    <string name="learn_how_trust_body">In tests the model missed about %1$d in 10 early-stage pods. Treat it as a second pair of eyes, not a diagnosis.</string>
+    <string name="learn_how_trust_body">In validation the model missed about %1$d in 10 early-stage pods. Treat it as a second pair of eyes, not a diagnosis.</string>
     <string name="learn_see_accuracy">See accuracy details</string>
-    <string name="learn_threshold_link">Change the confidence threshold</string>
+    <string name="learn_sensitivity_link">Change detection sensitivity</string>
 
     <!-- about (RN: strings.about), used by onboarding too -->
     <string name="about_recall_a11y">%1$d of 10 early-stage pods found</string>
@@ -288,7 +307,7 @@
     <string name="scan_detail_analysis_time">Analysis time</string>
     <!-- RN: (ms / 1000).toFixed(1) -->
     <string name="scan_detail_analysis_seconds">%1$s s</string>
-    <string name="scan_detail_threshold">Confidence threshold</string>
+    <string name="scan_detail_thresholds">Confidence thresholds</string>
     <string name="scan_detail_location">Location</string>
     <string name="scan_detail_delete_scan">Delete scan</string>
     <string name="scan_detail_delete_title">Delete this scan?</string>
@@ -313,6 +332,19 @@
     <string name="camera_title">Scan a pod</string>
     <string name="camera_hint">Hold steady. Keep one pod inside the oval, in shade.</string>
     <string name="camera_private">Your photo is checked privately on this phone.</string>
+    <!-- Snap tips sheet on the camera (redesign 2026-10-31). Photography tips only, consistent with learn_photo_tip_*. -->
+    <string name="snap_tips_open">Snap tips</string>
+    <string name="snap_tips_title">Snap tips</string>
+    <string name="snap_tip_centered_lead">One pod, centered</string>
+    <string name="snap_tip_centered_line">Keep one whole pod inside the oval, from stalk to tip.</string>
+    <string name="snap_tip_shade_lead">Shade, not direct sun</string>
+    <string name="snap_tip_shade_line">Stand in shade or shade the pod with your body. Direct sun hides marks.</string>
+    <string name="snap_tip_close_lead">Get close and hold steady</string>
+    <string name="snap_tip_close_line">Move closer instead of zooming, and hold still until the photo is taken.</string>
+    <string name="snap_tip_lens_lead">Clean lens, clear view</string>
+    <string name="snap_tip_lens_line">Wipe sap and dust off the lens. Move leaves or other pods out of the way.</string>
+    <string name="snap_tips_more">More photo tips</string>
+    <string name="snap_tips_done">Got it</string>
     <string name="camera_gallery">Choose a photo from the gallery</string>
     <string name="camera_flash">Flash</string>
     <string name="camera_ask_title">Scan pods with your camera</string>
@@ -334,7 +366,7 @@
     <string name="live_looking">Looking for pods</string>
     <string name="live_preview_note">Live results are a preview. Capture to check the pod properly and save it.</string>
     <string name="live_capture_a11y">Capture this view and analyze it</string>
-    <string name="live_starting">Starting the live detector</string>
+    <string name="model_preparing">Preparing model…</string>
     <string name="live_load_failed_title">Live mode is not available</string>
     <string name="live_load_failed_body">The live detector could not start on this phone. Use Photo mode instead.</string>
     <string name="live_use_photo">Use Photo mode</string>
@@ -351,8 +383,11 @@
     <string name="preview_back_to_scan">Back to Scan</string>
 
     <!-- processing (RN: strings.processing) -->
-    <string name="processing_body">Analyzing on your device</string>
-    <string name="processing_detail">This takes a few seconds.</string>
+    <!-- Redesign 2026-10-31: the "Checking your pod" card. -->
+    <string name="processing_checking">Checking your pod…</string>
+    <string name="processing_checking_a11y">Checking your pod</string>
+    <string name="processing_on_phone">This runs on your phone. No internet needed.</string>
+    <string name="processing_first_run">The first check after opening the app takes a little longer.</string>
     <string name="processing_image_error_title">Photo could not be read</string>
     <string name="processing_image_error_body">The file may be damaged or in an unsupported format. Try another photo.</string>
     <string name="processing_model_error_title">The detector could not start</string>
@@ -381,17 +416,13 @@
     <string name="settings_model">On-device model</string>
     <string name="settings_model_detail">%1$s · Runs on this phone, works offline</string>
     <string name="settings_detection_title">Detection</string>
-    <string name="settings_threshold">Confidence threshold</string>
-    <string name="settings_threshold_value">%1$d%%</string>
-    <plurals name="settings_threshold_a11y">
-        <item quantity="one">%d percent</item>
-        <item quantity="other">%d percent</item>
-    </plurals>
-    <string name="settings_threshold_more">Finds more pods</string>
-    <string name="settings_threshold_fewer">Fewer false alarms</string>
-    <string name="settings_threshold_help">Pods scored below this are not shown. Lower it to catch more early-stage pods, at the cost of more false alarms.</string>
-    <string name="settings_threshold_applies">Applies to your next scan. Saved scans keep their results.</string>
-    <string name="settings_threshold_reset">Reset to %1$d%% (model default)</string>
+    <string name="settings_sensitivity">Detection sensitivity</string>
+    <string name="settings_sensitivity_strict">Strict</string>
+    <string name="settings_sensitivity_standard">Standard</string>
+    <string name="settings_sensitivity_sensitive">Sensitive</string>
+    <string name="settings_sensitivity_help">Strict shows fewer false alarms but can miss pods. Sensitive catches more early-stage pods, with more false alarms.</string>
+    <string name="settings_sensitivity_applies">Applies to your next scan. Saved scans keep their results.</string>
+    <string name="settings_sensitivity_reset">Reset to recommended</string>
     <string name="settings_location_title">Location</string>
     <string name="settings_gps">Add location to saved scans</string>
     <string name="settings_gps_off">Off by default. Locations stay on this phone.</string>
@@ -476,11 +507,14 @@
     <string name="about_labels">Labels</string>
     <string name="about_accuracy_title">How accurate is it?</string>
     <string name="about_recall_headline">Finds about %1$d in 10 early-stage pods</string>
-    <string name="about_recall_body">In tests on photos it had not seen, it found %1$s of early-stage pods. About %2$d in 10 were missed.</string>
-    <string name="about_metrics_note">mAP50 scores how well the boxes and labels match expert labels, from 0 to 100%. Higher is better.</string>
-    <string name="about_metric_test_map50">Overall score (mAP50, test photos)</string>
-    <string name="about_metric_val_map50">Overall score (mAP50, validation photos)</string>
-    <string name="about_metric_early_test_map50">Early-stage score (mAP50, test photos)</string>
+    <string name="about_recall_body">Measured on %1$s, it found %2$s of early-stage pods. About %3$d in 10 were missed.</string>
+    <string name="about_metrics_note">mAP50 scores how well the boxes and labels match expert labels, from 0 to 100%. mAP50-95 is the same score with stricter box matching. Higher is better.</string>
+    <string name="about_metrics_source">Measured on %1$s</string>
+    <string name="about_metrics_all">All classes</string>
+    <string name="about_metric_precision">Precision</string>
+    <string name="about_metric_recall">Recall</string>
+    <string name="about_metric_map50" translatable="false">mAP50</string>
+    <string name="about_metric_map50_95" translatable="false">mAP50-95</string>
     <string name="about_limitations_title">Limitations</string>
     <string name="about_limitation_aid">It is a screening aid. Check doubtful pods by eye.</string>
     <string name="about_limitation_misses">It misses about %1$d in 10 early-stage pods.</string>

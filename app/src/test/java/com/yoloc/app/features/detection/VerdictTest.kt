@@ -23,9 +23,17 @@ class VerdictTest {
     }
 
     @Test
-    fun flagsLowConfidenceOnlyWhenTheBestDetectionIsBelowTheThreshold() {
-        assertTrue(summarizeDetections(listOf(d(0, 0.39), d(1, 0.3)), 0.4).lowConfidence)
-        assertFalse(summarizeDetections(listOf(d(0, 0.39), d(1, 0.4)), 0.4).lowConfidence)
+    fun flagsUncertainWhenTheDetectionThatDecidesTheVerdictIsBelowTheLimit() {
+        // A weak infected pod decides, however sure the model is about the healthy one beside it.
+        assertTrue(summarizeDetections(listOf(d(0, 0.95), d(2, 0.45)), 0.6).lowConfidence)
+        // A strong infected pod decides, whatever else is in the photo.
+        assertFalse(summarizeDetections(listOf(d(0, 0.3), d(2, 0.6)), 0.6).lowConfidence)
+    }
+
+    @Test
+    fun theStrongestPodOfTheMostSevereClassIsTheOneThatDecides() {
+        assertFalse(summarizeDetections(listOf(d(2, 0.3), d(2, 0.8), d(0, 0.1)), 0.6).lowConfidence)
+        assertTrue(summarizeDetections(listOf(d(2, 0.3), d(2, 0.5), d(1, 0.99)), 0.6).lowConfidence)
     }
 
     @Test

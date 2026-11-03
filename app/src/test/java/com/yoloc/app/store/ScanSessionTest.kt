@@ -26,7 +26,7 @@ class ScanSessionTest {
 
     private fun result(photo: PendingPhoto) = ScanResult(
         photo = photo, imageWidth = 800, imageHeight = 600, detections = emptyList(), verdict = Verdict.NoPod,
-        totalPods = 0, lowConfidence = false, modelVersionId = "m", confThreshold = 0.25, iouThreshold = 0.45,
+        totalPods = 0, lowConfidence = false, modelVersionId = "m", confThresholds = mapOf("early_stage" to 0.25), iouThreshold = 0.45,
         inferenceMs = 1, totalMs = 2, analyzedAt = 0,
     )
 

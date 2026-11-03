@@ -11,7 +11,7 @@ import kotlinx.serialization.json.Json
 const val FINGERPRINT_KEY = "model_config_fingerprint"
 
 /**
- * Seeds model_versions, classes and model-derived settings from model.config.json (RN: seed.ts).
+ * Seeds model_versions, classes and model-derived settings from model_config.json (RN: seed.ts).
  * Runs on every start but only writes when the config changed since the last seed, so a swapped
  * model is picked up without a migration. Returns true if it wrote anything.
  */
@@ -27,7 +27,7 @@ suspend fun seedFromModelConfig(
 
     // Fail before writing anything if the config names a class we have no metadata for.
     val classes = config.classes.mapIndexed { id, key ->
-        val info = catalog[key] ?: error("Class \"$key\" in model.config.json is missing from classCatalog")
+        val info = catalog[key] ?: error("Class \"$key\" in model_config.json is missing from classCatalog")
         ClassEntity(
             id = id,
             key = key,
@@ -49,17 +49,15 @@ suspend fun seedFromModelConfig(
             fileName = config.file,
             inputSize = config.inputSize,
             numClasses = config.classes.size,
-            valMap50 = config.metrics.valMap50,
-            testMap50 = config.metrics.testMap50,
+            valMap50 = config.metrics.validation?.all?.map50,
+            testMap50 = config.metrics.test?.all?.map50,
             earlyStageRecall = config.metrics.earlyStageRecall,
             installedAt = t,
         )
         // Class ids are model output indices and are referenced by saved detections, so classes
         // are upserted by id, never deleted. Reordering classes needs a retraining-aware migration.
         dao.upsertClasses(classes)
-        // Thresholds are user-adjustable, so only fill them when missing. The active model always
-        // follows the config.
-        dao.insertIfMissing(SettingEntity("conf_threshold", config.confThreshold.toJsString(), t))
+        // Filled only when missing; the active model always follows the config.
         dao.insertIfMissing(SettingEntity("iou_threshold", config.iouThreshold.toJsString(), t))
         dao.upsertSetting(SettingEntity("active_model_id", config.id, t))
         dao.upsertSetting(SettingEntity(FINGERPRINT_KEY, fingerprint, t))

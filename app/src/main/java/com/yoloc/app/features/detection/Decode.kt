@@ -10,13 +10,16 @@ data class DecodeResult(val candidates: List<Candidate>, val boxUnits: BoxUnits)
 
 /**
  * Decodes raw YOLO output (center-x, center-y, w, h, then one score per class for each anchor)
- * into corner boxes in input pixels, keeping each anchor's best class if its score passes
- * `confThreshold` (Ultralytics predict, multi_label=False).
+ * into corner boxes in input pixels, keeping each anchor's best class if its score passes that
+ * class's threshold (Ultralytics predict, multi_label=False).
  *
  * TFLite exports may emit boxes normalized to 0–1 or in pixels. The units are detected from the
  * data: anchor centers span the whole input, so in pixel units their maximum is far above 1.
  */
-fun decodeOutput(data: FloatArray, spec: ModelSpec, confThreshold: Double): DecodeResult {
+fun decodeOutput(data: FloatArray, spec: ModelSpec, confThresholds: DoubleArray): DecodeResult {
+    require(confThresholds.size == spec.numClasses) {
+        "Got ${confThresholds.size} thresholds for ${spec.numClasses} classes"
+    }
     val anchors = spec.numAnchors
     val classes = spec.numClasses
     val features = 4 + classes
@@ -47,7 +50,7 @@ fun decodeOutput(data: FloatArray, spec: ModelSpec, confThreshold: Double): Deco
                 classId = c
             }
         }
-        if (classId < 0 || best <= confThreshold) continue
+        if (classId < 0 || best <= confThresholds[classId]) continue
         val cx = at(0, i) * k
         val cy = at(1, i) * k
         val w = at(2, i) * k

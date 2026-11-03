@@ -18,15 +18,17 @@ data class VerdictInput(val severity: Int, val confidence: Double)
 data class VerdictSummary(
     val verdict: Verdict,
     val totalPods: Int,
-    /** True when the best detection is below the low-confidence threshold. */
+    /** True when the detection that decides the verdict scores below the `uncertainBelow` limit. */
     val lowConfidence: Boolean,
 )
 
 /**
- * The verdict is the most severe class present. No detections is NoPod, never Healthy.
+ * The verdict is the most severe class present. No detections is NoPod, never Healthy. The
+ * detection that decides it is the highest-scoring one of that severity, so a weak infected pod
+ * is uncertain however sure the model is about a healthy pod beside it.
  * Detections are assumed already filtered by the confidence threshold.
  */
-fun summarizeDetections(detections: List<VerdictInput>, lowConfidenceThreshold: Double): VerdictSummary {
+fun summarizeDetections(detections: List<VerdictInput>, uncertainBelow: Double): VerdictSummary {
     if (detections.isEmpty()) return VerdictSummary(Verdict.NoPod, 0, false)
 
     val verdict = when (val maxSeverity = detections.maxOf { it.severity }) {
@@ -35,6 +37,7 @@ fun summarizeDetections(detections: List<VerdictInput>, lowConfidenceThreshold: 
         2 -> Verdict.Infected
         else -> error("Unknown severity $maxSeverity")
     }
-    val bestConfidence = detections.maxOf { it.confidence }
-    return VerdictSummary(verdict, detections.size, bestConfidence < lowConfidenceThreshold)
+    val maxSeverity = detections.maxOf { it.severity }
+    val deciding = detections.filter { it.severity == maxSeverity }.maxOf { it.confidence }
+    return VerdictSummary(verdict, detections.size, deciding < uncertainBelow)
 }

@@ -45,6 +45,7 @@ import com.yoloc.app.components.AppTopBar
 import com.yoloc.app.db.repositories.ThemeSetting
 import com.yoloc.app.components.IconName
 import com.yoloc.app.components.TabBarItem
+import com.yoloc.app.features.learn.LearnTopic.Photos as PhotoTopic
 import com.yoloc.app.features.scans.DateRange
 import com.yoloc.app.screens.appContainer
 import com.yoloc.app.screens.about.AboutScreen
@@ -180,6 +181,7 @@ fun YoloCNavHost(onboardingDone: Boolean) {
                         onClose = { entry.ifShown { nav.closeCamera() } },
                         onOpenPreview = { nav.navigate(Preview) },
                         onLive = { entry.ifShown { nav.switchToLive() } },
+                        onOpenPhotoTips = { entry.ifShown { nav.navigate(LearnTopic(PhotoTopic.key)) } },
                     )
                 }
                 composable<Live> { entry ->
@@ -188,6 +190,7 @@ fun YoloCNavHost(onboardingDone: Boolean) {
                         onPhotoMode = { entry.ifShown { nav.switchToPhoto() } },
                         onBack = { entry.ifShown { nav.closeCamera() } },
                         onOpenPreview = { nav.liveToPreview() },
+                        onOpenPhotoTips = { entry.ifShown { nav.navigate(LearnTopic(PhotoTopic.key)) } },
                     )
                 }
                 composable<Preview> { entry ->
@@ -200,16 +203,15 @@ fun YoloCNavHost(onboardingDone: Boolean) {
                 }
                 composable<Processing> { entry ->
                     // Back while analyzing returns to Preview; leaving clears the ViewModel, which cancels the run.
+                    // ProcessingScreen draws its own header (floating over the photo while it runs).
                     val back = { entry.ifShown { nav.navigateUp() } }
-                    StackScreen(stringResource(R.string.processing_title), onBack = back) {
-                        ProcessingScreen(
-                            // Fired once by the Done state, which can land before the screen is
-                            // RESUMED (back from the background, or during the fade in): never dropped.
-                            onDone = { nav.processingToResult() },
-                            onBack = back,
-                            onBackToCamera = { entry.ifShown { nav.dismissToCamera() } },
-                        )
-                    }
+                    ProcessingScreen(
+                        // Fired once by the Done state, which can land before the screen is
+                        // RESUMED (back from the background, or during the fade in): never dropped.
+                        onDone = { nav.processingToResult() },
+                        onBack = back,
+                        onBackToCamera = { entry.ifShown { nav.dismissToCamera() } },
+                    )
                 }
                 composable<Result> { entry ->
                     val vm: ResultViewModel = viewModel(factory = ResultViewModel.Factory)

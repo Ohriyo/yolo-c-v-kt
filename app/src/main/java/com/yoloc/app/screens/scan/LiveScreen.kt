@@ -56,6 +56,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
+import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.yoloc.app.R
@@ -111,6 +112,7 @@ fun LiveScreen(
     onPhotoMode: () -> Unit,
     onBack: () -> Unit,
     onOpenPreview: () -> Unit,
+    onOpenPhotoTips: () -> Unit,
     vm: LiveViewModel = viewModel(factory = LiveViewModel.Factory),
 ) {
     val s by vm.state.collectAsStateWithLifecycle()
@@ -121,6 +123,10 @@ fun LiveScreen(
     LifecycleResumeEffect(Unit) {
         hasPermission = hasCameraPermission(context)
         onPauseOrDispose {}
+    }
+    LifecycleStartEffect(vm) {
+        vm.setStarted(true)
+        onStopOrDispose { vm.setStarted(false) }
     }
     var noCamera by remember { mutableStateOf(false) }
 
@@ -182,6 +188,10 @@ fun LiveScreen(
         vm.startCapture()?.let { capture.takePhotoTo(it, context, vm::onCaptured, vm::onCaptureFailed) }
     }
 
+    // Redesign 2026-10-31: Snap tips. Detection pauses while the sheet is open; the camera keeps running.
+    var tipsOpen by rememberSnapTipsOpen(autoOpen = true)
+    LaunchedEffect(tipsOpen) { vm.setPaused(tipsOpen) }
+
     var view by remember { mutableStateOf(IntSize.Zero) }
     Box(Modifier.fillMaxSize().background(cam.screen)) {
         BoundCamera(
@@ -218,7 +228,10 @@ fun LiveScreen(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     RoundButton(IconName.X, stringResource(R.string.camera_close), onClose)
-                    ModeSwitch(CameraMode.Live) { onPhotoMode() }
+                    Row(horizontalArrangement = Arrangement.spacedBy(Spacing.xs), verticalAlignment = Alignment.CenterVertically) {
+                        RoundButton(IconName.Info, stringResource(R.string.snap_tips_open)) { tipsOpen = true }
+                        ModeSwitch(CameraMode.Live) { onPhotoMode() }
+                    }
                 }
                 Column(
                     Modifier.fillMaxWidth().padding(Spacing.md),
@@ -244,6 +257,14 @@ fun LiveScreen(
             s.stats?.let { BenchHud(it, s.backend, vm::switchBackend) }
         }
     }
+    SnapTipsSheet(
+        tipsOpen,
+        onClose = { tipsOpen = false },
+        onMorePhotoTips = {
+            tipsOpen = false
+            onOpenPhotoTips()
+        },
+    )
 }
 
 /** The frame as the model should see it: rotated upright, as RN's enablePhysicalBufferRotation. */
@@ -287,14 +308,14 @@ private fun LiveBox(box: ViewBox, status: StatusKey, label: String, confidence: 
 /** The live verdict: most severe class in view, with counts, never color alone. */
 @Composable
 private fun LiveVerdict(ready: Boolean, detections: List<Detection>, classes: Map<Int, DetectionClass>?) {
-    if (!ready) return Pill(stringResource(R.string.live_starting), busy = true)
+    if (!ready) return Pill(stringResource(R.string.model_preparing), busy = true)
     if (detections.isEmpty() || classes == null) return Pill(stringResource(R.string.live_looking), icon = IconName.Search)
     val config = appContainer().modelConfig
     val pods = detections.map { d ->
         val c = classes[d.classId]
         Triple(c?.severity ?: 0, d.confidence, StatusKey.fromToken(c?.colorToken))
     }
-    val summary = summarizeDetections(pods.map { VerdictInput(it.first, it.second) }, config.lowConfidenceThreshold)
+    val summary = summarizeDetections(pods.map { VerdictInput(it.first, it.second) }, config.uncertainBelow)
     val top = pods.maxOf { it.first }
     val atTop = pods.filter { it.first == top }
     val status = atTop.first().third

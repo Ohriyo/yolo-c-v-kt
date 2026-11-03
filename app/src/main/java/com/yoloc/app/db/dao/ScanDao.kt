@@ -11,7 +11,7 @@ import com.yoloc.app.db.ScanEntity
 
 /** Scan columns plus the plot name (RN: SCAN_COLUMNS in scanRepository.ts). */
 const val SCAN_COLUMNS = """s.id, s.plot_id, p.name AS plot_name, s.model_version_id, s.image_path,
-  s.thumbnail_path, s.image_width, s.image_height, s.source, s.conf_threshold, s.iou_threshold,
+  s.thumbnail_path, s.image_width, s.image_height, s.source, s.conf_thresholds, s.iou_threshold,
   s.inference_ms, s.total_pods, s.verdict, s.low_confidence, s.latitude, s.longitude, s.notes,
   s.created_at"""
 
@@ -25,7 +25,7 @@ data class ScanRow(
     @ColumnInfo(name = "image_width") val imageWidth: Int,
     @ColumnInfo(name = "image_height") val imageHeight: Int,
     val source: String,
-    @ColumnInfo(name = "conf_threshold") val confThreshold: Double,
+    @ColumnInfo(name = "conf_thresholds") val confThresholds: String,
     @ColumnInfo(name = "iou_threshold") val iouThreshold: Double,
     @ColumnInfo(name = "inference_ms") val inferenceMs: Int?,
     @ColumnInfo(name = "total_pods") val totalPods: Int,
@@ -120,8 +120,8 @@ interface ScanDao {
     )
     suspend fun effectiveSeverities(scanId: String): List<SeverityConfidenceRow>
 
-    @Query("UPDATE scans SET verdict = :verdict WHERE id = :scanId")
-    suspend fun setVerdict(scanId: String, verdict: String)
+    @Query("UPDATE scans SET verdict = :verdict, low_confidence = :lowConfidence WHERE id = :scanId")
+    suspend fun setVerdict(scanId: String, verdict: String, lowConfidence: Int)
 
     @Query(
         """SELECT verdict, COUNT(*) AS n FROM scans

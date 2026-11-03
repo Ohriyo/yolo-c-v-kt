@@ -10,6 +10,9 @@ import com.yoloc.app.db.dao.ScanRow
 import com.yoloc.app.features.detection.Verdict
 import com.yoloc.app.features.detection.VerdictInput
 import com.yoloc.app.features.detection.summarizeDetections
+import kotlinx.serialization.builtins.MapSerializer
+import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.json.Json
 import com.yoloc.app.util.isoString
 import com.yoloc.app.util.toJsString
 import com.yoloc.app.util.uuid
@@ -46,7 +49,8 @@ data class NewScan(
     val imageWidth: Int,
     val imageHeight: Int,
     val source: ScanSource,
-    val confThreshold: Double,
+    /** The thresholds this scan ran with, by class key. */
+    val confThresholds: Map<String, Double>,
     val iouThreshold: Double,
     val inferenceMs: Int? = null,
     val latitude: Double? = null,
@@ -66,7 +70,8 @@ data class ScanSummary(
     val imageWidth: Int,
     val imageHeight: Int,
     val source: ScanSource,
-    val confThreshold: Double,
+    /** The thresholds this scan ran with, by class key. */
+    val confThresholds: Map<String, Double>,
     val iouThreshold: Double,
     val inferenceMs: Int?,
     val totalPods: Int,
@@ -148,7 +153,7 @@ class ScanRepository(private val database: AppDatabaseHolder) {
      * low_confidence from the detections, so stored summaries always match the stored pods.
      * Writes nothing if any part fails. Image files are handled by features/scans/SaveScan.
      */
-    suspend fun createScan(input: NewScan, lowConfidenceThreshold: Double): String {
+    suspend fun createScan(input: NewScan, uncertainBelow: Double): String {
         validateNewScan(input)
         val id = input.id ?: uuid()
         val createdAt = input.createdAt ?: System.currentTimeMillis()
@@ -165,7 +170,7 @@ class ScanRepository(private val database: AppDatabaseHolder) {
                     }
                     VerdictInput(severities.getValue(d.correctedClassId ?: d.classId), d.confidence)
                 },
-                lowConfidenceThreshold,
+                uncertainBelow,
             )
 
             dao.insertScan(
@@ -178,7 +183,7 @@ class ScanRepository(private val database: AppDatabaseHolder) {
                     imageWidth = input.imageWidth,
                     imageHeight = input.imageHeight,
                     source = input.source.key,
-                    confThreshold = input.confThreshold,
+                    confThresholds = encodeThresholds(input.confThresholds),
                     iouThreshold = input.iouThreshold,
                     inferenceMs = input.inferenceMs,
                     totalPods = summary.totalPods,
@@ -274,9 +279,15 @@ class ScanRepository(private val database: AppDatabaseHolder) {
 
     /**
      * Records the user's label for a detection (kept for future training data) and recomputes the
-     * scan verdict from the corrected labels. Choosing the model's own class clears the correction.
+     * scan verdict and uncertain flag from the corrected labels, since a new label can change which
+     * pod decides. Choosing the model's own class clears the correction.
      */
-    suspend fun correctDetection(detectionId: String, classId: Int, now: Long = System.currentTimeMillis()) {
+    suspend fun correctDetection(
+        detectionId: String,
+        classId: Int,
+        uncertainBelow: Double,
+        now: Long = System.currentTimeMillis(),
+    ) {
         val db = database.get()
         val dao = db.scanDao()
         db.withWriteTransaction {
@@ -284,8 +295,8 @@ class ScanRepository(private val database: AppDatabaseHolder) {
             val cleared = classId == detection.classId
             dao.setCorrection(detectionId, if (cleared) null else classId, if (cleared) null else now)
             val effective = dao.effectiveSeverities(detection.scanId).map { VerdictInput(it.severity, it.confidence) }
-            // Confidence is unchanged by a correction, so only the verdict can move.
-            dao.setVerdict(detection.scanId, summarizeDetections(effective, 0.0).verdict.key)
+            val summary = summarizeDetections(effective, uncertainBelow)
+            dao.setVerdict(detection.scanId, summary.verdict.key, if (summary.lowConfidence) 1 else 0)
         }
     }
 
@@ -418,6 +429,14 @@ private fun rawQuery(sql: String, args: List<Any>) = RoomRawQuery(sql) { stmt ->
     }
 }
 
+private val thresholdsSerializer = MapSerializer(String.serializer(), Double.serializer())
+
+private fun encodeThresholds(thresholds: Map<String, Double>) = Json.encodeToString(thresholdsSerializer, thresholds)
+
+/** A row that cannot be read shows no thresholds rather than breaking the whole list. */
+private fun decodeThresholds(json: String): Map<String, Double> =
+    runCatching { Json.decodeFromString(thresholdsSerializer, json) }.getOrDefault(emptyMap())
+
 private fun ScanRow.toSummary() = ScanSummary(
     id = id,
     plotId = plotId,
@@ -428,7 +447,7 @@ private fun ScanRow.toSummary() = ScanSummary(
     imageWidth = imageWidth,
     imageHeight = imageHeight,
     source = ScanSource.fromKey(source),
-    confThreshold = confThreshold,
+    confThresholds = decodeThresholds(confThresholds),
     iouThreshold = iouThreshold,
     inferenceMs = inferenceMs,
     totalPods = totalPods,

@@ -43,13 +43,14 @@ suspend fun seedFakeScans(
             plotIds = plotIds + null,
             imageWidth = image.width,
             imageHeight = image.height,
-            confThreshold = current.confThreshold,
+            minConfidence = config.confThresholdsFor(current.sensitivity).min(),
+            confThresholds = config.confThresholdsByClass(current.sensitivity),
             iouThreshold = current.iouThreshold,
             seed = now,
         ),
         image.file,
     )
-    for (scan in fakes) saveScan(scans, files, scan, config.lowConfidenceThreshold)
+    for (scan in fakes) saveScan(scans, files, scan, config.uncertainBelow)
     return fakes.size
 }
 

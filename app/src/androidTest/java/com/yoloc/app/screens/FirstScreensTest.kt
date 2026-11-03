@@ -81,7 +81,7 @@ class FirstScreensTest {
     private fun text(@StringRes id: Int, vararg args: Any) = TestDb.context.getString(id, *args)
 
     private fun onboarding(): Pair<OnboardingViewModel, SettingsStore> {
-        val store = SettingsStore(SettingsRepository(holder), config, scope)
+        val store = SettingsStore(SettingsRepository(holder), scope)
         return OnboardingViewModel(store, config) to store
     }
 
@@ -92,6 +92,8 @@ class FirstScreensTest {
         compose.setContent { YoloCTheme { WelcomeScreen(onToPrimer = { toPrimer++ }, vm = vm) } }
 
         compose.onNodeWithText(text(R.string.onboarding_scan_title)).assertIsDisplayed()
+        // Redesign 2026-10-31: neutral chips over the photo, read as text.
+        compose.onNodeWithContentDescription(text(R.string.onboarding_chip_on_device)).assertIsDisplayed()
         compose.onNodeWithContentDescription(text(R.string.onboarding_next)).performClick()
         compose.onNodeWithText(text(R.string.onboarding_offline_title)).assertIsDisplayed()
         // Android back steps back a slide instead of leaving.
@@ -103,8 +105,11 @@ class FirstScreensTest {
         // The tips slide shows the first four photo tips.
         compose.onNodeWithText(text(R.string.learn_photo_tip_fill)).assertIsDisplayed()
         compose.onNodeWithContentDescription(text(R.string.onboarding_next)).performClick()
-        // The aid slide counts the model's misses from the config's recall (0.596: 4 in 10 missed).
-        compose.onNodeWithText(text(R.string.onboarding_aid_detail, 4)).assertIsDisplayed()
+        // The aid slide counts the model's misses from the config's recall (0.608: 4 in 10 missed).
+        compose.onNodeWithText(text(R.string.onboarding_aid_detail, 4)).assertExists()
+        // The three classes as a legend under the text, with the line saying each pod gets one.
+        compose.onNodeWithText(text(R.string.onboarding_legend_line)).assertExists()
+        compose.onNodeWithContentDescription(text(R.string.status_early)).assertExists()
         // No Skip on the last slide; Get started goes to the primer.
         assertTrue(compose.onAllNodesWithContentDescription(text(R.string.onboarding_skip)).fetchSemanticsNodes().isEmpty())
         compose.onNodeWithContentDescription(text(R.string.onboarding_get_started)).performClick()
@@ -192,13 +197,13 @@ class FirstScreensTest {
                         imageWidth = 800,
                         imageHeight = 600,
                         source = ScanSource.Camera,
-                        confThreshold = 0.25,
+                        confThresholds = mapOf("early_stage" to 0.25),
                         iouThreshold = 0.45,
                         notes = "Tree $i",
                         createdAt = now - i * 60_000L,
                         detections = listOf(NewDetection(cls, 0.9, 0.1, 0.1, 0.2, 0.2)),
                     ),
-                    config.lowConfidenceThreshold,
+                    config.uncertainBelow,
                 )
             }
         }
@@ -269,7 +274,7 @@ class FirstScreensTest {
         }
         compose.onNodeWithText(text(R.string.learn_how_trust_body, 4)).performScrollTo().assertIsDisplayed()
         compose.onNodeWithContentDescription(text(R.string.learn_see_accuracy)).performScrollTo().performClick()
-        compose.onNodeWithContentDescription(text(R.string.learn_threshold_link)).performScrollTo().performClick()
+        compose.onNodeWithContentDescription(text(R.string.learn_sensitivity_link)).performScrollTo().performClick()
         assertEquals(1, about)
         assertEquals(1, settings)
     }

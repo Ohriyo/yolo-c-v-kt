@@ -16,11 +16,11 @@ import com.yoloc.app.features.detection.LoadedModel
 import com.yoloc.app.features.detection.ModelConfig
 import com.yoloc.app.features.detection.ModelLoader
 import com.yoloc.app.features.detection.ModelSpec
-import com.yoloc.app.features.detection.Thresholds
 import com.yoloc.app.features.detection.VerdictInput
 import com.yoloc.app.features.detection.VerdictSummary
 import com.yoloc.app.features.detection.classCatalog
 import com.yoloc.app.features.detection.compareToReference
+import com.yoloc.app.features.detection.postprocessByClass
 import com.yoloc.app.features.detection.runDetection
 import com.yoloc.app.features.detection.summarizeDetections
 import com.yoloc.app.features.dev.GoldenReference
@@ -34,22 +34,23 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 import kotlin.math.roundToInt
 
 /** Golden result against one reference: a report, or why there is none. */
 sealed interface GoldenCheck {
-    data object Pending : GoldenCheck
     data object Missing : GoldenCheck
     data class Checked(val report: GoldenReport) : GoldenCheck
 }
 
 /**
- * Where the Model test runs inference. Cpu (default options) is the parity run; Cpu4Threads is the
- * guide's separate setNumThreads(4) experiment; Gpu is the live-mode backend (CompiledModel).
+ * Where the Model test runs inference. Cpu (XNNPACK off, 4 threads) is the parity run; CpuXnnpack
+ * keeps LiteRT's Interpreter defaults (XNNPACK on), the separate experiment that explains the
+ * earlier 2.2 s; Gpu is the live-mode backend (CompiledModel).
  */
 enum class DevBackend(val label: String) {
-    Cpu("CPU (default)"),
-    Cpu4Threads("CPU, 4 threads"),
+    Cpu("CPU (parity)"),
+    CpuXnnpack("CPU, XNNPACK (LiteRT defaults)"),
     Gpu("GPU"),
 }
 
@@ -91,7 +92,8 @@ class DevInferenceViewModel(
     /** Severity by class key, from the class catalog. */
     private val severities: Map<String, Int>,
 ) : ViewModel() {
-    private val thresholds = Thresholds(config.confThreshold, config.iouThreshold)
+    /** The reference files were generated at one threshold, so this screen runs at it too. */
+    private val thresholds = DoubleArray(config.classes.size) { GoldenSamples.REFERENCE_CONF }
 
     private val _state = MutableStateFlow(DevInferenceState())
     val state: StateFlow<DevInferenceState> = _state.asStateFlow()
@@ -127,7 +129,7 @@ class DevInferenceViewModel(
             try {
                 val loadMs = when (backend) {
                     DevBackend.Cpu -> loader.loadCpu().loadMs
-                    DevBackend.Cpu4Threads -> loader.loadCpu(numThreads = 4).loadMs
+                    DevBackend.CpuXnnpack -> loader.loadCpu(liteRtDefaults = true).loadMs
                     DevBackend.Gpu -> loader.loadGpu().loadMs
                 }
                 Log.i(TAG, "backend ${backend.label} loadMs=$loadMs")
@@ -160,7 +162,7 @@ class DevInferenceViewModel(
     fun runBenchmark() = guarded { runner, spec ->
         val file = GoldenSamples.FILES[_state.value.selected]
         val runs = (1..BENCHMARK_RUNS).map {
-            runDetection(runner, spec, samples.file(file), config.letterboxPadValue, thresholds)
+            detect(runner, spec, samples.file(file))
         }
         val inference = runs.map { it.timings.inferenceMs }
         val total = runs.map { it.timings.totalMs }
@@ -172,19 +174,24 @@ class DevInferenceViewModel(
 
     private suspend fun currentRunner(): LiveRunner = when (_state.value.backend) {
         DevBackend.Cpu -> loader.loadCpu()
-        DevBackend.Cpu4Threads -> loader.loadCpu(numThreads = 4)
+        DevBackend.CpuXnnpack -> loader.loadCpu(liteRtDefaults = true)
         DevBackend.Gpu -> loader.loadGpu().runner
     }
 
+    private suspend fun detect(runner: LiveRunner, spec: ModelSpec, photo: File): DetectionRun =
+        runDetection(runner, spec, photo, config.letterboxPad) { output, letterbox ->
+            postprocessByClass(output, spec, letterbox, thresholds, config.iouThreshold)
+        }
+
     private suspend fun runSample(runner: LiveRunner, spec: ModelSpec, file: String): SampleRun {
         val photoFile = withContext(Dispatchers.IO) { samples.file(file) }
-        val run = runDetection(runner, spec, photoFile, config.letterboxPadValue, thresholds)
+        val run = detect(runner, spec, photoFile)
         val photo = withContext(Dispatchers.IO) {
             BitmapFactory.decodeFile(photoFile.path) ?: error("Could not decode $file")
         }
         val verdict = summarizeDetections(
             run.detections.map { VerdictInput(severities[className(it.classId)] ?: 0, it.confidence) },
-            config.lowConfidenceThreshold,
+            config.uncertainBelow,
         )
         val sampleRun = SampleRun(
             file = file,
@@ -207,9 +214,10 @@ class DevInferenceViewModel(
 
     private suspend fun check(source: ReferenceSource, file: String, run: DetectionRun): GoldenCheck =
         when (val ref = withContext(Dispatchers.IO) { samples.reference(source, file) }) {
-            GoldenReference.Pending -> GoldenCheck.Pending
             GoldenReference.Missing -> GoldenCheck.Missing
-            is GoldenReference.Found -> GoldenCheck.Checked(compareToReference(run.detections, ref.image.detections))
+            is GoldenReference.Found -> GoldenCheck.Checked(
+                compareToReference(run.detections, ref.image.detections.map { it.toDetection() }),
+            )
         }
 
     private fun guarded(task: suspend (LiveRunner, ModelSpec) -> Unit) {
@@ -254,7 +262,6 @@ private fun median(values: List<Double>) = values.sorted()[values.size / 2]
 
 /** "PASS: 3/3 matched, worst IoU 0.995, 0 extra", as RN's GoldenLine. */
 fun GoldenCheck.summary(): String = when (this) {
-    GoldenCheck.Pending -> "reference not added yet"
     GoldenCheck.Missing -> "no reference for this image"
     is GoldenCheck.Checked -> {
         val worst = report.pairs.minOfOrNull { it.iou } ?: 1.0

@@ -378,6 +378,8 @@ These colours are for pod condition only. `StatusColors` gives each status a `st
 - **Inverse Ink** (`inverse-ink`): the snackbar surface, the swipe-to-delete reveal, and the disc of destructive settings rows.
 - **Disabled** (`disabled-surface`, `disabled-ink`): filled buttons when they are disabled. These are exempt from contrast checks.
 - **Dark theme** (`*-dark` keys): `ground-dark` ground, `card-dark` cards and bars, `press-dark` pressed, `leaf-dark` selected, `hairline-dark` borders, `ink-dark`, `ink-muted-dark` and `ink-faint-dark` text, `outline-dark` control edges, `edge-dark` secondary button border, and `inverse-dark` for the snackbar. Status tints have `-dark` counterparts.
+- **Processing** (`photoScrim`, `scanMark`): the scrim over the blurred photo (`ground` at 70%, `forest-ink` at 70% in dark) and the "Checking your pod" mark's pod, leaves, scan line and glow. In light the mark keeps yoloc_mark's own colours (Moss pod, Sage leaves) with a Forest line and a Sage glow; in dark the pod is Cream and the line Mist, as on the logo's dark tile, because Moss is 2.2:1 on the dark card. Decorative, so not in `contrastPairs()`.
+- **Decorative leaves** (`decorLeaf`, `decorLeafSoft`): the launch intro's leaves only. Sage and Mist at a low alpha, lower in dark, so they never compete with the mark or text. Not text or icons, so not in `contrastPairs()`.
 - **Camera Night** (`night`, `lens`, `lens-fill`, `lens-muted`): `CameraColors`, which are the same in both themes. `night` is the camera screen, and also the text on dark-theme primary buttons and on the white `onDark` button.
 
 ### Named Rules
@@ -452,6 +454,7 @@ There are three radii and no others (`Radii`):
 - **8dp** (`rounded.sm`): buttons, inputs, chips, the tab pills, box labels, thumbnails, the gallery button and the flash toggle.
 - **16dp** (`rounded.md`): cards, the hero, photos (`ImageWithBoxes`, Guide covers use 8dp inside a 16dp card), settings groups, sheets (top corners) and the History range options.
 - **full** (`rounded.full`): the shutter, round icon buttons such as the theme toggle, status dots, settings icon discs, the sheet handle and pill text fields.
+- **Pebble** (`Pebble`, redesign 2026-10-31): the one asymmetric shape, 32dp corners with a 96dp tail at the bottom end, for a decorative photo shown as a framed print (onboarding). It takes a 4dp `printBorder` and the card shadow. Not for cards, controls or result photos.
 
 Borders are 1dp. Settings group dividers and thumbnail edges use a true device hairline. Bounding boxes use a 3dp status stroke inside a 1dp white halo, and 5dp when selected (`BoxStroke`). Dashed lines appear twice: the camera's oval guide (1.5dp, 6/5dp dashes, white at 85%) and the Guide's draft-note frame (1dp, 3/3 dashes, hairline).
 
@@ -509,16 +512,47 @@ Buttons are solid and plain: one clear tap target per intent.
 
 ### Camera (signature)
 The camera is the one dark surface. The preview fills the screen on `night` and has no tab bar.
-- **Top row:** over the top scrim, a 48dp close X, the Title "Scan a pod" (up to two lines, with a text halo) and the Photo/Live mode switch (a white selected segment on a `lens` track).
+- **Top row:** over the top scrim, a 48dp close X on the left, then a 48dp ⓘ Snap tips button and the Photo/Live mode switch (a white selected segment on a `lens` track) on the right. The Title "Scan a pod" (with a text halo) has its own line under them, aligned with the X, so it is never cut short (redesign 2026-10-31; it sat between the X and the switch before the ⓘ button). TalkBack reads the title first. Live mode has no title and uses the same buttons on 8dp `lens` squares.
+- **Snap tips:** the standard bottom sheet, with TalkBack starting on the title (the handle is drawn as decoration, not M3's focusable one). Four rows: a 64dp `leaf` tile with 16dp corners holding a pictogram drawn from `yoloc_mark` (in the `scanMark` pod and leaf colours) and Feather icons in `icon` colour (a dashed oval, an umbrella, the maximize brackets, a droplet), then a Body Strong lead and a muted Body line. Each row reads as "lead. line."; the pictograms are decorative. Then a "More photo tips" arrow link to the Guide's photo topic and a full-width Lg primary "Got it". It opens by itself once after install and has no motion of its own beyond the sheet's.
 - **Guide:** a dashed oval, 62% of the width with a 0.62 aspect ratio, in white at 85%. It is decorative, and the hint below says the same in words.
 - **Controls:** over the bottom scrim, a Body Strong hint, then a 52dp gallery thumbnail (8dp corners, `lens-fill`, a white 32% edge), the shutter and a 48dp flash toggle (8dp corners, white 10% fill when off, solid white with a `lens` icon when on, and zap or zap-off by shape). Under them is a Caption line saying the photo is checked privately on the phone.
 - **Shutter:** 76dp, a 4dp `mist` ring, a 4dp gap and a white core. The core scales to 0.86 in 100ms on press, and snaps instead of animating under reduce motion. A black flash fades over 200ms when the photo is taken, and is skipped under reduce motion.
 
+### Processing (signature)
+While a photo is checked (`CheckingPod.kt`), the photo fills the screen, blurred: `Modifier.blur` (32dp) on Android 12+, and before 12 a copy about 24 px wide, box-blurred and stretched with bilinear filtering. `photoScrim` sits over it. After 150ms, so a fast result never flashes it, a card (24dp padding, at most 400dp wide, centred) holds a 120dp `yoloc_mark`, "Checking your pod…" in Verdict type, and a muted Body line, "This runs on your phone. No internet needed.", which crossfades (`BASE`) to "The first check after opening the app takes a little longer." after 3s. The back arrow stays in the header position but floats over the photo as a round 48dp secondary button (`StackScreen(floating = true)`), with no title. The title is a polite live region read as "Checking your pod"; the mark and the photo are decorative.
+
+### Launch (signature)
+The system splash (core-splashscreen, `Theme.Yoloc.Starting`) shows the launcher foreground on `ground` (`window_background`, `ground-dark` in dark). In dark it uses `ic_splash_dark`, the same mark in the logo's dark-tile colours (Cream pod, Sage leaves), because the Forest pod is 1.2:1 on the dark ground. It stays only while the startup settings load. On a cold start from the launcher the intro follows on the same ground (the phone's light or dark, like the splash), with "YOLO-C" and "Your field companion" under the mark; see Motion. TalkBack reads it as one node with a "Skip the intro" action.
+
+### Onboarding panels (signature)
+Redesign 2026-10-31 (`features/onboarding/Decor.kt`, `Panel.kt`). Rules other screens can reuse:
+- **Ground:** a vertical gradient, `onboarding.groundTop` to `groundBottom` (`leaf` to `ground`; Deep Forest Ink to `ground-dark` in dark, never pure black). Text sits on it, so Contrast.kt checks text, muted text and ghost buttons at both ends and over the blob.
+- **Blob:** one large closed shape behind the photo, drawn as a smooth Catmull-Rom curve through eight radii (not a circle), `onboarding.blob` (Mist at 25%, Moss at 20% in dark), its centre near a panel edge so it runs off-screen. Three shapes taken in turn per step; between steps the radii, centre and turn blend over `ONBOARDING_MORPH`.
+- **Leaves:** two or three `yoloc_leaf` images partly off-screen at the corners in `decorLeaf` / `decorLeafSoft`, turned differently per step, swaying ±2.5° (`ONBOARDING_SWAY`). One small leaf may peek from behind the photo.
+- **Dot grid:** 2dp dots 16dp apart in ink at 6%, faded from one corner with a radial mask, placed beside the photo where text never sits.
+- **Pebble print:** see Shapes. Chips may overlap its lower edge by half their height.
+- **Chips:** `InfoChip`, the StatusChip shape on the `selected` tint with an `icon`-coloured Feather icon, for neutral facts. Result classes use StatusChip only, as a legend under text: the small (Sm) chips in one row at their natural widths; when they do not fit, the widest wrap between words first, never narrower than their longest word, and only then does a chip move to a second row.
+- **Feature rows:** a 24dp icon in a 40dp `selected` disc and one Body line, merged for TalkBack.
+- **Progress:** pill segments 6dp tall, the current step 28dp in `progressActive`, the others 12dp in `progressIdle`; the width moves over `SLOW`.
+- **Space:** when the middle overflows, drop the dot grid, the corner leaves and the third feature row, then shrink the print (200 to 152dp); then scroll. Never cut text or the button.
+- **Decoration** (blob, leaves, dots, brackets, scan line) has no semantics; photos stay skipped by screen readers.
+
 ### Imagery
-Only the owner's two clean "pods on the tree" photos ship: `photo_cacao_cluster` and `photo_cacao_column` (docs/ASSETS.md). Both are decorative and skipped by screen readers. They appear on the Home hero, the Guide covers and the onboarding panels.
+Only the owner's two clean "pods on the tree" photos ship: `photo_cacao_cluster` and `photo_cacao_column` (docs/ASSETS.md). Both are decorative and skipped by screen readers. They appear on the Home hero, the Guide covers and the onboarding panels. On the onboarding slides they are pebble prints; nothing on or beside a photo may name a result class (the class legend sits under the text).
 
 ### Motion
 Motion is purposeful only, 100 to 250ms (`Motion.PRESS` 100, `FAST` 150, `BASE` 200, `SLOW` 250). Uses: screen fades (200ms, none between tabs), the History header folding while the list scrolls (200ms), onboarding step fades (250ms), the shutter and the snackbar. The shutter, the History header, onboarding and the snackbar check `rememberReduceMotion()` and drop the animation.
+
+The launch intro is the one longer sequence (redesign 2026-10-31, `IntroScreen.kt`), about 1.4s from the moment the splash goes:
+- **Mark:** starts exactly on the splash icon (its centre and size read from the splash's icon view), then settles with one spring (`INTRO_SPRING_DAMPING` 0.6, low stiffness): scale 0.88 → 1, a dip to about −8° and back to 0°, and a 48dp rise (no bounce) to make room for the text.
+- **Leaves:** four `yoloc_leaf` images, one mirrored, enter from beyond the four corners over `INTRO_LEAVES` 700ms (ease-out cubic), turning 20° into their resting angle, and rest partly off-screen like a frame, above the navigation bar. They sway ±2.5° (`INTRO_SWAY` 2400ms per side) while the intro shows. Tinted `decorLeaf` (Sage at 32%, 16% in dark) and `decorLeafSoft` (Mist at 50%, 10% in dark).
+- **Text:** "YOLO-C" (Headline) at `INTRO_TEXT_DELAY` 350ms, then the tagline (Body, muted) `INTRO_TEXT_STAGGER` 120ms later, each fading in while rising 12dp over `INTRO_TEXT` 400ms.
+- **End:** at `INTRO_LENGTH` 1050ms a `BASE` crossfade to onboarding or Home. A tap anywhere ends it early.
+- **Reduce motion:** no spring, slide or sway: the mark, leaves and text appear in place, `INTRO_REDUCED_HOLD` 400ms, then the crossfade.
+
+Onboarding panels (redesign 2026-10-31): on entering a step the blob morphs from the previous shape (`ONBOARDING_MORPH` 450ms, ease in-out), the print rises 16dp as it fades in (`SLOW`), chips pop in with a small spring (`ONBOARDING_CHIP_DAMPING` 0.55) `ONBOARDING_CHIP_STAGGER` 80ms apart from `ONBOARDING_CHIP_DELAY` 120ms, and feature rows fade in (`BASE`) `ONBOARDING_ROW_STAGGER` 60ms apart from `ONBOARDING_ROW_DELAY` 180ms. The leaves sway ±2.5° (`ONBOARDING_SWAY` 3200ms per side). On the scan slide a 2dp Cream line with a 14dp Sage glow either side crosses the photo between white 3dp viewfinder brackets, one pass per `ONBOARDING_SCAN_PASS` 2400ms. With reduce motion everything appears in place: no sway, sweep or morph.
+
+Processing's mark: a 2dp scan line with an 8dp soft glow either side sweeps down the pod and back, clipped to the pod's oval, `SCAN_SWEEP` 800ms each way with ease in-out (1.6s per cycle). The leaves breathe from 1 to 1.03 on the same cycle, from where they meet the pod. The card fades in over `FAST`. With reduce motion the mark is still, the card appears at once, and an indeterminate progress bar runs under the title.
 
 ## Do's and Don'ts
 
@@ -538,6 +572,6 @@ Motion is purposeful only, 100 to 250ms (`Motion.PRESS` 100, `FAST` 150, `BASE` 
 - **Don't** use amber, brick or the status sage for decoration, errors or destructive actions. Destructive settings rows use the inverse surface.
 - **Don't** show a status by colour alone, or let "No pods" look healthy.
 - **Don't** add a ripple, tonal elevation or a shadow to anything that does not float. Cards get the hairline and the 6% card shadow only.
-- **Don't** introduce a fourth corner radius. Use 8dp for controls, 16dp for cards and photos, and full for round things.
+- **Don't** introduce a fourth corner radius. Use 8dp for controls, 16dp for cards and photos, and full for round things. The pebble print is the one named exception, for decorative photos only.
 - **Don't** put the tab bar or top bar on the camera, or turn the camera into a light screen.
 - **Don't** truncate a status name, a verdict or a button label with an ellipsis.

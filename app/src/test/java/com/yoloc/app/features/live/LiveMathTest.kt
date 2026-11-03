@@ -17,6 +17,8 @@ class LiveMathTest {
         TestAssets.modelConfig,
     )
 
+    private fun all(threshold: Double) = doubleArrayOf(threshold, threshold, threshold)
+
     /** A [1,7,8400] output with one confident candidate, box given in input pixels (cx, cy, w, h). */
     private fun outputWith(classId: Int, score: Float, cx: Float, cy: Float, w: Float, h: Float): FloatArray {
         val n = 8400
@@ -42,7 +44,7 @@ class LiveMathTest {
     @Test
     fun mapsABoxFromTheContainedInputBackToTheUprightFrame() {
         // A pod centered in the frame, a quarter of its width and height.
-        val d = liveDetections(outputWith(0, 0.9f, 320f, 320f, 120f, 160f), spec, 768, 1024, 0.25, 0.45).single()
+        val d = liveDetections(outputWith(0, 0.9f, 320f, 320f, 120f, 160f), spec, 768, 1024, all(0.25), 0.45).single()
         assertEquals(0, d.classId)
         assertEquals(0.9, d.confidence, 1e-5)
         assertEquals(0.5, d.x + d.w / 2, 1e-3)
@@ -54,8 +56,8 @@ class LiveMathTest {
     @Test
     fun respectsTheConfidenceThresholdFromSettings() {
         val out = outputWith(2, 0.3f, 320f, 320f, 100f, 100f)
-        assertEquals(1, liveDetections(out, spec, 768, 1024, 0.25, 0.45).size)
-        assertEquals(0, liveDetections(out, spec, 768, 1024, 0.5, 0.45).size)
+        assertEquals(1, liveDetections(out, spec, 768, 1024, all(0.25), 0.45).size)
+        assertEquals(0, liveDetections(out, spec, 768, 1024, all(0.5), 0.45).size)
     }
 
     @Test
@@ -70,7 +72,7 @@ class LiveMathTest {
             out[3 * n + i] = 20f / 640
             out[4 * n + i] = 0.5f + i / 100f
         }
-        assertEquals(LIVE_MAX_DETECTIONS, liveDetections(out, spec, 640, 640, 0.25, 0.45).size)
+        assertEquals(LIVE_MAX_DETECTIONS, liveDetections(out, spec, 640, 640, all(0.25), 0.45).size)
     }
 
     @Test

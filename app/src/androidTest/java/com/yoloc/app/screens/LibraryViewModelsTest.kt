@@ -62,13 +62,13 @@ class LibraryViewModelsTest {
             imageWidth = 800,
             imageHeight = 600,
             source = ScanSource.Camera,
-            confThreshold = 0.25,
+            confThresholds = mapOf("early_stage" to 0.25),
             iouThreshold = 0.45,
             notes = notes,
             createdAt = createdAt,
             detections = listOf(NewDetection(verdictClass, 0.9, 0.1, 0.1, 0.2, 0.2)),
         ),
-        config.lowConfidenceThreshold,
+        config.uncertainBelow,
     )
 
     private suspend fun <T> StateFlow<T>.await(what: String, predicate: (T) -> Boolean): T =
@@ -144,7 +144,7 @@ class LibraryViewModelsTest {
     @Test
     fun scanDetailLoadsSavesNotesAndClosesAfterDelete() = runBlocking {
         val id = save(notes = "Tree 7")
-        val vm = ScanDetailViewModel(id, saved = true, scans, classes, library, files, dayFormat, scope)
+        val vm = ScanDetailViewModel(id, saved = true, scans, classes, library, files, dayFormat, scope, config.uncertainBelow)
         assertEquals(ScanDetailViewModel.Toast.Saved, vm.state.value.toast)
         val ready = vm.state.await("detail ready") { it.load is ScanDetailViewModel.Load.Ready }
         assertEquals("Tree 7", ready.notes.text)
@@ -166,7 +166,7 @@ class LibraryViewModelsTest {
 
     @Test
     fun scanDetailReportsAMissingScan() = runBlocking {
-        val vm = ScanDetailViewModel("no-such-id", saved = false, scans, classes, library, files, dayFormat, scope)
+        val vm = ScanDetailViewModel("no-such-id", saved = false, scans, classes, library, files, dayFormat, scope, config.uncertainBelow)
         vm.state.await("missing") { it.load == ScanDetailViewModel.Load.Missing }
         Unit
     }

@@ -9,6 +9,7 @@ import com.yoloc.app.db.repositories.PlotRepository
 import com.yoloc.app.db.repositories.ScanRepository
 import com.yoloc.app.db.repositories.ScanSource
 import com.yoloc.app.db.repositories.SettingsRepository
+import com.yoloc.app.features.detection.DetectionSensitivity
 import com.yoloc.app.features.detection.ModelLoader
 import com.yoloc.app.features.detection.Verdict
 import com.yoloc.app.features.dev.GoldenSamples
@@ -52,7 +53,7 @@ class ScanFlowTest {
         photo: PendingPhoto,
         detections: List<ResultDetection>,
         verdict: Verdict,
-        confThreshold: Double = 0.25,
+        confThresholds: Map<String, Double> = mapOf("early_stage" to 0.25),
         iouThreshold: Double = 0.45,
         inferenceMs: Int = 1,
     ) = ScanResult(
@@ -64,7 +65,7 @@ class ScanFlowTest {
         totalPods = detections.size,
         lowConfidence = false,
         modelVersionId = config.id,
-        confThreshold = confThreshold,
+        confThresholds = confThresholds,
         iouThreshold = iouThreshold,
         inferenceMs = inferenceMs,
         totalMs = 1,
@@ -82,17 +83,17 @@ class ScanFlowTest {
                 ResultDetection(HEALTHY, 0.6, 0.1, 0.2, 0.3, 0.4, correctedClassId = null),
             ),
             Verdict.EarlyStage,
-            confThreshold = 0.3,
+            confThresholds = mapOf("early_stage" to 0.3),
             iouThreshold = 0.5,
             inferenceMs = 1400,
         )
-        val id = saveResult(scans, files, r, config.lowConfidenceThreshold, SaveResultOptions("p-north", "  Tree 7  ", createdAt = NOW))
+        val id = saveResult(scans, files, r, config.uncertainBelow, SaveResultOptions("p-north", "  Tree 7  ", createdAt = NOW))
         val saved = scans.getScan(id)!!
         with(saved.scan) {
             assertEquals("North", plotName)
             assertEquals("Tree 7", notes)
             assertEquals(ScanSource.Camera, source)
-            assertEquals(0.3, confThreshold, 0.0)
+            assertEquals(mapOf("early_stage" to 0.3), confThresholds)
             assertEquals(0.5, iouThreshold, 0.0)
             assertEquals(1400, inferenceMs)
             assertEquals(Verdict.EarlyStage, verdict)
@@ -107,7 +108,7 @@ class ScanFlowTest {
     @Test
     fun storesEmptyNotesAsNull() = runBlocking {
         val photo = PendingPhoto(File("/cache/b.jpg"), 10, 10, ScanSource.Gallery)
-        val id = saveResult(scans, files, result(photo, emptyList(), Verdict.NoPod), config.lowConfidenceThreshold, SaveResultOptions(null, "   "))
+        val id = saveResult(scans, files, result(photo, emptyList(), Verdict.NoPod), config.uncertainBelow, SaveResultOptions(null, "   "))
         assertNull(scans.getScan(id)!!.scan.notes)
     }
 
@@ -116,7 +117,7 @@ class ScanFlowTest {
         val photo = PendingPhoto(File("/cache/p.jpg"), 800, 600, ScanSource.Camera)
         val r = result(photo, listOf(ResultDetection(HEALTHY, 0.9, 0.1, 0.1, 0.2, 0.2)), Verdict.Healthy, inferenceMs = 900)
         val id = saveResult(
-            scans, files, r, config.lowConfidenceThreshold,
+            scans, files, r, config.uncertainBelow,
             SaveResultOptions(null, "", location = ScanLocation(7.1, -73.1)),
         )
         val saved = scans.getScan(id)!!.scan
@@ -127,14 +128,15 @@ class ScanFlowTest {
     @Test
     fun analyzesAGoldenPhotoWithTheUsersThresholdsAndWritesNothing() = runBlocking {
         val analyze = AnalyzePhoto(SettingsRepository(holder), ClassRepository(holder), ModelLoader(context, config), config)
-        val file = GoldenSamples(context).file("golden_01.jpg")
+        val file = GoldenSamples(context).file(GoldenSamples.FILES[0])
         val r = analyze(PendingPhoto(file, 1024, 1024, ScanSource.Gallery))
 
         assertEquals(1024, r.imageWidth)
-        assertEquals(Verdict.EarlyStage, r.verdict) // golden_01: two early-stage pods
+        assertEquals(Verdict.EarlyStage, r.verdict) // An early-stage pod (0.95) and a healthy one (0.73).
         assertEquals(2, r.totalPods)
-        assertTrue(r.detections.all { it.classId == EARLY && it.correctedClassId == null })
-        assertEquals(config.confThreshold, r.confThreshold, 0.0)
+        assertEquals(listOf(EARLY, HEALTHY), r.detections.map { it.classId })
+        assertTrue(r.detections.all { it.correctedClassId == null })
+        assertEquals(config.confThresholdsByClass(DetectionSensitivity.Standard), r.confThresholds)
         assertEquals(config.id, r.modelVersionId)
         assertTrue(r.inferenceMs > 0 && r.totalMs >= r.inferenceMs)
         assertEquals(0, scans.countScans())

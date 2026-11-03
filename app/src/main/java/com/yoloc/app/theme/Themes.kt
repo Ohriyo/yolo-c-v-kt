@@ -37,6 +37,35 @@ data class ButtonColors(
     val border: Color,
 )
 
+/** Processing's "Checking your pod" mark (redesign 2026-10-31). Decorative. */
+data class ScanMarkColors(
+    val pod: Color,
+    val leaves: Color,
+    /** The line that sweeps over the pod, and its soft glow. */
+    val line: Color,
+    val glow: Color,
+)
+
+/** The onboarding panels' ground and decoration (redesign 2026-10-31). All decorative. */
+data class OnboardingColors(
+    /** The ground's vertical gradient, top to bottom. Text sits on it, so ContrastTest checks both ends. */
+    val groundTop: Color,
+    val groundBottom: Color,
+    /** The organic blob behind the photo. Translucent. */
+    val blob: Color,
+    /** The faint dot grid in one corner. Translucent. */
+    val dots: Color,
+    /** The photo's "pebble" print: its 4dp border. */
+    val printBorder: Color,
+    /** The segmented progress bar: the current step (wider) and the others. */
+    val progressActive: Color,
+    val progressIdle: Color,
+    /** The scan panel's viewfinder brackets and sweeping line over the photo. */
+    val bracket: Color,
+    val scanLine: Color,
+    val scanGlow: Color,
+)
+
 data class CameraColors(
     /** Whole camera screen, dark in both themes. */
     val screen: Color,
@@ -119,6 +148,13 @@ data class YoloCColors(
     val infected: StatusColors,
     /** Only floating elements cast a shadow: the bottom sheet and the snackbar. */
     val floatingShadow: Color,
+    /** Decorative leaves (the launch intro): Sage and Mist, faint so they never compete. */
+    val decorLeaf: Color,
+    val decorLeafSoft: Color,
+    /** Over the blurred photo behind Processing's card. */
+    val photoScrim: Color,
+    val scanMark: ScanMarkColors,
+    val onboarding: OnboardingColors,
 ) {
     /** RN: theme.status[key]. */
     fun status(key: StatusKey): StatusColors = when (key) {
@@ -196,6 +232,22 @@ val lightColors = YoloCColors(
     early = early(ink = p.amberInk, tint = p.earlyTint, onTint = p.earlyTintInk),
     infected = infected(ink = p.statusInfected, tint = p.infectedTint, onTint = p.infectedTintInk),
     floatingShadow = p.dark950.copy(alpha = 0.18f),
+    decorLeaf = p.sage500.copy(alpha = 0.32f),
+    decorLeafSoft = p.mist300.copy(alpha = 0.5f),
+    photoScrim = p.ground.copy(alpha = 0.7f),
+    scanMark = ScanMarkColors(pod = p.forest700, leaves = p.sage500, line = p.forest700, glow = p.sage500.copy(alpha = 0.35f)),
+    onboarding = OnboardingColors(
+        groundTop = p.leaf,
+        groundBottom = p.ground,
+        blob = p.mist300.copy(alpha = 0.25f),
+        dots = p.forest900.copy(alpha = 0.06f),
+        printBorder = p.white,
+        progressActive = p.forest700,
+        progressIdle = p.mist300,
+        bracket = p.white,
+        scanLine = p.cream100,
+        scanGlow = p.sage500.copy(alpha = 0.5f),
+    ),
 )
 
 val darkColors = YoloCColors(
@@ -228,4 +280,23 @@ val darkColors = YoloCColors(
     early = early(ink = p.statusEarly, tint = p.earlyTintDark, onTint = p.earlyTintInkDark),
     infected = infected(ink = p.brickLight, tint = p.infectedTintDark, onTint = p.infectedTintInkDark),
     floatingShadow = p.black.copy(alpha = 0.5f),
+    decorLeaf = p.sage500.copy(alpha = 0.16f),
+    decorLeafSoft = p.mist300.copy(alpha = 0.1f),
+    photoScrim = p.forest900.copy(alpha = 0.7f),
+    // The logo's dark tile: a Cream pod, so the mark holds on the dark card (Moss is 2.2:1 there).
+    scanMark = ScanMarkColors(pod = p.cream100, leaves = p.sage500, line = p.mist300, glow = p.sage500.copy(alpha = 0.45f)),
+    // Deep Forest Ink at the top fading to the dark ground (never pure black); a card-dark frame,
+    // since a white one glares on the dark ground.
+    onboarding = OnboardingColors(
+        groundTop = p.forest900,
+        groundBottom = p.groundDark,
+        blob = p.forest700.copy(alpha = 0.2f),
+        dots = p.inkDark.copy(alpha = 0.06f),
+        printBorder = p.cardDark,
+        progressActive = p.sage500,
+        progressIdle = p.forest700,
+        bracket = p.white,
+        scanLine = p.cream100,
+        scanGlow = p.sage500.copy(alpha = 0.5f),
+    ),
 )

@@ -34,6 +34,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -42,6 +43,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -53,6 +55,7 @@ import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -72,6 +75,7 @@ import com.yoloc.app.features.camera.CameraControlBar
 import com.yoloc.app.features.camera.hasCameraPermission
 import com.yoloc.app.features.camera.ratio43
 import com.yoloc.app.features.camera.takePhotoTo
+import com.yoloc.app.features.detection.ModelState
 import com.yoloc.app.features.live.CameraMode
 import com.yoloc.app.features.live.ModeSwitch
 import com.yoloc.app.features.scans.CameraAccess
@@ -97,9 +101,11 @@ fun CameraScreen(
     onClose: () -> Unit,
     onOpenPreview: () -> Unit,
     onLive: () -> Unit,
+    onOpenPhotoTips: () -> Unit,
     vm: CameraViewModel = viewModel(factory = CameraViewModel.Factory),
 ) {
     val s by vm.state.collectAsStateWithLifecycle()
+    val modelState by vm.modelState.collectAsStateWithLifecycle()
     val cam = YoloCTheme.colors.camera
     val context = LocalContext.current
     val activity = LocalActivity.current
@@ -109,6 +115,7 @@ fun CameraScreen(
     // RN: useCameraAccess re-checks when the app returns, so access turned on in settings applies at once.
     LifecycleResumeEffect(vm) {
         vm.onPermissionChecked(hasCameraPermission(context), rationale())
+        vm.onScreenResumed()
         onPauseOrDispose {}
     }
     val askCamera = rememberLauncherForActivityResult(RequestPermission()) { vm.onPermissionResult(it, rationale()) }
@@ -128,6 +135,8 @@ fun CameraScreen(
     SideEffect { capture.flashMode = if (s.flashOn) ImageCapture.FLASH_MODE_ON else ImageCapture.FLASH_MODE_OFF }
     val others = remember(capture) { listOf(capture) }
     val previewOn = s.granted && !s.mountError
+    // Redesign 2026-10-31: Snap tips, opened by itself the first time the camera shows.
+    var tipsOpen by rememberSnapTipsOpen(autoOpen = previewOn)
 
     // RN: animateShutter. A dark flash over the preview as the photo is taken.
     val reduceMotion = rememberReduceMotion()
@@ -158,38 +167,38 @@ fun CameraScreen(
         }
 
         Column(Modifier.fillMaxSize()) {
-            Row(
+            // The title has its own line under the buttons: beside close, Snap tips and the mode
+            // switch it would be cut short (redesign 2026-10-31).
+            Column(
                 Modifier
                     .fillMaxWidth()
                     .scrim(cam.scrim, fadeAtBottom = true)
                     .windowInsetsPadding(WindowInsets.statusBars)
-                    .padding(top = Spacing.xs, start = Spacing.xs, end = Spacing.md, bottom = Spacing.lg)
-                    .heightIn(min = TouchTarget),
-                horizontalArrangement = Arrangement.spacedBy(Spacing.xs),
-                verticalAlignment = Alignment.CenterVertically,
+                    .padding(top = Spacing.xs, start = Spacing.xs, end = Spacing.md, bottom = Spacing.lg),
             ) {
-                val press = rememberPress()
-                val close = stringResource(R.string.camera_close)
-                Box(
-                    Modifier
-                        .size(TouchTarget)
-                        .alpha(if (press.pressed.value) 0.6f else 1f)
-                        .a11yAction(close, onClose)
-                        .clickable(interactionSource = press.source, indication = null, onClick = onClose),
-                    contentAlignment = Alignment.Center,
+                Row(
+                    Modifier.fillMaxWidth().heightIn(min = TouchTarget),
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.xs),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Icon(IconName.X, size = 26.dp, color = cam.control)
+                    CameraIconButton(IconName.X, stringResource(R.string.camera_close), onClose)
+                    Spacer(Modifier.weight(1f))
+                    CameraIconButton(IconName.Info, stringResource(R.string.snap_tips_open)) { tipsOpen = true }
+                    if (s.granted) ModeSwitch(CameraMode.Photo) { onLive() }
                 }
                 AppText(
                     stringResource(R.string.camera_title),
-                    Modifier.weight(1f).semantics { heading() },
+                    Modifier
+                        .padding(start = Spacing.sm, top = Spacing.xxs)
+                        // Read first, before the buttons above it.
+                        .semantics {
+                            heading()
+                            traversalIndex = -1f
+                        },
                     variant = TypeVariant.Title,
                     color = cam.lensText,
-                    // Two lines for longer languages ("Mag-scan ng bunga") beside the mode switch.
-                    maxLines = 2,
                     style = textShadow(),
                 )
-                if (s.granted) ModeSwitch(CameraMode.Photo) { onLive() }
             }
 
             Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
@@ -251,7 +260,12 @@ fun CameraScreen(
                 ) {
                     if (notice != null) Icon(IconName.AlertCircle, size = 18.dp, color = cam.lensText)
                     AppText(
-                        notice ?: if (s.granted) stringResource(R.string.camera_hint) else " ",
+                        notice ?: when {
+                            !s.granted -> " "
+                            // A photo can be taken meanwhile: its scan waits for the same load.
+                            modelState == ModelState.Preparing -> stringResource(R.string.model_preparing)
+                            else -> stringResource(R.string.camera_hint)
+                        },
                         variant = TypeVariant.BodyStrong,
                         color = cam.lensText,
                         textAlign = TextAlign.Center,
@@ -288,6 +302,30 @@ fun CameraScreen(
                 )
             }
         }
+    }
+    SnapTipsSheet(
+        tipsOpen,
+        onClose = { tipsOpen = false },
+        onMorePhotoTips = {
+            tipsOpen = false
+            onOpenPhotoTips()
+        },
+    )
+}
+
+/** A bare icon button over the camera's top scrim (close, Snap tips). */
+@Composable
+private fun CameraIconButton(icon: IconName, label: String, onClick: () -> Unit) {
+    val press = rememberPress()
+    Box(
+        Modifier
+            .size(TouchTarget)
+            .alpha(if (press.pressed.value) 0.6f else 1f)
+            .a11yAction(label, onClick)
+            .clickable(interactionSource = press.source, indication = null, onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(icon, size = 26.dp, color = YoloCTheme.colors.camera.control)
     }
 }
 

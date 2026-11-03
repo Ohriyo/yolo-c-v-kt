@@ -43,6 +43,7 @@ class ScanDetailViewModel(
     val dayFormat: DayFormat,
     /** Where the delete runs: leaving the screen mid-delete must not skip the Undo offer and the refresh. */
     private val appScope: CoroutineScope,
+    private val uncertainBelow: Double,
 ) : ViewModel() {
     sealed interface Load {
         data object Loading : Load
@@ -142,7 +143,7 @@ class ScanDetailViewModel(
         val detection = scan.detections.getOrNull(index) ?: return
         viewModelScope.launch {
             try {
-                scans.correctDetection(detection.id, classId)
+                scans.correctDetection(detection.id, classId, uncertainBelow)
                 library.bump()
             } catch (e: CancellationException) {
                 throw e
@@ -221,6 +222,7 @@ class ScanDetailViewModel(
                 ScanDetailViewModel(
                     args.get<String>("id").orEmpty(), args.get<Boolean>("saved") ?: false,
                     c.scanRepository, c.classRepository, c.scanLibrary, c.files, DayFormat.forDevice(app), c.appScope,
+                    container.modelConfig.uncertainBelow,
                 )
             }
         }

@@ -76,7 +76,8 @@ data class ScanEntity(
     @ColumnInfo(name = "image_height") val imageHeight: Int,
     /** camera | gallery */
     val source: String,
-    @ColumnInfo(name = "conf_threshold") val confThreshold: Double,
+    /** JSON: the confidence threshold each class ran with, by class key. */
+    @ColumnInfo(name = "conf_thresholds", defaultValue = "{}") val confThresholds: String,
     @ColumnInfo(name = "iou_threshold") val iouThreshold: Double,
     @ColumnInfo(name = "inference_ms") val inferenceMs: Int?,
     @ColumnInfo(name = "total_pods", defaultValue = "0") val totalPods: Int,

@@ -242,12 +242,11 @@ private fun HowItWorks(onOpenAbout: () -> Unit, onOpenSettings: () -> Unit) {
             }
         }
     }
-    if (missed != null) {
-        Card {
-            AppText(stringResource(R.string.learn_how_trust_title), variant = TypeVariant.Title)
-            AppText(stringResource(R.string.learn_how_trust_body, missed))
-            YButton(stringResource(R.string.learn_see_accuracy), onOpenAbout, variant = ButtonVariant.Secondary, icon = IconName.BarChart2)
-            YButton(stringResource(R.string.learn_threshold_link), onOpenSettings, variant = ButtonVariant.Ghost, icon = IconName.Sliders)
-        }
+    Card {
+        AppText(stringResource(R.string.learn_how_trust_title), variant = TypeVariant.Title)
+        // Only with a measured recall: no number from another model stands in for it.
+        if (missed != null) AppText(stringResource(R.string.learn_how_trust_body, missed))
+        YButton(stringResource(R.string.learn_see_accuracy), onOpenAbout, variant = ButtonVariant.Secondary, icon = IconName.BarChart2)
+        YButton(stringResource(R.string.learn_sensitivity_link), onOpenSettings, variant = ButtonVariant.Ghost, icon = IconName.Sliders)
     }
 }

@@ -4,7 +4,7 @@ import java.io.File
 
 /** Unit tests run with the app module as working directory, so assets are read from source. */
 object TestAssets {
-    val modelConfig: ModelConfig by lazy { ModelConfig.parse(main("models/model.config.json").readText()) }
+    val modelConfig: ModelConfig by lazy { ModelConfig.parse(main(ModelConfig.ASSET_PATH).readText(), main(ModelConfig.LABELS_ASSET).readText()) }
 
     fun main(path: String) = File("src/main/assets/$path")
 

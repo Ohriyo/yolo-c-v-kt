@@ -40,7 +40,8 @@ data class ScanResult(
     val totalPods: Int,
     val lowConfidence: Boolean,
     val modelVersionId: String,
-    val confThreshold: Double,
+    /** The thresholds this scan ran with, by class key. */
+    val confThresholds: Map<String, Double>,
     val iouThreshold: Double,
     val inferenceMs: Int,
     val totalMs: Int,

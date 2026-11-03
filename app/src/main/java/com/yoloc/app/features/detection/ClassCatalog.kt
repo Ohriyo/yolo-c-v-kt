@@ -15,7 +15,7 @@ data class ClassInfo(
 )
 
 /**
- * Per-class metadata, keyed by the class key in model.config.json. This seeds the `classes` table;
+ * Per-class metadata, keyed by the class key in model_config.json. This seeds the `classes` table;
  * screens read advice from that table, never from here. A retrained model with the same class
  * list needs no change; a new class key must be added here first (seeding fails loudly otherwise).
  *

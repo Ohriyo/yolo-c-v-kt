@@ -1,4 +1,23 @@
 {
+  "id": "yolo-c-v3-640",
+  "displayName": "YOLO-C v3 (640)",
+  "uncertainBelow": 0.6,
+  "sensitivity": {
+    "shift": 0.15,
+    "minConfThreshold": 0.25
+  },
+  "metrics": {
+    "validation": {
+      "label": "validation (243 images)",
+      "all": { "precision": 0.766, "recall": 0.682, "map50": 0.740, "map50_95": 0.635 },
+      "classes": {
+        "early_stage": { "precision": 0.632, "recall": 0.608, "map50": 0.609, "map50_95": 0.535 },
+        "fully_infected_pod": { "precision": 0.839, "recall": 0.802, "map50": 0.863, "map50_95": 0.765 },
+        "healthy_pod": { "precision": 0.827, "recall": 0.635, "map50": 0.747, "map50_95": 0.605 }
+      }
+    },
+    "test": null
+  },
   "file": "yolo_c_v3_640.tflite",
   "inputSize": 640,
   "inputShape": [

@@ -98,6 +98,20 @@ fun contrastPairs(c: YoloCColors): List<ContrastPair> {
         add("${key.token} label on status tint", c.status(key).onTint, c.status(key).tint)
     }
 
+    // Onboarding panels (2026-10-31): text sits on the gradient ground, and may pass over the
+    // translucent blob where it reaches past the photo. The segmented progress bar's current step
+    // is also wider, so it never relies on colour alone.
+    val ob = c.onboarding
+    for ((groundName, ground) in listOf("top" to ob.groundTop, "bottom" to ob.groundBottom)) {
+        val blob = composite(ob.blob.copy(alpha = 1f), ground, ob.blob.alpha)
+        for ((name, bg) in listOf("onboarding ground $groundName" to ground, "onboarding blob ($groundName)" to blob)) {
+            add("text on $name", c.text, bg)
+            add("textMuted on $name", c.textMuted, bg)
+            add("ghost button text on $name", c.ghost.text, bg)
+        }
+        add("onboarding current step on ground $groundName", ob.progressActive, ground, ContrastKind.NonText)
+    }
+
     // Camera screens (dark in both themes). Live's chips and the mode switch sit on the opaque bar.
     val cam = c.camera
     add("camera control icon on bar", cam.control, cam.bar)

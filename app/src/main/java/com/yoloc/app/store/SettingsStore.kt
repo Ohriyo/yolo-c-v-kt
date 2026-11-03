@@ -5,7 +5,7 @@ import com.yoloc.app.db.repositories.SettingCodec
 import com.yoloc.app.db.repositories.SettingCodecs
 import com.yoloc.app.db.repositories.SettingsRepository
 import com.yoloc.app.db.repositories.ThemeSetting
-import com.yoloc.app.features.detection.ModelConfig
+import com.yoloc.app.features.detection.DetectionSensitivity
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -28,7 +28,6 @@ import java.util.concurrent.ConcurrentHashMap
  */
 class SettingsStore(
     private val settings: SettingsRepository,
-    config: ModelConfig,
     private val scope: CoroutineScope,
 ) {
     enum class Status { Idle, Loading, Ready, Error }
@@ -39,13 +38,15 @@ class SettingsStore(
         val error: String? = null,
         val onboardingDone: Boolean = false,
         val theme: ThemeSetting = ThemeSetting.System,
-        val confThreshold: Double,
+        val sensitivity: DetectionSensitivity = DetectionSensitivity.Standard,
         val gpsOptIn: Boolean = false,
         /** The first name Home greets (redesign 2026-10-28); empty when not given. */
         val userName: String = "",
+        /** The camera's Snap tips sheet has opened by itself once (redesign 2026-10-31). */
+        val snapTipsSeen: Boolean = false,
     )
 
-    private val _state = MutableStateFlow(State(confThreshold = config.confThreshold))
+    private val _state = MutableStateFlow(State())
     val state: StateFlow<State> = _state.asStateFlow()
 
     private val hydrateLock = Any()
@@ -80,9 +81,10 @@ class SettingsStore(
                     status = Status.Ready,
                     onboardingDone = fresh(SettingCodecs.onboardingDone, s.onboardingDone, now.onboardingDone),
                     theme = fresh(SettingCodecs.theme, s.theme, now.theme),
-                    confThreshold = fresh(SettingCodecs.confThreshold, s.confThreshold, now.confThreshold),
+                    sensitivity = fresh(SettingCodecs.sensitivity, s.sensitivity, now.sensitivity),
                     gpsOptIn = fresh(SettingCodecs.gpsOptIn, s.gpsOptIn, now.gpsOptIn),
                     userName = fresh(SettingCodecs.userName, s.userName, now.userName),
+                    snapTipsSeen = fresh(SettingCodecs.snapTipsSeen, s.snapTipsSeen, now.snapTipsSeen),
                 )
             }
         } catch (e: CancellationException) {
@@ -94,14 +96,17 @@ class SettingsStore(
 
     suspend fun completeOnboarding() = set(SettingCodecs.onboardingDone, { it.onboardingDone }) { it.copy(onboardingDone = true) }
 
+    /** The Snap tips sheet opened by itself; it will not again. "View introduction" leaves this set. */
+    suspend fun markSnapTipsSeen() = set(SettingCodecs.snapTipsSeen, { it.snapTipsSeen }) { it.copy(snapTipsSeen = true) }
+
     /** Settings / testing: show onboarding again. */
     suspend fun resetOnboarding() = set(SettingCodecs.onboardingDone, { it.onboardingDone }) { it.copy(onboardingDone = false) }
 
     suspend fun setTheme(theme: ThemeSetting) = set(SettingCodecs.theme, { it.theme }) { it.copy(theme = theme) }
 
     /** Saved for the next scan; the detection pipeline reads it from the settings table. */
-    suspend fun setConfThreshold(value: Double) =
-        set(SettingCodecs.confThreshold, { it.confThreshold }) { it.copy(confThreshold = value) }
+    suspend fun setSensitivity(value: DetectionSensitivity) =
+        set(SettingCodecs.sensitivity, { it.sensitivity }) { it.copy(sensitivity = value) }
 
     suspend fun setGpsOptIn(optIn: Boolean) = set(SettingCodecs.gpsOptIn, { it.gpsOptIn }) { it.copy(gpsOptIn = optIn) }
 

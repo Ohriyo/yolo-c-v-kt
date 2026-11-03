@@ -45,11 +45,11 @@ class SettingsDataTest {
             imageWidth = 800,
             imageHeight = 600,
             source = ScanSource.Camera,
-            confThreshold = 0.25,
+            confThresholds = mapOf("early_stage" to 0.25),
             iouThreshold = 0.45,
             detections = listOf(NewDetection(2, 0.9, 0.1, 0.1, 0.2, 0.2)),
         ),
-        config.lowConfidenceThreshold,
+        config.uncertainBelow,
     )
 
     @Test

@@ -44,6 +44,8 @@ import com.yoloc.app.theme.YoloCTheme
  *
  * @param dismissable False while the sheet must stay (saving): drag, scrim, back and the close
  *   button then do nothing, as RN's `onClose={saving ? () => {} : onClose}`.
+ * @param titleFirst TalkBack starts on the title. M3's handle is a focusable node that comes
+ *   first, so the handle is drawn as plain decoration instead (the close button still dismisses).
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,6 +54,7 @@ fun BottomSheet(
     title: String,
     onClose: () -> Unit,
     dismissable: Boolean = true,
+    titleFirst: Boolean = false,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     if (!visible) return
@@ -69,17 +72,21 @@ fun BottomSheet(
         contentColor = colors.text,
         tonalElevation = 0.dp,
         scrimColor = colors.scrim,
-        dragHandle = {
-            Box(
-                Modifier
-                    .padding(top = Spacing.xs)
-                    .size(width = 32.dp, height = 4.dp)
-                    .background(colors.outline, RoundedCornerShape(Radii.full)),
-            )
-        },
+        dragHandle = if (titleFirst) null else ({ SheetHandle() }),
     ) {
+        if (titleFirst) SheetHandle(Modifier.align(Alignment.CenterHorizontally))
         SheetBody(title, { if (currentDismissable) onClose() }, content, Modifier.windowInsetsPadding(WindowInsets.navigationBars), scroll = true)
     }
+}
+
+@Composable
+private fun SheetHandle(modifier: Modifier = Modifier) {
+    Box(
+        modifier
+            .padding(top = Spacing.xs)
+            .size(width = 32.dp, height = 4.dp)
+            .background(YoloCTheme.colors.outline, RoundedCornerShape(Radii.full)),
+    )
 }
 
 /**
@@ -95,12 +102,7 @@ fun BottomSheetPanel(title: String, onClose: () -> Unit, modifier: Modifier = Mo
         modifier.fillMaxWidth().floatingShadow(shape).background(colors.surfaceRaised, shape),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Box(
-            Modifier
-                .padding(top = Spacing.xs)
-                .size(width = 32.dp, height = 4.dp)
-                .background(colors.outline, RoundedCornerShape(Radii.full)),
-        )
+        SheetHandle()
         SheetBody(title, onClose, content, scroll = false)
     }
 }

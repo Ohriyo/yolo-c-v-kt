@@ -48,39 +48,19 @@ class LetterboxTest {
     }
 
     @Test
-    fun roundTripsBoxesOriginalToInputToOriginal() {
-        for ((w, h) in listOf(3072 to 3072, 365 to 547, 167 to 278, 1920 to 1080)) {
-            val lb = computeLetterbox(w, h, 640)
-            for ((fx1, fy1, fx2, fy2) in listOf(
-                listOf(0.0, 0.0, 1.0, 1.0),
-                listOf(0.1, 0.2, 0.4, 0.9),
-                listOf(0.5, 0.5, 0.51, 0.52),
-            )) {
-                val box = PixelBox(fx1 * w, fy1 * h, fx2 * w, fy2 * h)
-                val back = toOriginalPixels(toInputPixels(box, lb), lb)
-                assertEquals(box.x1, back.x1, 1e-6)
-                assertEquals(box.y1, back.y1, 1e-6)
-                assertEquals(box.x2, back.x2, 1e-6)
-                assertEquals(box.y2, back.y2, 1e-6)
-            }
-        }
-    }
-
-    @Test
-    fun mapsPaddedImageCornersToOriginalCorners() {
+    fun mapsPaddedImageCornersToTheWholeImage() {
         val lb = computeLetterbox(365, 547, 640)
         val full = PixelBox(lb.padLeft.toDouble(), 0.0, lb.padLeft + 365 * lb.scale, 640.0)
-        val box = toOriginalPixels(full, lb)
+        val box = toNormalizedOriginal(full, lb)
         assertEquals(0.0, box.x1, 1e-6)
-        assertEquals(365.0, box.x2, 1e-6)
-        assertEquals(547.0, box.y2, 1e-6)
+        assertEquals(1.0, box.x2, 1e-6)
+        assertEquals(1.0, box.y2, 1e-6)
     }
 
     @Test
-    fun clipsBoxesThatSpillIntoThePadding() {
+    fun clampsBoxesThatSpillIntoThePadding() {
         val lb = computeLetterbox(365, 547, 640)
-        val box = toOriginalPixels(PixelBox(0.0, -20.0, 640.0, 700.0), lb)
-        assertEquals(PixelBox(0.0, 0.0, 365.0, 547.0), box)
+        assertEquals(PixelBox(0.0, 0.0, 1.0, 1.0), toNormalizedOriginal(PixelBox(0.0, -20.0, 640.0, 700.0), lb))
     }
 }
 

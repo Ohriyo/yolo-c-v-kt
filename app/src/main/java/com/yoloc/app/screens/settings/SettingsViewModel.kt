@@ -9,6 +9,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.yoloc.app.db.repositories.PlotRepository
 import com.yoloc.app.db.repositories.ScanRepository
 import com.yoloc.app.db.repositories.ThemeSetting
+import com.yoloc.app.features.detection.DetectionSensitivity
 import com.yoloc.app.features.export.ExportResult
 import com.yoloc.app.features.scans.ScanFileStore
 import com.yoloc.app.features.settings.LocationAccess
@@ -17,8 +18,6 @@ import com.yoloc.app.features.settings.clearAllData
 import com.yoloc.app.features.settings.getStorageSummary
 import com.yoloc.app.features.settings.locationAccessFrom
 import com.yoloc.app.features.settings.shareScansCsv
-import com.yoloc.app.features.settings.snapThreshold
-import com.yoloc.app.features.settings.thresholdPercent
 import com.yoloc.app.screens.app
 import com.yoloc.app.screens.container
 import com.yoloc.app.store.PermissionHistory
@@ -36,6 +35,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 /**
  * RN: app/(tabs)/settings.tsx (with LocationSetting and DataSettings). Detection threshold,
@@ -51,8 +51,6 @@ class SettingsViewModel(
     private val files: ScanFileStore,
     private val library: ScanLibrary,
     private val permissions: PermissionHistory,
-    /** model.config.json's confThreshold: the slider's marker and Reset target. */
-    private val defaultThreshold: Double,
 ) : ViewModel() {
     /** What the location row says. */
     enum class LocationMessage { On, Off, Ask, Blocked, Revoked }
@@ -82,7 +80,7 @@ class SettingsViewModel(
 
     data class Local(
         /** The slider while dragging; null shows the saved value. */
-        val thresholdDraft: Double? = null,
+        val sensitivityDraft: Double? = null,
         /** Null until the first permission check. */
         val locationAccess: LocationAccess? = null,
         /** The last request was refused; the row explains and offers Try again / Open settings. */
@@ -99,15 +97,14 @@ class SettingsViewModel(
 
     data class State(
         val local: Local,
-        val confThreshold: Double,
-        val defaultThreshold: Double,
+        val sensitivity: DetectionSensitivity,
         val theme: ThemeSetting,
         val gpsOptIn: Boolean,
         /** The first name Home greets with (redesign 2026-10-28); empty when not given. */
         val userName: String = "",
     ) {
-        val shownThreshold: Double get() = local.thresholdDraft ?: confThreshold
-        val isDefaultThreshold: Boolean get() = thresholdPercent(confThreshold) == thresholdPercent(defaultThreshold)
+        val shownSensitivity: DetectionSensitivity get() = local.sensitivityDraft?.let(::sensitivityAt) ?: sensitivity
+        val isRecommended: Boolean get() = sensitivity == DetectionSensitivity.Standard
 
         /** On, but Android permission is gone (turned off in system settings). */
         val locationLost: Boolean get() = gpsOptIn && local.locationAccess != null && local.locationAccess != LocationAccess.Granted
@@ -129,8 +126,8 @@ class SettingsViewModel(
     private var toastJob: Job? = null
 
     val state: StateFlow<State> = combine(local, settings.state) { l, s ->
-        State(l, s.confThreshold, defaultThreshold, s.theme, s.gpsOptIn, s.userName)
-    }.stateIn(viewModelScope, SharingStarted.Eagerly, settings.state.value.let { State(Local(), it.confThreshold, defaultThreshold, it.theme, it.gpsOptIn) })
+        State(l, s.sensitivity, s.theme, s.gpsOptIn, s.userName)
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, settings.state.value.let { State(Local(), it.sensitivity, it.theme, it.gpsOptIn) })
 
     init {
         // Storage numbers reload when saved scans change and each time the screen is shown again
@@ -157,16 +154,16 @@ class SettingsViewModel(
 
     // Detection
 
-    fun onThresholdChange(value: Double) = local.update { it.copy(thresholdDraft = value) }
+    fun onSensitivityChange(position: Double) = local.update { it.copy(sensitivityDraft = position) }
 
-    fun onThresholdChangeEnd(value: Double) {
-        local.update { it.copy(thresholdDraft = null) }
-        viewModelScope.launch { settings.setConfThreshold(snapThreshold(value)) }
+    fun onSensitivityChangeEnd(position: Double) {
+        local.update { it.copy(sensitivityDraft = null) }
+        viewModelScope.launch { settings.setSensitivity(sensitivityAt(position)) }
     }
 
-    fun resetThreshold() {
-        local.update { it.copy(thresholdDraft = null) } // a drag that never reported its end
-        viewModelScope.launch { settings.setConfThreshold(defaultThreshold) }
+    fun resetSensitivity() {
+        local.update { it.copy(sensitivityDraft = null) } // a drag that never reported its end
+        viewModelScope.launch { settings.setSensitivity(DetectionSensitivity.Standard) }
     }
 
     // Appearance
@@ -310,9 +307,13 @@ class SettingsViewModel(
                 val c = container
                 SettingsViewModel(
                     app, c.settingsStore, c.scanRepository, c.plotRepository, c.files, c.scanLibrary,
-                    c.permissionHistory, c.modelConfig.confThreshold,
+                    c.permissionHistory,
                 )
             }
         }
     }
 }
+
+/** The slider's position, 0 to 2, as a level. */
+internal fun sensitivityAt(position: Double): DetectionSensitivity =
+    DetectionSensitivity.entries[position.roundToInt().coerceIn(DetectionSensitivity.entries.indices)]

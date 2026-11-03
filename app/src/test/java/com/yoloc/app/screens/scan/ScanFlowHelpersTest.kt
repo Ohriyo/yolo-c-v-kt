@@ -48,7 +48,7 @@ class ScanFlowHelpersTest {
         val photo = PendingPhoto(File("/cache/a.jpg"), 800, 600, ScanSource.Camera)
         fun result(pods: Int) = ScanResult(
             photo, 800, 600, List(pods) { ResultDetection(2, 0.9, 0.1, 0.1, 0.2, 0.2) }, Verdict.Healthy, pods, false,
-            "m", 0.25, 0.45, 1, 2, 0,
+            "m", mapOf("early_stage" to 0.25), 0.45, 1, 2, 0,
         )
         assertTrue(ResultViewModel.State(result = result(1)).guarded)
         assertFalse(ResultViewModel.State(result = result(0)).guarded)

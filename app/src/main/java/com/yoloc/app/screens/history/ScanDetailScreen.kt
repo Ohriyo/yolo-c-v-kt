@@ -153,7 +153,15 @@ private fun Ready(scan: ScanWithDetections, s: ScanDetailViewModel.State, vm: Sc
                 if (lat != null && lon != null) {
                     Detail(stringResource(R.string.scan_detail_location), "${toFixed(lat, 5)}, ${toFixed(lon, 5)}")
                 }
-                Detail(stringResource(R.string.scan_detail_threshold), "${(summary.confThreshold * 100).roundToInt()}%")
+                if (summary.confThresholds.isNotEmpty()) {
+                    AppText(stringResource(R.string.scan_detail_thresholds), tone = Tone.Muted)
+                    modelClasses.forEach { key ->
+                        summary.confThresholds[key]?.let { threshold ->
+                            val name = s.classes?.values?.firstOrNull { it.key == key }?.displayName ?: key
+                            Detail(name, "${(threshold * 100).roundToInt()}%")
+                        }
+                    }
+                }
             }
 
             YButton(

@@ -107,7 +107,7 @@ class ResultViewModel(
         val s = _state.value
         val result = s.result ?: return
         val classes = s.classes ?: return
-        val corrected = correctResultDetection(result, index, classId, classes.mapValues { it.value.severity })
+        val corrected = correctResultDetection(result, index, classId, classes.mapValues { it.value.severity }, config.uncertainBelow)
         session.setResult(corrected)
         _state.update { it.copy(result = corrected) }
     }
@@ -154,7 +154,7 @@ class ResultViewModel(
         viewModelScope.launch {
             try {
                 val id = saveResult(
-                    scans, files, result, config.lowConfidenceThreshold,
+                    scans, files, result, config.uncertainBelow,
                     SaveResultOptions(plotId = plotId, notes = notes, location = location.await()),
                 )
                 library.bump()

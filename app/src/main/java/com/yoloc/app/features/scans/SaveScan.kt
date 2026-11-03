@@ -20,7 +20,7 @@ data class SaveScanInput(
     val imageWidth: Int,
     val imageHeight: Int,
     val source: ScanSource,
-    val confThreshold: Double,
+    val confThresholds: Map<String, Double>,
     val iouThreshold: Double,
     val inferenceMs: Int? = null,
     val latitude: Double? = null,
@@ -40,7 +40,7 @@ suspend fun saveScan(
     scans: ScanRepository,
     files: ScanFileStore,
     input: SaveScanInput,
-    lowConfidenceThreshold: Double,
+    uncertainBelow: Double,
 ): String {
     val id = uuid()
     val imagePath = scanImagePath(id)
@@ -58,7 +58,7 @@ suspend fun saveScan(
             Log.w(TAG, "Thumbnail failed; History will use the full image", e)
             null
         }
-        scans.createScan(input.toNewScan(id, imagePath, storedThumbnail), lowConfidenceThreshold)
+        scans.createScan(input.toNewScan(id, imagePath, storedThumbnail), uncertainBelow)
     } catch (e: Throwable) {
         // Covers a failed DB write, a copy that died halfway, and cancellation (the user left the
         // screen). Runs even when cancelled. If the row was committed just before a cancellation,
@@ -86,7 +86,7 @@ private fun SaveScanInput.toNewScan(id: String, imagePath: String, thumbnailPath
     imageWidth = imageWidth,
     imageHeight = imageHeight,
     source = source,
-    confThreshold = confThreshold,
+    confThresholds = confThresholds,
     iouThreshold = iouThreshold,
     inferenceMs = inferenceMs,
     latitude = latitude,

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Palette.white: the light background (YoloCTheme lightColors). -->
-    <color name="window_background">#FFFFFFFF</color>
+    <!-- Palette.ground: the light background (YoloCTheme lightColors). The splash screen and the
+         launch intro use it too, so the window, the splash and the first screen are one ground. -->
+    <color name="window_background">#FFF6F8F5</color>
 </resources>

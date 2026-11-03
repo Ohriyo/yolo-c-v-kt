@@ -59,7 +59,7 @@ class ViewModelHelpersTest {
     @Test
     fun aPageNeverListsAScanTwice() {
         fun scan(id: String) = ScanSummary(
-            id, null, null, "m", "scans/$id.jpg", null, 1, 1, ScanSource.Camera, 0.25, 0.45, null, 0,
+            id, null, null, "m", "scans/$id.jpg", null, 1, 1, ScanSource.Camera, mapOf("early_stage" to 0.25), 0.45, null, 0,
             Verdict.NoPod, false, null, null, null, 0,
         )
         assertEquals(listOf("a", "b", "c"), mergePage(listOf(scan("a"), scan("b")), listOf(scan("b"), scan("c"))).map { it.id })

@@ -3,8 +3,7 @@ package com.yoloc.app.features.detection
 /**
  * Letterboxing exactly as Ultralytics does it for non-PyTorch models (auto=False, scaleup=True):
  * scale to fit `size` keeping aspect ratio, then pad to a square. Mirrors
- * ultralytics/data/augment.py LetterBox and ultralytics/utils/ops.py scale_boxes, including
- * Python's round-half-to-even, so boxes line up with the Python reference to the pixel.
+ * ultralytics/data/augment.py LetterBox, including Python's round-half-to-even.
  */
 data class Letterbox(
     /** Original image size. */
@@ -42,29 +41,12 @@ fun computeLetterbox(srcWidth: Int, srcHeight: Int, size: Int): Letterbox {
 }
 
 /**
- * Maps a box from model-input pixels back to original-image pixels, clipped to the image.
- * Like scale_boxes, the offset is recomputed from the exact gain rather than the rounded size.
+ * Maps a box from model-input pixels to 0-1 on the original image, clamped: subtract the padding
+ * that was actually applied, divide by the scale, then by the original size. Ultralytics'
+ * scale_boxes recomputes the padding instead, which can differ by a pixel on non-square images.
  */
-fun toOriginalPixels(box: PixelBox, lb: Letterbox): PixelBox {
-    val padX = pythonRound((lb.size - lb.srcWidth * lb.scale) / 2 - 0.1)
-    val padY = pythonRound((lb.size - lb.srcHeight * lb.scale) / 2 - 0.1)
-    fun clip(v: Double, max: Int) = v.coerceIn(0.0, max.toDouble())
-    return PixelBox(
-        clip((box.x1 - padX) / lb.scale, lb.srcWidth),
-        clip((box.y1 - padY) / lb.scale, lb.srcHeight),
-        clip((box.x2 - padX) / lb.scale, lb.srcWidth),
-        clip((box.y2 - padY) / lb.scale, lb.srcHeight),
-    )
-}
-
-/** Inverse of [toOriginalPixels] (no clipping); used by tests and for drawing in input space. */
-fun toInputPixels(box: PixelBox, lb: Letterbox): PixelBox {
-    val padX = pythonRound((lb.size - lb.srcWidth * lb.scale) / 2 - 0.1)
-    val padY = pythonRound((lb.size - lb.srcHeight * lb.scale) / 2 - 0.1)
-    return PixelBox(
-        box.x1 * lb.scale + padX,
-        box.y1 * lb.scale + padY,
-        box.x2 * lb.scale + padX,
-        box.y2 * lb.scale + padY,
-    )
+fun toNormalizedOriginal(box: PixelBox, lb: Letterbox): PixelBox {
+    fun x(v: Double) = ((v - lb.padLeft) / lb.scale / lb.srcWidth).coerceIn(0.0, 1.0)
+    fun y(v: Double) = ((v - lb.padTop) / lb.scale / lb.srcHeight).coerceIn(0.0, 1.0)
+    return PixelBox(x(box.x1), y(box.y1), x(box.x2), y(box.y2))
 }

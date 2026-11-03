@@ -13,8 +13,6 @@ data class Detection(
     val h: Double,
 )
 
-data class Thresholds(val confThreshold: Double, val iouThreshold: Double, val maxDetections: Int = 300)
-
 data class PostprocessResult(
     val detections: List<Detection>,
     val boxUnits: BoxUnits,
@@ -23,28 +21,25 @@ data class PostprocessResult(
 )
 
 /**
- * Raw model output -> final detections: decode and filter by confidence, class-aware NMS, map
- * from the letterboxed input back to the original image, normalize. Best first. Boxes that
- * collapse to nothing after clipping to the image are dropped.
+ * Raw model output -> final detections: best class and per-class threshold, corners, undo the
+ * letterbox, normalize and clamp to the original image, then class-aware NMS. Best first. Boxes
+ * that collapse to nothing after clamping are dropped.
  */
-fun postprocess(output: FloatArray, spec: ModelSpec, lb: Letterbox, thresholds: Thresholds): PostprocessResult {
-    val (candidates, boxUnits) = decodeOutput(output, spec, thresholds.confThreshold)
-    val kept = nonMaxSuppression(candidates, thresholds.iouThreshold, thresholds.maxDetections)
-
-    val detections = ArrayList<Detection>()
-    for (c in kept) {
-        val box = toOriginalPixels(c.box, lb)
-        val w = box.x2 - box.x1
-        val h = box.y2 - box.y1
-        if (w <= 0 || h <= 0) continue
-        detections += Detection(
-            classId = c.classId,
-            confidence = c.score,
-            x = box.x1 / lb.srcWidth,
-            y = box.y1 / lb.srcHeight,
-            w = w / lb.srcWidth,
-            h = h / lb.srcHeight,
-        )
+fun postprocessByClass(
+    output: FloatArray,
+    spec: ModelSpec,
+    lb: Letterbox,
+    confThresholds: DoubleArray,
+    iouThreshold: Double,
+    maxDetections: Int = 300,
+): PostprocessResult {
+    val (candidates, boxUnits) = decodeOutput(output, spec, confThresholds)
+    val onImage = candidates.mapNotNull { c ->
+        val box = toNormalizedOriginal(c.box, lb)
+        if (box.x2 > box.x1 && box.y2 > box.y1) c.copy(box = box) else null
+    }
+    val detections = nonMaxSuppression(onImage, iouThreshold, maxDetections).map { c ->
+        Detection(c.classId, c.score, c.box.x1, c.box.y1, c.box.x2 - c.box.x1, c.box.y2 - c.box.y1)
     }
     return PostprocessResult(detections, boxUnits, candidates.size)
 }

@@ -71,13 +71,17 @@ It is honest about its limits: it is a screening aid, not a diagnosis.
 - Redesign 2026-10-28: the visual direction is the prototype recording
   (C:\Users\RIO\Videos\Screen Recordings\YOLO-C-UI-GUIDE.mp4), which replaces the RN app's
   "Field instrument" direction (Barlow) for the Kotlin app. The prototype is binding.
+- Redesign 2026-10-31: a launch splash and animated intro, inspired by a Plantum screen
+  recording the owner shared; approved by the owner. The prototype recording stays binding for
+  everything else.
 - Disclaimer, verbatim: "This app is a screening aid and does not replace an expert inspection."
 
 ## Evidence on Hand
 
-- Model metrics (show honestly): test mAP50 0.727; early-stage test mAP50 0.614, recall about
-  0.60 (the model misses roughly 4 in 10 early-stage pods).
-- Sample photos with reference detections in app/src/debug/assets/sample (debug builds only).
+- Model metrics (show honestly): v3 on validation (243 images): mAP50 0.740; early-stage mAP50
+  0.609, recall 0.608 (the model misses roughly 4 in 10 early-stage pods). Test metrics are not
+  available yet.
+- Sample photos with reference detections in app/src/androidTest/assets/reference (debug builds only).
 - Cacao photos: the owner's two "pods on the tree" photos ship (docs/ASSETS.md), on Home's
   hero, the Guide cards and onboarding. Decorative only. Do not use photos the owner has not
   supplied.

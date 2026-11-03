@@ -73,7 +73,7 @@ class ScanFlowViewModelsTest {
 
     private fun result(photo: PendingPhoto, vararg classIds: Int) = ScanResult(
         photo, 800, 600, classIds.map { ResultDetection(it, 0.9, 0.1, 0.1, 0.2, 0.2) },
-        if (classIds.isEmpty()) Verdict.NoPod else Verdict.Healthy, classIds.size, false, config.id, 0.25, 0.45, 900, 1200, 0,
+        if (classIds.isEmpty()) Verdict.NoPod else Verdict.Healthy, classIds.size, false, config.id, mapOf("early_stage" to 0.25), 0.45, 900, 1200, 0,
     )
 
     private suspend fun <T> StateFlow<T>.await(what: String, predicate: (T) -> Boolean): T =

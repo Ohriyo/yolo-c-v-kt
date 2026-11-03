@@ -72,6 +72,7 @@ private fun ChipRow(size: ChipSize, modifier: Modifier, content: @Composable () 
  *
  * @param label Defaults to the generic status name; pass the class display name when known.
  * @param confidence 0–1. Shown as a whole percentage when given.
+ * @param maxLines 1 in lists; a legend in a narrow slot lets a long label wrap instead.
  */
 @Composable
 fun StatusChip(
@@ -80,6 +81,7 @@ fun StatusChip(
     label: String? = null,
     confidence: Double? = null,
     size: ChipSize = ChipSize.Md,
+    maxLines: Int = 1,
 ) {
     val s = YoloCTheme.colors.status(status)
     val text = label ?: statusName(status)
@@ -91,8 +93,22 @@ fun StatusChip(
             if (pct == null) text else "$text $pct%",
             variant = if (size == ChipSize.Sm) TypeVariant.Caption else TypeVariant.Label,
             color = s.onTint,
-            maxLines = 1,
+            maxLines = maxLines,
         )
+    }
+}
+
+/**
+ * Redesign 2026-10-31 (onboarding panels): a neutral chip for a plain fact ("On-device"), shaped
+ * like [StatusChip] but on the leaf tint, so it can never be read as a result class.
+ */
+@Composable
+fun InfoChip(icon: IconName, label: String, modifier: Modifier = Modifier, size: ChipSize = ChipSize.Md) {
+    val colors = YoloCTheme.colors
+    ChipRow(size, modifier.a11yLabel(label).clip(RoundedCornerShape(Radii.sm)).background(colors.selected)) {
+        Icon(icon, size = if (size == ChipSize.Sm) 14.dp else 16.dp, color = colors.icon)
+        // May wrap (a long language at large text) rather than be cut.
+        AppText(label, variant = if (size == ChipSize.Sm) TypeVariant.Caption else TypeVariant.Label)
     }
 }
 

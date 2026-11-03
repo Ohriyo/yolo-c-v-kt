@@ -4,13 +4,13 @@ import com.yoloc.app.features.dev.GoldenSamples
 import com.yoloc.app.features.dev.ReferenceSource
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.io.File
 
 /**
  * RN: __tests__/detection.math.test.ts (compareToReference) and golden.references.test.ts (the
- * reference files themselves). The pipeline run on the golden images is GoldenDeviceTest.
+ * reference files themselves). The pipeline run on the golden images is YoloDetectorGoldenTest.
  */
 class GoldenCompareTest {
     private fun det(classId: Int, confidence: Double, x: Double) = Detection(classId, confidence, x, 0.2, 0.3, 0.5)
@@ -35,14 +35,17 @@ class GoldenCompareTest {
         assertEquals(1, extra.extra.size)
     }
 
+    private fun references(source: ReferenceSource) =
+        ReferenceImage.parseAll(File("src/androidTest/assets/${source.asset}").readText())
+
     @Test
-    fun referenceFilesAreRealDataWithOneEntryPerBundledGoldenImage() {
+    fun referenceFilesHaveOneEntryPerBundledImageAndOneImageWithNothing() {
         for (source in ReferenceSource.entries) {
-            val file = ExpectedFile.parse(TestAssets.debug(source.asset).readText())
-            assertNull(source.asset, file.pending)
-            assertEquals(source.asset, GoldenSamples.FILES.sorted(), file.images.map { it.file }.sorted())
+            val images = references(source)
+            assertEquals(source.asset, GoldenSamples.FILES.sorted(), images.map { it.image }.sorted())
+            assertEquals(source.asset, 1, images.count { it.detections.isEmpty() })
             for (name in GoldenSamples.FILES) {
-                assertTrue(name, TestAssets.debug("${GoldenSamples.GOLDEN_DIR}/$name").exists())
+                assertTrue(name, File("src/androidTest/assets/${GoldenSamples.GOLDEN_DIR}/$name").exists())
             }
         }
     }
@@ -51,14 +54,15 @@ class GoldenCompareTest {
     fun referenceFilesUseValidClassesAndNormalizedBoxesInsideTheImage() {
         val config = TestAssets.modelConfig
         for (source in ReferenceSource.entries) {
-            for (image in ExpectedFile.parse(TestAssets.debug(source.asset).readText()).images) {
-                assertTrue(image.file, image.detections.isNotEmpty())
-                for (d in image.detections) {
-                    val where = "${source.asset} ${image.file} $d"
-                    assertTrue(where, d.classId in config.classes.indices)
-                    assertTrue(where, d.confidence > config.confThreshold)
-                    assertTrue(where, d.x >= 0 && d.y >= 0 && d.w > 0 && d.h > 0)
-                    assertTrue(where, d.x + d.w <= 1.0001 && d.y + d.h <= 1.0001)
+            for (image in references(source)) {
+                assertEquals(image.image, GoldenSamples.REFERENCE_CONF, image.confThreshold, 0.0)
+                assertEquals(image.image, config.iouThreshold, image.iouThreshold, 0.0)
+                for (b in image.detections) {
+                    val where = "${source.asset} ${image.image} $b"
+                    assertTrue(where, b.classId in config.classes.indices)
+                    assertTrue(where, b.confidence > GoldenSamples.REFERENCE_CONF)
+                    assertTrue(where, b.x1 >= 0 && b.y1 >= 0 && b.x2 <= 1 && b.y2 <= 1)
+                    assertTrue(where, b.x2 > b.x1 && b.y2 > b.y1)
                 }
             }
         }

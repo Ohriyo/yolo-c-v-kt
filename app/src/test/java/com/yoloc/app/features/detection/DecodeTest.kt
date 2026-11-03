@@ -17,7 +17,7 @@ class DecodeTest {
     @Test
     fun decodesPixelBoxesToCornersAndKeepsTheBestClassInBothLayouts() {
         for (layout in OutputLayout.entries) {
-            val (candidates, boxUnits) = decodeOutput(packOutput(pixelAnchors, layout), specFor(3, layout), 0.25)
+            val (candidates, boxUnits) = decodeOutput(packOutput(pixelAnchors, layout), specFor(3, layout), doubleArrayOf(0.25, 0.25, 0.25))
             assertEquals(BoxUnits.Pixels, boxUnits)
             // Score 0.25 is not > 0.25, so anchor B is dropped (Ultralytics uses a strict >).
             assertEquals("$layout", 2, candidates.size)
@@ -34,7 +34,7 @@ class DecodeTest {
         val (candidates, boxUnits) = decodeOutput(
             packOutput(normalized, OutputLayout.FeaturesFirst),
             specFor(3, OutputLayout.FeaturesFirst),
-            0.25,
+            doubleArrayOf(0.25, 0.25, 0.25),
         )
         assertEquals(BoxUnits.Normalized, boxUnits)
         assertEquals(270.0, candidates[0].box.x1, 1e-3)
@@ -44,7 +44,7 @@ class DecodeTest {
     @Test
     fun rejectsAnOutputOfTheWrongLength() {
         val e = assertThrows(IllegalArgumentException::class.java) {
-            decodeOutput(FloatArray(10), specFor(3, OutputLayout.FeaturesFirst), 0.25)
+            decodeOutput(FloatArray(10), specFor(3, OutputLayout.FeaturesFirst), doubleArrayOf(0.25, 0.25, 0.25))
         }
         assertTrue(e.message!!.contains("expected 21"))
     }

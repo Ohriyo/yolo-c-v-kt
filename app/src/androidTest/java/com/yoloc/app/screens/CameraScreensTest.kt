@@ -11,7 +11,10 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.core.content.ContextCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
 import com.yoloc.app.R
+import com.yoloc.app.features.detection.ModelState
+import kotlinx.coroutines.flow.MutableStateFlow
 import com.yoloc.app.db.MemoryFileStore
 import com.yoloc.app.db.TestDb
 import com.yoloc.app.db.repositories.ScanRepository
@@ -72,7 +75,28 @@ class CameraScreensTest {
         val vm = CameraViewModel(
             ScanSession(TempImages(context)), scans, MemoryFileStore(), ScanLibrary(scans), permissions, CapturedPhotos(context),
         )
-        compose.setContent { YoloCTheme { CameraScreen(onClose = {}, onOpenPreview = {}, onLive = {}, vm = vm) } }
+        compose.setContent { YoloCTheme { CameraScreen(onClose = {}, onOpenPreview = {}, onLive = {}, onOpenPhotoTips = {}, vm = vm) } }
+    }
+
+    @Test
+    fun startsPreparingTheModelAndSaysSoUntilItIsReady() {
+        context.getSharedPreferences("permissions", 0).edit().clear().commit()
+        InstrumentationRegistry.getInstrumentation().uiAutomation.grantRuntimePermission(context.packageName, android.Manifest.permission.CAMERA)
+        val model = MutableStateFlow(ModelState.Idle)
+        var prepares = 0
+        val vm = CameraViewModel(
+            ScanSession(TempImages(context)), scans, MemoryFileStore(), ScanLibrary(scans), permissions, CapturedPhotos(context),
+            model,
+            {
+                prepares++
+                model.value = ModelState.Preparing
+            },
+        )
+        compose.setContent { YoloCTheme { CameraScreen(onClose = {}, onOpenPreview = {}, onLive = {}, onOpenPhotoTips = {}, vm = vm) } }
+        waitForText(R.string.model_preparing)
+        assertEquals(1, prepares)
+        model.value = ModelState.Ready
+        waitForText(R.string.camera_hint)
     }
 
     @Test
@@ -100,7 +124,7 @@ class CameraScreensTest {
     @Test
     fun liveWithoutCameraAccessExplainsAndGoesBack() {
         var back = 0
-        compose.setContent { YoloCTheme { LiveScreen(onClose = {}, onPhotoMode = {}, onBack = { back++ }, onOpenPreview = {}) } }
+        compose.setContent { YoloCTheme { LiveScreen(onClose = {}, onPhotoMode = {}, onBack = { back++ }, onOpenPreview = {}, onOpenPhotoTips = {}) } }
         waitForText(R.string.live_no_permission_body)
         compose.onNodeWithContentDescription(text(R.string.error_back)).performClick()
         compose.waitUntil(5_000) { back == 1 }

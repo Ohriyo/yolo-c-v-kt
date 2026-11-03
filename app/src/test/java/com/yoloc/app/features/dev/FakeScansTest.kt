@@ -30,7 +30,7 @@ class FakeScansTest {
             FakeScanOptions(
                 count = 3, now = 1_792_227_600_000, modelVersionId = "m", classIds = listOf(0, 1, 2),
                 plotIds = listOf("p1", "p2", null), imageWidth = 365, imageHeight = 547,
-                confThreshold = 0.25, iouThreshold = 0.45, seed = 7,
+                minConfidence = 0.25, confThresholds = mapOf("early_stage" to 0.25), iouThreshold = 0.45, seed = 7,
             ),
             image,
         )

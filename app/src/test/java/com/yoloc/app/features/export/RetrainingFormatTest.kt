@@ -28,7 +28,7 @@ class RetrainingFormatTest {
         ScanSummary(
             id = "s1", plotId = null, plotName = null, modelVersionId = config.id, imagePath = "scans/s1.jpg",
             thumbnailPath = null, imageWidth = 4000, imageHeight = 3000, source = ScanSource.Camera,
-            confThreshold = 0.25, iouThreshold = 0.45, inferenceMs = 900, totalPods = detections.size,
+            confThresholds = mapOf("early_stage" to 0.25), iouThreshold = 0.45, inferenceMs = 900, totalPods = detections.size,
             verdict = Verdict.Healthy, lowConfidence = false, latitude = null, longitude = null, notes = null,
             createdAt = 0,
         ),

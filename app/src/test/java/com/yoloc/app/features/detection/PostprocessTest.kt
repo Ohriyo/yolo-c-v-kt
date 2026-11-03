@@ -10,7 +10,12 @@ class PostprocessTest {
         // A 365x547 photo (sample_04): scale 640/547, 106 px padding on the left.
         val lb = computeLetterbox(365, 547, 640)
         // A pod covering original pixels x 50..250, y 100..500, expressed in input pixels.
-        val inp = toInputPixels(PixelBox(50.0, 100.0, 250.0, 500.0), lb)
+        val inp = PixelBox(
+            50.0 * lb.scale + lb.padLeft,
+            100.0 * lb.scale + lb.padTop,
+            250.0 * lb.scale + lb.padLeft,
+            500.0 * lb.scale + lb.padTop,
+        )
         val cx = (inp.x1 + inp.x2) / 2
         val cy = (inp.y1 + inp.y2) / 2
         val w = inp.x2 - inp.x1
@@ -20,11 +25,12 @@ class PostprocessTest {
             listOf(cx + 2, cy, w, h, 0.05, 0.6, 0.1), // duplicate, suppressed by NMS
             listOf(cx, cy, w, h, 0.1, 0.05, 0.3), // healthy at the same place: other class, kept
         )
-        val result = postprocess(
+        val result = postprocessByClass(
             packOutput(anchors, OutputLayout.FeaturesFirst),
             specFor(3, OutputLayout.FeaturesFirst),
             lb,
-            Thresholds(confThreshold = 0.25, iouThreshold = 0.45),
+            doubleArrayOf(0.25, 0.25, 0.25),
+            0.45,
         )
         assertEquals(BoxUnits.Pixels, result.boxUnits)
         assertEquals(3, result.candidateCount)

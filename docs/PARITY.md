@@ -8,13 +8,49 @@ place as the port guide's Step 6 asks. RN values are from the RN repo's
 
 1. Connect the phone over USB (USB debugging on) and run the debug app. It opens on
    **Model test (dev)**.
-2. Backend **CPU (default)** → **Run all golden images**. Copy each line into the golden table.
+2. Backend **CPU (parity)** → **Run all golden images**. Copy each line into the golden table.
 3. Sample **1** → **Benchmark (5 runs)**. Copy the medians into the performance table.
-4. Repeat 2–3 with **CPU, 4 threads** and **GPU** for the experiments table.
-5. Optional, same check as a test: `./gradlew connectedDebugAndroidTest`. Results are in Logcat
-   under the tag `golden`. The app logs every run under the tag `inference`.
+4. Repeat 2–3 with **CPU, XNNPACK (LiteRT defaults)** and **GPU** for the experiments table.
+5. Optional, same check as a test: `YoloDetectorGoldenTest`, one method per `am instrument` run on
+   the TECNO (the runner closing its activity between tests lets the power manager freeze the app).
+   Results are in Logcat under the tag `golden-v3`. The app logs every run under the tag `inference`.
 
-## Golden test (CPU, default options: the parity run)
+## Model v3 (2026-11-03)
+
+The app now runs `yolo_c_v3_640.tflite`. Every table below this section measured **v2**
+(`yolo_c_v2_640_fp32.tflite`) and is kept as the record of the RN comparison. v2 scans keep their
+`model_version_id`.
+
+Photo scans use `YoloDetector`: `CompiledModel` on the GPU with CPU fallback. Golden test on the
+TECNO BG6: 9 reference images at conf 0.25, IoU 0.45, all PASS on both accelerators.
+
+| | GPU (default) | CPU (fallback) |
+| - | ------------- | -------------- |
+| Delegate | 355 of 355 nodes, `LITERT_CL` | 353 of 355 nodes, XNNPACK |
+| Load, nothing cached | 3912 ms | 2799 ms |
+| Load, GPU program cached | about 850 ms | not cached |
+| Median inference (10 runs per image, after warm-up) | 539.3 ms | 2175.6 ms |
+| Largest confidence difference | 0.0367 | 0.0449 (`IMG_1629.JPG`) |
+| Largest box coordinate difference | 0.0015 | 0.0014 |
+
+Live on the GPU, no pod in view: inference p50 575 ms, resize 40 ms, postprocess 7 ms, 1.27
+detections/s, camera 5.2 fps. Both rates are below `LivePractical` (2/s, 24 fps).
+
+`IMG_1629.JPG` has a borderline pod: re-saving the photo once as JPEG at quality 100, with no other
+change, moves `fully_infected_pod` from 0.459 to 0.328 and `early_stage` from 0.405 to 0.541, which
+changes its class at the shipped thresholds. Boxes do not move.
+
+About, Guide and onboarding quote v3's validation metrics (243 images). Test metrics are not
+available yet.
+
+The model compiles when the Scan screen opens, not at launch, and is released when the app goes to
+the background or memory runs critically low. LiteRT's GPU program cache
+(`GpuOptions.serializationDir`, `modelCacheKey`, `serializeProgramCache`) takes a load from 4293 ms
+to about 850 ms, of which about 540 ms is the warm-up inference. It holds 23.9 MB in `codeCacheDir`,
+which the system clears on an app update. The key includes a CRC of the model because LiteRT's own
+fingerprint only covers tensor sizes.
+
+## Golden test (CPU: the parity run)
 
 Tolerance: IoU ≥ 0.9, |Δ confidence| ≤ 0.05, no extra boxes. Reference: `expected_tflite.json`.
 
@@ -39,7 +75,10 @@ golden_04 0.994 / 0.009, golden_05 0.998 / 0.002; no extra boxes. Inference in t
 Expected difference: Kotlin reads the resized bitmap directly instead of re-encoding a JPEG, so
 IoU and confidence deltas may differ slightly from RN.
 
-## Performance on golden_01 (CPU, default options, median of 5)
+## Performance on golden_01 (CPU, median of 5)
+
+Measured on 2026-10-27 with the Interpreter's default options (XNNPACK on), before the CPU
+options changed; see "CPU inference gap" for the numbers with the parity options.
 
 | Measure                          | RN (dev build, 2026-10-15)    | Kotlin (debug build, 2026-10-27) |
 | -------------------------------- | ----------------------------- | -------------------------------- |
@@ -57,9 +96,8 @@ Findings so far:
 - Kotlin preprocessing is about 2.2 s faster (it reads the bitmap directly; RN re-encodes a JPEG and
   decodes it in JS), so end to end Kotlin is faster: 2.2 s vs 3.8 s.
 - Kotlin CPU inference is about 800 ms slower than RN on the same model and phone (2168 vs 1375 ms).
-  Setting 4 threads changes nothing (below), so thread count is not the cause. Still open: what
-  react-native-fast-tflite configures that the LiteRT `Interpreter` defaults do not (for example the
-  XNNPACK delegate or its flags). Both apps were debug builds; release numbers come later.
+  The cause is the XNNPACK delegate, not Kotlin: see "CPU inference gap" below. Both apps were
+  debug builds; release numbers come later.
 
 ## Experiments (labelled separately from the parity run)
 
@@ -79,6 +117,41 @@ All on golden_01, median of 5, debug build, 2026-10-27.
 - The guide keeps photo scans on the CPU because that path is the verified parity path; the GPU
   results make it a candidate for photos too, as a separate decision.
 
+### CPU inference gap (2026-10-31)
+
+A throwaway on-device benchmark timed one `Interpreter.run` on a golden-sized input (2 warm-up
+runs, median of 5) under different options, on LiteRT 2.3.0 (the Kotlin app) and, in a temporary
+build, LiteRT 1.4.0 (the version react-native-fast-tflite 3.0.1 bundles). Debug builds.
+
+| `Interpreter.Options`             | LiteRT 2.3.0 | LiteRT 1.4.0 |
+| --------------------------------- | ------------ | ------------ |
+| Defaults (XNNPACK on)             | 2202 ms      | 2160 ms      |
+| XNNPACK on, 1 / 2 / 4 / 8 threads | 2171 / 2178 / 2168 / 2168 ms | 2155 / 2155 / 2150 / 2159 ms |
+| XNNPACK off, default threads      | 2485 ms      | **1392 ms**  |
+| XNNPACK off, 1 thread             | 2487 ms      | 2677 ms      |
+| XNNPACK off, 2 threads            | 1561 ms      | 1743 ms      |
+| XNNPACK off, 4 threads            | 1191 ms      | 1393 ms      |
+| XNNPACK off, 6 threads            | 1029 ms      | 1214 ms      |
+| XNNPACK off, 8 threads            | 960 ms       | 1130 ms      |
+
+- With XNNPACK on, the thread count has no effect on this phone in either version: XNNPACK runs
+  about as fast as one plain thread. The Java `Interpreter` turns XNNPACK on by default, which is
+  why the Kotlin app sat at 2168 ms and why 4 threads changed nothing.
+- On LiteRT 1.4.0 with XNNPACK off, the default thread count behaves like 4 threads (1392 ms),
+  which matches RN's 1375 ms. fast-tflite calls the C API with default options
+  (`TfLiteInterpreterOptionsCreate`, no thread count, no delegate on the CPU path), so RN most
+  likely runs the built-in kernels on about 4 threads, without XNNPACK.
+- LiteRT 2.3.0's built-in kernels are faster than 1.4.0's at every thread count, but its default
+  thread count is 1 (2485 ms), so turning XNNPACK off alone is not enough there.
+
+Decision (2026-10-31): photo scans and the live CPU fallback use XNNPACK off and 4 threads
+(`ModelLoader.PARITY_THREADS`), the setup RN effectively runs. 8 threads would be faster (960 ms)
+but also loads the six slow cores and is no longer like-for-like. The Model test keeps the old
+setup as **CPU, XNNPACK (LiteRT defaults)**. `GoldenDeviceTest` with the parity options: 5/5 PASS
+with the same worst IoU and confidence deltas as before, inference 1180–1225 ms per image warm
+(1706 ms on the first image). Kotlin's remaining edge over RN (about 1190 vs 1375 ms) comes from
+LiteRT 2.3.0's faster built-in kernels.
+
 RN's live mode uses the `android-gpu` delegate; Kotlin uses LiteRT's `CompiledModel` with
 `Accelerator.GPU` (the Interpreter GPU delegate is LiteRT v1 only).
 
@@ -89,6 +162,10 @@ edge case that would give a wrong result. Everything else follows RN commit `1e7
 
 | Where (Kotlin) | RN | Kotlin | Why |
 | -------------- | -- | ------ | --- |
+| `DetectionSensitivity` (v3) | A confidence threshold slider, 10% to 90% | Strict, Standard, Sensitive. Standard is the config's per-class thresholds; the others shift every class by `sensitivity.shift`, none below `sensitivity.minConfThreshold` | v3 ships per-class thresholds, and a level means the same for any model |
+| `scans.conf_thresholds` (v3, schema 2) | `conf_threshold`, one number | JSON of the threshold each class ran with. Old scans' single threshold was copied to every class, which is what ran | A scan records what actually filtered it |
+| `summarizeDetections` (v3) | Uncertain when the best detection in the photo is low | Uncertain when the detection that decides the verdict is below `uncertainBelow`: the strongest of the most severe class. Recomputed when a label is corrected | A weak infected pod must not read as certain because a healthy pod beside it scores high |
+| `postprocessByClass` (v3) | NMS in input pixels, then maps back with recomputed padding | Maps to the original image first, subtracting the padding actually applied, then NMS | The v3 brief's order. IoU is unchanged by the mapping except for clamped boxes, and the padding differs by at most a pixel |
 | `AnalyzePhoto`, `correctResultDetection` (Step 4.2) | A class missing from the `classes` table counts as severity 0 (healthy) | Fails with an error | Only a mismatched model and database can cause it; calling an unknown pod healthy would hide a possible infection |
 | `rangeStart` for 7 / 30 days (Step 4.2) | Start of today minus 6 or 29 × 24 h | Start of today minus 6 or 29 calendar days | Right after a daylight-saving change the 24-hour version is off by a day |
 | `SettingsStore.hydrate` (Step 4.3) | A load overwrites every cached setting with what it read | A setting changed while the load ran keeps the newer value | Otherwise the screen shows the old value until the next launch; at startup the UI waits for the load, so only a retry can race |
@@ -142,19 +219,31 @@ truth and the analysis are unchanged. Compare the two apps' UI with this in mind
 | Buttons | Labels on one line | Labels may wrap to a second line (Inter is wider than Barlow, and Filipino labels are longer); Preview's two buttons are equal halves | 4 |
 | Result and Scan Detail | Pod rows on the page | Pod rows in one white card, like the advice | 4 |
 | Language | English only | English and Filipino. Filipino (values-fil) is a draft by Claude, marked as such beside the choice, and needs a native speaker's check; the agronomic placeholders stay TODO in both. Settings > Language switches in the app (Android 13+: the per-app language, also in the phone's settings; older: saved in the app). Without a choice the app follows the phone. Class names stored in the database follow the language; scans keep their class ids | 5 |
-| Camera title | One line | Up to two lines, for longer languages | 5 |
+| Camera title | One line | Up to two lines, for longer languages (part 5); since Snap tips (2026-10-31) its own line under the buttons, never cut short | 5 |
 | App bundle | Language splits on | Off, so an install from a bundle has both languages | 5 |
 | Onboarding panels | Drawn capsules and a disc around an icon | The owner's pod photos (finish review); the drawn viewfinder and recall chart stay. The optional name is its own sixth step after the primer (RN: five steps, the primer ends onboarding) | finish |
 | Small all-caps labels | None | None either: the prototype's date line, kickers and "Field guide · 0N" numbers were built, then removed at the owner's choice in the finish review. The Home date is a plain muted line. The Home hero shows red pods on the tree (`photo_cacao_column`) | finish |
 | Scan rows | Pods and plot on one line | What was found and the time on the first line, the chip, then plot and notes on one line (finish review) | finish |
 | Home hero, History title, top bar | Fixed layout | With large text or a longer language: the hero photo moves above the text, the History New scan button moves under the title, and the top-bar tagline gives way to the Offline badge (finish review) | finish |
+| Launch (2026-10-31, owner-approved, inspired by a Plantum recording; our own assets) | None: the window ground, then the first screen | A system splash (core-splashscreen: the launcher foreground on the window ground, in the logo's dark-tile colors in dark mode), kept only while the startup settings load. Then, on a cold start from the launcher only, an intro of about 1.4 s: the splash icon settles into place with a spring, four faint leaves drift in from the corners and sway, "YOLO-C" and the tagline rise, then a crossfade to onboarding or Home (not a route; Back never returns to it). A tap skips it; with reduce motion everything appears in place for 400 ms. No intro after a language change, rotation, process restore, a warm start, or a link or share | launch |
+| Processing (2026-10-31, UI only) | The photo dimmed above "Analyzing on your device" with a spinner, under the screen header | The photo fills the screen, blurred (Modifier.blur on Android 12+; before 12 a softened ~24 px copy stretched with filtering) under a ground scrim (Deep Forest Ink in dark). After 150 ms (a fast result never flashes it) a card shows the mark with a scan line sweeping over the pod and the leaves breathing (1.6 s per cycle), "Checking your pod…" and "This runs on your phone. No internet needed.", which becomes "The first check after opening the app takes a little longer." after 3 s. The back arrow stays top left, floating over the photo as a round secondary button. Reduce motion: a still mark and a progress bar. The ViewModel, cancel on back, the error states and `ScanSession.setResult` are unchanged | processing |
+| Snap tips (2026-10-31, inspired by the ⓘ tips sheet in a Plantum recording; our own content) | None | An ⓘ button (48dp, "Snap tips") in the camera's top row in Photo and Live mode opens a bottom sheet: four photo tips, each with a pictogram drawn from the mark and Feather icons (one pod in the oval, shade, close and steady, clean lens), worded to match the Guide's photo tips; "More photo tips" opens the Guide's photo topic and "Got it" closes it. It opens by itself once, the first time the camera shows after install (either mode), tracked by a `snap_tips_seen` row in the key/value settings table (no schema change; "View introduction" leaves it set). The camera keeps running under the sheet; over Live, detection pauses while it is open and the last result is dropped. To make room for the ⓘ, the Photo camera title moved to its own line under the buttons | snap tips |
+| Onboarding panels, richer (2026-10-31, Plantum-like warmth, our own visual language; the pod photos stay) | Drawn panels on the plain ground, a row of capsules for progress | Every first-run step sits on a soft gradient (leaf tint to ground; Deep Forest Ink to the dark ground) with one organic blob behind the photo that morphs between steps, faint corner leaves that sway, and a faint dot grid beside the photo. The welcome slides show their picture as a framed "pebble" print (32/32/96/32dp corners, 4dp border, card shadow). Scan: viewfinder brackets and a slow scan line over the photo, chips "On-device" and "One pod at a time". Offline: chips "Works offline" and "Stays on your phone". Aid: the three status chips as a legend under the text ("The app sorts each pod into one of these."), never on a photo. Up to three short feature rows per slide (the aid slide leads with the measured miss rate; the tips slide keeps its four photo tips as rows). Progress is a segmented bar, the current step wider. The slides also swipe. When space runs out the decor, then the third row, then the print size go; the middle scrolls. Reduce motion: all in place, no sway, sweep or morph. The permission primer and the name step keep their plain panel and content, and share only the ground and the progress bar | onboarding panels |
 
 ## Step 6 measurements (filled in as the port progresses)
+
+Cold start: `adb shell am force-stop`, then `am start -W` with the launcher intent, 7 runs. "First
+frame" is `am start -W` TotalTime. "Fully drawn" is the Logcat `Fully drawn` line, which
+YoloCRoot reports (`ReportDrawn`) once onboarding or Home is composed, after the intro if it
+plays. In the debug build the first screen's first frame takes about 0.67 s of main thread, which
+holds the intro's last frame before the crossfade.
 
 | Measure                                                  | RN                                                    | Kotlin |
 | -------------------------------------------------------- | ----------------------------------------------------- | ------ |
 | Release APK size                                         |                                                       |        |
 | Cold start to Home (ms)                                  |                                                       |        |
+| Cold start to the first interactive screen, before the launch intro (ms) |                                       | 2583 (Fully drawn; first frame 1705). Debug build, TECNO BG6, Home, median of 7, 2026-10-31 |
+| Cold start to the first interactive screen, with the launch intro (ms)   |                                       | 3944 (Fully drawn, +1361 for the intro; first frame 1736). Same build type, phone and method |
 | Model load (ms)                                          |                                                       |        |
 | Preprocess / inference / postprocess per photo (median of 5, golden_01) | 2.2–2.7 s / 1375 ms / 15 ms (dev build, 2026-10-15) | |
 | Live: detections/s and camera fps, GPU and CPU           |                                                       |        |

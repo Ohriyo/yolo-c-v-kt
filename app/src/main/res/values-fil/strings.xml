@@ -50,6 +50,9 @@
     <string name="topbar_dark_mode">Madilim na tema</string>
     <string name="tabs_settings">Setting</string>
 
+    <!-- Launch intro (redesign 2026-10-31), DRAFT by Claude like the rest of this file. -->
+    <string name="intro_skip">Laktawan ang intro</string>
+
     <string name="placeholder">Pansamantalang screen. Gagawin sa susunod na yugto.</string>
 
     <!-- stack screen titles -->
@@ -77,7 +80,7 @@
     <string name="onboarding_aid_title">Pantulong sa pagsusuri, hindi diyagnosis</string>
     <string name="onboarding_aid_body">Maaaring makaligtaan ng app ang maagang palatandaan. Laging tingnan mismo ang mga kahina-hinalang bunga.</string>
     <string name="onboarding_get_started">Magsimula</string>
-    <string name="onboarding_aid_detail">Sa mga pagsubok, nakaligtaan nito ang mga %1$d sa bawat 10 bungang nasa maagang yugto.</string>
+    <string name="onboarding_aid_detail">Sa validation, nakaligtaan nito ang mga %1$d sa bawat 10 bungang nasa maagang yugto.</string>
     <string name="onboarding_next">Susunod</string>
     <string name="onboarding_skip">Laktawan</string>
     <string name="onboarding_permissions_title">Camera at mga larawan</string>
@@ -89,6 +92,21 @@
     <string name="onboarding_name_a11y">Ang iyong pangalan, opsyonal</string>
     <string name="onboarding_continue">Magpatuloy</string>
     <string name="onboarding_slide_counter">Hakbang %1$d sa %2$d</string>
+    <!-- Onboarding panels (redesign 2026-10-31), DRAFT by Claude like the rest of this file. -->
+    <string name="onboarding_chip_on_device">Nasa telepono</string>
+    <string name="onboarding_chip_one_pod">Isang bunga bawat kuha</string>
+    <string name="onboarding_chip_offline">Gumagana offline</string>
+    <string name="onboarding_chip_private">Nananatili sa telepono mo</string>
+    <string name="onboarding_scan_point">Itutok sa isang bunga</string>
+    <string name="onboarding_scan_shutter">Pindutin ang shutter</string>
+    <string name="onboarding_scan_seconds">Makikita ang resulta sa ilang segundo</string>
+    <string name="onboarding_offline_signal">Hindi kailangan ng signal</string>
+    <string name="onboarding_offline_plots">Igrupo ang mga scan ayon sa plot</string>
+    <string name="onboarding_offline_csv">I-export sa CSV kapag kailangan</string>
+    <string name="onboarding_legend_line">Inilalagay ng app ang bawat bunga sa isa sa mga ito.</string>
+    <string name="onboarding_aid_limit">Maaari nitong makaligtaan ang ilang bungang nasa maagang yugto, kaya suriing mabuti ang mga kahina-hinala.</string>
+    <string name="onboarding_aid_verdict">Kapag may isang bungang nasa maagang yugto, maagang yugto ang resulta</string>
+    <string name="onboarding_aid_confidence">May kasamang confidence score ang bawat bunga</string>
 
     <!-- home -->
     <string name="home_greeting_morning">Magandang umaga.</string>
@@ -164,9 +182,9 @@
     <string name="learn_how_correct_title">Maaari mo itong itama</string>
     <string name="learn_how_correct_body">Itama ang maling label bago o pagkatapos mag-save. Nakatutulong ang mga pagtatama mo sa pagsasanay ng mas mahusay na model.</string>
     <string name="learn_how_trust_title">Gaano ito mapagkakatiwalaan</string>
-    <string name="learn_how_trust_body">Sa mga pagsubok, nakaligtaan ng model ang mga %1$d sa bawat 10 bungang nasa maagang yugto. Ituring itong pangalawang pares ng mata, hindi diyagnosis.</string>
+    <string name="learn_how_trust_body">Sa validation, nakaligtaan ng model ang mga %1$d sa bawat 10 bungang nasa maagang yugto. Ituring itong pangalawang pares ng mata, hindi diyagnosis.</string>
     <string name="learn_see_accuracy">Tingnan ang detalye ng katumpakan</string>
-    <string name="learn_threshold_link">Baguhin ang hangganan ng kumpiyansa</string>
+    <string name="learn_sensitivity_link">Baguhin ang sensitivity ng pagtuklas</string>
 
     <!-- about, used by onboarding too -->
     <string name="about_recall_a11y">%1$d sa 10 bungang nasa maagang yugto ang natuklasan</string>
@@ -287,7 +305,7 @@
     <string name="scan_detail_model">Model</string>
     <string name="scan_detail_analysis_time">Tagal ng pagsusuri</string>
     <string name="scan_detail_analysis_seconds">%1$s s</string>
-    <string name="scan_detail_threshold">Hangganan ng kumpiyansa</string>
+    <string name="scan_detail_thresholds">Mga hangganan ng kumpiyansa</string>
     <string name="scan_detail_location">Lokasyon</string>
     <string name="scan_detail_delete_scan">Burahin ang scan</string>
     <string name="scan_detail_delete_title">Burahin ang scan na ito?</string>
@@ -312,6 +330,19 @@
     <string name="camera_title">Mag-scan ng bunga</string>
     <string name="camera_hint">Huwag gumalaw. Panatilihin ang isang bunga sa loob ng oval, sa lilim.</string>
     <string name="camera_private">Sinusuri nang pribado sa teleponong ito ang iyong larawan.</string>
+    <!-- Snap tips (redesign 2026-10-31), DRAFT by Claude like the rest of this file. -->
+    <string name="snap_tips_open">Mga tip sa larawan</string>
+    <string name="snap_tips_title">Mga tip sa larawan</string>
+    <string name="snap_tip_centered_lead">Isang bunga, nasa gitna</string>
+    <string name="snap_tip_centered_line">Ilagay ang buong bunga sa loob ng oval, mula tangkay hanggang dulo.</string>
+    <string name="snap_tip_shade_lead">Sa lilim, hindi sa tuwirang araw</string>
+    <string name="snap_tip_shade_line">Tumayo sa lilim o liliman ang bunga gamit ang iyong katawan. Natatago ng tuwirang araw ang mga marka.</string>
+    <string name="snap_tip_close_lead">Lumapit at huwag gumalaw</string>
+    <string name="snap_tip_close_line">Lumapit sa halip na mag-zoom, at hawakan nang matatag ang telepono hanggang makuha ang larawan.</string>
+    <string name="snap_tip_lens_lead">Malinis na lente, malinaw na kuha</string>
+    <string name="snap_tip_lens_line">Punasan ang dagta at alikabok sa lente. Alisin ang mga dahon o ibang bunga sa harap.</string>
+    <string name="snap_tips_more">Iba pang tip sa larawan</string>
+    <string name="snap_tips_done">Sige</string>
     <string name="camera_gallery">Pumili ng larawan sa gallery</string>
     <string name="camera_flash">Flash</string>
     <string name="camera_ask_title">Mag-scan ng bunga gamit ang camera</string>
@@ -333,7 +364,7 @@
     <string name="live_looking">Naghahanap ng bunga</string>
     <string name="live_preview_note">Pasilip lang ang live na resulta. Kumuha ng larawan para masuri nang maayos ang bunga at ma-save ito.</string>
     <string name="live_capture_a11y">Kunan ang tanawing ito at suriin</string>
-    <string name="live_starting">Sinisimulan ang live detector</string>
+    <string name="model_preparing">Inihahanda ang model…</string>
     <string name="live_load_failed_title">Hindi magamit ang Live mode</string>
     <string name="live_load_failed_body">Hindi magsimula ang live detector sa teleponong ito. Gamitin na lang ang Larawan mode.</string>
     <string name="live_use_photo">Gamitin ang Larawan mode</string>
@@ -350,8 +381,11 @@
     <string name="preview_back_to_scan">Bumalik sa I-scan</string>
 
     <!-- processing -->
-    <string name="processing_body">Sinusuri sa iyong device</string>
-    <string name="processing_detail">Ilang segundo lang ito.</string>
+    <!-- Redesign 2026-10-31, DRAFT by Claude like the rest of this file. -->
+    <string name="processing_checking">Sinusuri ang iyong bunga…</string>
+    <string name="processing_checking_a11y">Sinusuri ang iyong bunga</string>
+    <string name="processing_on_phone">Sa telepono mo ito ginagawa. Hindi kailangan ng internet.</string>
+    <string name="processing_first_run">Mas matagal nang kaunti ang unang pagsusuri pagkabukas ng app.</string>
     <string name="processing_image_error_title">Hindi mabasa ang larawan</string>
     <string name="processing_image_error_body">Maaaring sira ang file o hindi suportado ang format. Subukan ang ibang larawan.</string>
     <string name="processing_model_error_title">Hindi magsimula ang detector</string>
@@ -378,17 +412,13 @@
     <string name="settings_model">Model sa device</string>
     <string name="settings_model_detail">%1$s · Tumatakbo sa teleponong ito, gumagana offline</string>
     <string name="settings_detection_title">Pagtuklas</string>
-    <string name="settings_threshold">Hangganan ng kumpiyansa</string>
-    <string name="settings_threshold_value">%1$d%%</string>
-    <plurals name="settings_threshold_a11y">
-        <item quantity="one">%d porsiyento</item>
-        <item quantity="other">%d porsiyento</item>
-    </plurals>
-    <string name="settings_threshold_more">Mas maraming bunga ang nakikita</string>
-    <string name="settings_threshold_fewer">Mas kaunting maling alarma</string>
-    <string name="settings_threshold_help">Hindi ipinapakita ang mga bungang mas mababa rito ang marka. Ibaba ito para makita ang mas maraming bungang nasa maagang yugto, kapalit ng mas maraming maling alarma.</string>
-    <string name="settings_threshold_applies">Para sa susunod mong scan. Hindi nagbabago ang resulta ng mga naka-save na scan.</string>
-    <string name="settings_threshold_reset">Ibalik sa %1$d%% (default ng model)</string>
+    <string name="settings_sensitivity">Sensitivity ng pagtuklas</string>
+    <string name="settings_sensitivity_strict">Mahigpit</string>
+    <string name="settings_sensitivity_standard">Karaniwan</string>
+    <string name="settings_sensitivity_sensitive">Sensitibo</string>
+    <string name="settings_sensitivity_help">Mas kaunting maling alarma sa Mahigpit, pero maaaring may makaligtaang bunga. Mas maraming bungang nasa maagang yugto ang nakikita sa Sensitibo, kapalit ng mas maraming maling alarma.</string>
+    <string name="settings_sensitivity_applies">Para sa susunod mong scan. Hindi nagbabago ang resulta ng mga naka-save na scan.</string>
+    <string name="settings_sensitivity_reset">Ibalik sa inirerekomenda</string>
     <string name="settings_location_title">Lokasyon</string>
     <string name="settings_gps">Idagdag ang lokasyon sa mga naka-save na scan</string>
     <string name="settings_gps_off">Nakapatay bilang default. Nananatili sa teleponong ito ang mga lokasyon.</string>
@@ -468,11 +498,12 @@
     <string name="about_labels">Mga label</string>
     <string name="about_accuracy_title">Gaano ito katumpak?</string>
     <string name="about_recall_headline">Natutuklasan ang mga %1$d sa bawat 10 bungang nasa maagang yugto</string>
-    <string name="about_recall_body">Sa mga pagsubok sa mga larawang hindi pa nito nakikita, natuklasan nito ang %1$s ng mga bungang nasa maagang yugto. Mga %2$d sa 10 ang nakaligtaan.</string>
-    <string name="about_metrics_note">Sinusukat ng mAP50 kung gaano tumutugma ang mga kahon at label sa label ng mga eksperto, mula 0 hanggang 100%. Mas mataas, mas mahusay.</string>
-    <string name="about_metric_test_map50">Kabuuang marka (mAP50, mga larawang pang-test)</string>
-    <string name="about_metric_val_map50">Kabuuang marka (mAP50, mga larawang pang-validation)</string>
-    <string name="about_metric_early_test_map50">Marka sa maagang yugto (mAP50, mga larawang pang-test)</string>
+    <string name="about_recall_body">Sinukat sa %1$s, natuklasan nito ang %2$s ng mga bungang nasa maagang yugto. Mga %3$d sa 10 ang nakaligtaan.</string>
+    <string name="about_metrics_note">Sinusukat ng mAP50 kung gaano tumutugma ang mga kahon at label sa label ng mga eksperto, mula 0 hanggang 100%. Ang mAP50-95 ay parehong marka na mas mahigpit sa pagtutugma ng kahon. Mas mataas, mas mahusay.</string>
+    <string name="about_metrics_source">Sinukat sa %1$s</string>
+    <string name="about_metrics_all">Lahat ng uri</string>
+    <string name="about_metric_precision">Precision</string>
+    <string name="about_metric_recall">Recall</string>
     <string name="about_limitations_title">Mga limitasyon</string>
     <string name="about_limitation_aid">Ito ay pantulong sa pagsusuri. Tingnan mismo ang mga kahina-hinalang bunga.</string>
     <string name="about_limitation_misses">Nakaligtaan nito ang mga %1$d sa bawat 10 bungang nasa maagang yugto.</string>

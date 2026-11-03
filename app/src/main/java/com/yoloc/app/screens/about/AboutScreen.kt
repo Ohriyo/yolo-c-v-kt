@@ -7,17 +7,17 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -33,6 +33,8 @@ import com.yoloc.app.components.ScreenContainer
 import com.yoloc.app.components.StatusChip
 import com.yoloc.app.components.Tone
 import com.yoloc.app.components.a11yLabel
+import com.yoloc.app.db.repositories.DetectionClass
+import com.yoloc.app.features.detection.ModelConfig
 import com.yoloc.app.theme.Radii
 import com.yoloc.app.theme.Spacing
 import com.yoloc.app.theme.StatusKey
@@ -44,7 +46,7 @@ import com.yoloc.app.util.toFixed
 private fun percent(v: Double) = "${toFixed(v * 100, 1)}%"
 
 /**
- * RN: app/about.tsx (CLAUDE.md 3.4). Everything about the model is read from model.config.json
+ * RN: app/about.tsx (CLAUDE.md 3.4). Everything about the model is read from model_config.json
  * and the classes table, so a retrained model updates this screen with no code change. The
  * numbers are shown honestly: the headline is the weakest one that matters most, early-stage
  * recall.
@@ -81,24 +83,20 @@ fun AboutScreen(vm: AboutViewModel = viewModel(factory = AboutViewModel.Factory)
                 Card {
                     AppText(stringResource(R.string.about_recall_headline, found), variant = TypeVariant.Title)
                     RecallPods(found, stringResource(R.string.about_recall_a11y, found))
-                    AppText(stringResource(R.string.about_recall_body, percent(recall), missed))
+                    AppText(stringResource(R.string.about_recall_body, metrics.headline?.label.orEmpty(), percent(recall), missed))
                 }
-                Card {
-                    listOf(
-                        R.string.about_metric_test_map50 to metrics.testMap50,
-                        R.string.about_metric_early_test_map50 to metrics.earlyStageTestMap50,
-                        R.string.about_metric_val_map50 to metrics.valMap50,
-                    ).forEach { (label, value) -> if (value != null) Metric(stringResource(label), value) }
-                    AppText(stringResource(R.string.about_metrics_note), variant = TypeVariant.Caption, tone = Tone.Muted)
+                listOfNotNull(metrics.test, metrics.validation).forEach { evaluation ->
+                    Card { MetricsTable(evaluation, s.classes.orEmpty()) }
                 }
             }
         }
 
         HeaderedSection(stringResource(R.string.about_limitations_title)) {
             Card {
-                listOf(
+                listOfNotNull(
                     stringResource(R.string.about_limitation_aid),
-                    stringResource(R.string.about_limitation_misses, missed ?: 4),
+                    // Only with a measured recall: no number from another model stands in for it.
+                    missed?.let { stringResource(R.string.about_limitation_misses, it) },
                     stringResource(R.string.about_limitation_conditions),
                     stringResource(R.string.about_limitation_labels),
                     stringResource(R.string.about_limitation_retrain),
@@ -134,22 +132,39 @@ fun AboutScreen(vm: AboutViewModel = viewModel(factory = AboutViewModel.Factory)
     }
 }
 
+/** Every score of one evaluation: all classes first, then each class. */
 @Composable
-private fun Metric(label: String, value: Double) {
-    val colors = YoloCTheme.colors
-    val shown = percent(value)
-    Column(
-        Modifier.a11yLabel("$label: $shown"),
-        verticalArrangement = Arrangement.spacedBy(Spacing.xxs + 2.dp),
-    ) {
-        Row(horizontalArrangement = Arrangement.spacedBy(Spacing.sm), verticalAlignment = Alignment.Bottom) {
-            AppText(label, Modifier.weight(1f).alignByBaseline())
-            AppText(shown, Modifier.alignByBaseline(), variant = TypeVariant.BodyStrong)
-        }
-        Box(Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(Radii.full)).background(colors.border)) {
-            Box(Modifier.fillMaxWidth(value.toFloat().coerceIn(0f, 1f)).fillMaxHeight().clip(RoundedCornerShape(Radii.full)).background(colors.text))
+private fun MetricsTable(evaluation: ModelConfig.Evaluation, classes: List<DetectionClass>) {
+    val precision = stringResource(R.string.about_metric_precision)
+    val recall = stringResource(R.string.about_metric_recall)
+    val map50 = stringResource(R.string.about_metric_map50)
+    val map5095 = stringResource(R.string.about_metric_map50_95)
+    AppText(stringResource(R.string.about_metrics_source, evaluation.label), variant = TypeVariant.BodyStrong)
+    // Each row below says its own column names to TalkBack, so the header stays out of its way.
+    Row(Modifier.fillMaxWidth().clearAndSetSemantics {}, verticalAlignment = Alignment.Bottom) {
+        Spacer(Modifier.weight(1f))
+        listOf(precision, recall, map50, map5095).forEachIndexed { i, name -> MetricCell(name, i, Tone.Muted) }
+    }
+    @Composable
+    fun row(name: String, scores: ModelConfig.Scores) {
+        val cells = listOf(scores.precision, scores.recall, scores.map50, scores.map5095).map(::percent)
+        val spoken = "$name: $precision ${cells[0]}, $recall ${cells[1]}, $map50 ${cells[2]}, $map5095 ${cells[3]}"
+        Row(Modifier.fillMaxWidth().a11yLabel(spoken), verticalAlignment = Alignment.CenterVertically) {
+            AppText(name, Modifier.weight(1f), variant = TypeVariant.Caption)
+            cells.forEachIndexed { i, cell -> MetricCell(cell, i) }
         }
     }
+    row(stringResource(R.string.about_metrics_all), evaluation.all)
+    classes.forEach { c -> evaluation.classes[c.key]?.let { row(c.displayName, it) } }
+    AppText(stringResource(R.string.about_metrics_note), variant = TypeVariant.Caption, tone = Tone.Muted)
+}
+
+/** Wide enough that "Precision" stays on one line on a 360dp phone; "mAP50-95" wraps at its hyphen. */
+private val METRIC_COLUMNS = listOf(60.dp, 46.dp, 50.dp, 52.dp)
+
+@Composable
+private fun MetricCell(text: String, column: Int, tone: Tone = Tone.Default) {
+    AppText(text, Modifier.width(METRIC_COLUMNS[column]), variant = TypeVariant.Caption, tone = tone, textAlign = TextAlign.End)
 }
 
 @Composable

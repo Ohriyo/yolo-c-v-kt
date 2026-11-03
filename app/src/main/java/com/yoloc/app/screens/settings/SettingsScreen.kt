@@ -68,12 +68,9 @@ import com.yoloc.app.features.settings.LOCATION_PERMISSIONS
 import com.yoloc.app.features.settings.LocationAccess
 import com.yoloc.app.features.settings.SettingsGroup
 import com.yoloc.app.features.settings.SettingsRow
-import com.yoloc.app.features.settings.THRESHOLD_MAX
-import com.yoloc.app.features.settings.THRESHOLD_MIN
-import com.yoloc.app.features.settings.THRESHOLD_STEP
 import com.yoloc.app.features.settings.formatBytes
 import com.yoloc.app.features.settings.hasLocationPermission
-import com.yoloc.app.features.settings.thresholdPercent
+import com.yoloc.app.features.detection.DetectionSensitivity
 import com.yoloc.app.theme.Radii
 import com.yoloc.app.theme.Spacing
 import com.yoloc.app.theme.TypeVariant
@@ -167,7 +164,7 @@ fun SettingsScreen(
                     }
                 }
             }
-            HeaderedSection(stringResource(R.string.settings_detection_title)) { Threshold(s, vm) }
+            HeaderedSection(stringResource(R.string.settings_detection_title)) { Sensitivity(s, vm) }
             HeaderedSection(stringResource(R.string.settings_location_title)) {
                 Location(s, onToggle = { on -> if (on) turnOnGps() else vm.toggleGps(false) }, onTryAgain = turnOnGps)
             }
@@ -233,11 +230,20 @@ fun SettingsScreen(
     }
 }
 
+/** Three stops; Standard is the model's recommended thresholds. */
 @Composable
-private fun Threshold(s: SettingsViewModel.State, vm: SettingsViewModel) {
+private fun Sensitivity(s: SettingsViewModel.State, vm: SettingsViewModel) {
     val colors = YoloCTheme.colors
-    val label = stringResource(R.string.settings_threshold)
-    val res = LocalResources.current
+    val label = stringResource(R.string.settings_sensitivity)
+    val names = DetectionSensitivity.entries.associateWith {
+        stringResource(
+            when (it) {
+                DetectionSensitivity.Strict -> R.string.settings_sensitivity_strict
+                DetectionSensitivity.Standard -> R.string.settings_sensitivity_standard
+                DetectionSensitivity.Sensitive -> R.string.settings_sensitivity_sensitive
+            },
+        )
+    }
     val shape = RoundedCornerShape(Radii.md)
     Column(
         Modifier
@@ -252,33 +258,30 @@ private fun Threshold(s: SettingsViewModel.State, vm: SettingsViewModel) {
         Row(horizontalArrangement = Arrangement.spacedBy(Spacing.sm), verticalAlignment = Alignment.CenterVertically) {
             AppText(label, Modifier.weight(1f), variant = TypeVariant.BodyStrong)
             // The slider speaks the value itself.
-            AppText(
-                stringResource(R.string.settings_threshold_value, thresholdPercent(s.shownThreshold)),
-                Modifier.clearAndSetSemantics {},
-                variant = TypeVariant.Headline,
-            )
+            AppText(names.getValue(s.shownSensitivity), Modifier.clearAndSetSemantics {}, variant = TypeVariant.Headline)
         }
         YSlider(
-            value = s.confThreshold,
-            min = THRESHOLD_MIN,
-            max = THRESHOLD_MAX,
-            step = THRESHOLD_STEP,
-            onChangeEnd = vm::onThresholdChangeEnd,
-            formatValue = { thresholdPercent(it).let { pct -> res.getQuantityString(R.plurals.settings_threshold_a11y, pct, pct) } },
+            value = s.sensitivity.ordinal.toDouble(),
+            min = 0.0,
+            max = DetectionSensitivity.entries.lastIndex.toDouble(),
+            step = 1.0,
+            onChangeEnd = vm::onSensitivityChangeEnd,
+            formatValue = { names.getValue(sensitivityAt(it)) },
             accessibilityLabel = label,
-            onChange = vm::onThresholdChange,
-            marker = s.defaultThreshold,
+            onChange = vm::onSensitivityChange,
+            marker = DetectionSensitivity.Standard.ordinal.toDouble(),
         )
         Row(Modifier.fillMaxWidth().offset(y = -Spacing.xxs), horizontalArrangement = Arrangement.SpaceBetween) {
-            AppText(stringResource(R.string.settings_threshold_more), variant = TypeVariant.Caption, tone = Tone.Muted)
-            AppText(stringResource(R.string.settings_threshold_fewer), variant = TypeVariant.Caption, tone = Tone.Muted)
+            DetectionSensitivity.entries.forEach { level ->
+                AppText(names.getValue(level), Modifier.clearAndSetSemantics {}, variant = TypeVariant.Caption, tone = Tone.Muted)
+            }
         }
-        AppText(stringResource(R.string.settings_threshold_help))
-        AppText(stringResource(R.string.settings_threshold_applies), variant = TypeVariant.Caption, tone = Tone.Muted)
-        if (!s.isDefaultThreshold) {
+        AppText(stringResource(R.string.settings_sensitivity_help))
+        AppText(stringResource(R.string.settings_sensitivity_applies), variant = TypeVariant.Caption, tone = Tone.Muted)
+        if (!s.isRecommended) {
             YButton(
-                stringResource(R.string.settings_threshold_reset, thresholdPercent(s.defaultThreshold)),
-                vm::resetThreshold,
+                stringResource(R.string.settings_sensitivity_reset),
+                vm::resetSensitivity,
                 variant = ButtonVariant.Ghost,
                 icon = IconName.RotateCcw,
             )

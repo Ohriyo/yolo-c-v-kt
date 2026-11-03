@@ -45,7 +45,7 @@ class ScanRepositoryTest {
         imageWidth = 3072,
         imageHeight = 3072,
         source = ScanSource.Camera,
-        confThreshold = 0.25,
+        confThresholds = mapOf("early_stage" to 0.25),
         iouThreshold = 0.45,
         inferenceMs = 900,
         createdAt = NOW,
@@ -58,7 +58,7 @@ class ScanRepositoryTest {
     @After
     fun close() = holder.close()
 
-    private suspend fun save(input: SaveScanInput = base) = saveScan(scans, files, input, config.lowConfidenceThreshold)
+    private suspend fun save(input: SaveScanInput = base) = saveScan(scans, files, input, config.uncertainBelow)
 
     private suspend fun rowCount(table: String) = holder.get().rowCount(table)
 
@@ -205,12 +205,31 @@ class ScanRepositoryTest {
     }
 
     @Test
+    fun storesEachClassThresholdOnTheScan() = runBlocking {
+        val thresholds = mapOf("early_stage" to 0.35, "fully_infected_pod" to 0.25, "healthy_pod" to 0.35)
+        val id = save(base.copy(confThresholds = thresholds))
+        assertEquals(thresholds, scans.getScan(id)!!.scan.confThresholds)
+    }
+
+    @Test
+    fun aCorrectionThatChangesWhichPodDecidesMovesTheUncertainFlag() = runBlocking {
+        val id = save(base.copy(detections = listOf(pod(HEALTHY, confidence = 0.45), pod(HEALTHY, confidence = 0.95))))
+        val saved = scans.getScan(id)!!
+        assertFalse(saved.scan.lowConfidence)
+        val weak = saved.detections.first { it.confidence == 0.45 }
+        scans.correctDetection(weak.id, INFECTED, config.uncertainBelow)
+        assertTrue(scans.getScan(id)!!.scan.lowConfidence)
+        scans.correctDetection(weak.id, HEALTHY, config.uncertainBelow)
+        assertFalse(scans.getScan(id)!!.scan.lowConfidence)
+    }
+
+    @Test
     fun filtersByClassPresentUsingCorrectedLabels() = runBlocking {
         val ids = seedList()
         assertEquals(listOf(ids["earlyYesterday"]), listIds(ScanFilters(classIds = listOf(EARLY))))
 
         val scan = scans.getScan(ids.getValue("healthyToday"))!!
-        scans.correctDetection(scan.detections[0].id, EARLY)
+        scans.correctDetection(scan.detections[0].id, EARLY, config.uncertainBelow)
         assertEquals(listOf(ids["healthyToday"], ids["earlyYesterday"]), listIds(ScanFilters(classIds = listOf(EARLY))))
     }
 
@@ -338,7 +357,7 @@ class ScanRepositoryTest {
 
         // The user says the early pod is actually infected.
         val earlyPod = scans.getScan(early)!!.detections.first { it.classId == EARLY }
-        scans.correctDetection(earlyPod.id, INFECTED)
+        scans.correctDetection(earlyPod.id, INFECTED, config.uncertainBelow)
 
         val stats = scans.getStats(NOW - 30 * DAY)
         assertEquals(3, stats.totalScans)
@@ -354,7 +373,7 @@ class ScanRepositoryTest {
         val id = save(base.copy(detections = listOf(pod(EARLY))))
         val detectionId = scans.getScan(id)!!.detections[0].id
 
-        scans.correctDetection(detectionId, HEALTHY, NOW)
+        scans.correctDetection(detectionId, HEALTHY, config.uncertainBelow, NOW)
         var scan = scans.getScan(id)!!
         assertEquals(Verdict.Healthy, scan.scan.verdict)
         scan.detections[0].let {
@@ -364,7 +383,7 @@ class ScanRepositoryTest {
             assertEquals(HEALTHY, it.effectiveClassId)
         }
 
-        scans.correctDetection(detectionId, EARLY)
+        scans.correctDetection(detectionId, EARLY, config.uncertainBelow)
         scan = scans.getScan(id)!!
         assertEquals(Verdict.EarlyStage, scan.scan.verdict)
         assertNull(scan.detections[0].correctedClassId)
@@ -373,7 +392,7 @@ class ScanRepositoryTest {
 
     @Test
     fun correctionThrowsForAnUnknownDetection() = runBlocking {
-        assertFailsWith("not found") { scans.correctDetection("nope", HEALTHY) }
+        assertFailsWith("not found") { scans.correctDetection("nope", HEALTHY, config.uncertainBelow) }
     }
 
     // exportScansCsv
@@ -433,7 +452,7 @@ class ScanRepositoryTest {
     }
 
     private companion object {
-        // Class ids follow model.config.json order.
+        // Class ids follow model_config.json order.
         const val EARLY = 0
         const val INFECTED = 1
         const val HEALTHY = 2

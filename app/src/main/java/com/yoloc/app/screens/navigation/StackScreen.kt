@@ -1,6 +1,7 @@
 package com.yoloc.app.screens.navigation
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -47,37 +48,72 @@ private val headerTitle = TextStyle(fontWeight = FontWeight.SemiBold, fontSize =
  * header with a back arrow, so there is always an on-screen way back as well as Android's back.
  * Same background as the screen, no shadow. [onBack] is usually the navigator's up; Result
  * passes its own to ask before leaving an unsaved scan.
+ *
+ * Redesign 2026-10-31: [floating] puts the content under the whole screen (Processing's photo)
+ * with the back arrow in the same place, as a round secondary button over it and no title (the
+ * content names the screen).
  */
 @Composable
-fun StackScreen(title: String, onBack: () -> Unit, content: @Composable () -> Unit) {
+fun StackScreen(title: String, onBack: () -> Unit, floating: Boolean = false, content: @Composable () -> Unit) {
     val colors = YoloCTheme.colors
     val topEdges = WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
-    Column(Modifier.fillMaxSize().background(colors.background)) {
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .windowInsetsPadding(topEdges)
-                .height(56.dp)
-                .padding(horizontal = Spacing.xxs),
-            horizontalArrangement = Arrangement.spacedBy(Spacing.xs),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            val press = rememberPress()
-            val up = stringResource(R.string.nav_up)
-            Box(
-                Modifier
-                    .size(TouchTarget)
-                    .clip(CircleShape)
-                    .background(if (press.pressed.value) colors.surface else Color.Transparent)
-                    .a11yAction(up, onBack)
-                    .clickable(interactionSource = press.source, indication = null, onClick = onBack),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(IconName.ArrowLeft, size = 24.dp, color = colors.text)
-            }
-            AppText(title, Modifier.weight(1f), variant = TypeVariant.Title, style = headerTitle, maxLines = 1)
+    if (floating) {
+        Box(Modifier.fillMaxSize().background(colors.background)) {
+            content()
+            Header(title = null, onBack = onBack, topEdges = topEdges)
         }
+        return
+    }
+    Column(Modifier.fillMaxSize().background(colors.background)) {
+        Header(title, onBack, topEdges)
         // The header already keeps the status bar clear; the screen below must not pad for it again.
         Box(Modifier.weight(1f).consumeWindowInsets(topEdges)) { content() }
+    }
+}
+
+@Composable
+private fun Header(title: String?, onBack: () -> Unit, topEdges: WindowInsets) {
+    val colors = YoloCTheme.colors
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .windowInsetsPadding(topEdges)
+            .height(56.dp)
+            .padding(horizontal = Spacing.xxs),
+        horizontalArrangement = Arrangement.spacedBy(Spacing.xs),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        val press = rememberPress()
+        val up = stringResource(R.string.nav_up)
+        // Over content, the secondary button's colors and edge keep it clear of what is behind.
+        val button = colors.secondary
+        val floating = title == null
+        Box(
+            Modifier
+                .size(TouchTarget)
+                .clip(CircleShape)
+                .background(
+                    when {
+                        floating -> if (press.pressed.value) button.pressedBg else button.bg
+                        press.pressed.value -> colors.surface
+                        else -> Color.Transparent
+                    },
+                )
+                .then(if (floating) Modifier.border(1.dp, button.border, CircleShape) else Modifier)
+                .a11yAction(up, onBack)
+                .clickable(interactionSource = press.source, indication = null, onClick = onBack),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                IconName.ArrowLeft,
+                size = 24.dp,
+                color = when {
+                    !floating -> colors.text
+                    press.pressed.value -> button.pressedText
+                    else -> button.text
+                },
+            )
+        }
+        if (title != null) AppText(title, Modifier.weight(1f), variant = TypeVariant.Title, style = headerTitle, maxLines = 1)
     }
 }

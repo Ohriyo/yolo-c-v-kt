@@ -8,6 +8,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.yoloc.app.db.repositories.ScanFilters
 import com.yoloc.app.db.repositories.ScanRepository
+import com.yoloc.app.features.detection.ModelState
 import com.yoloc.app.features.scans.CameraAccess
 import com.yoloc.app.features.scans.CapturedPhotos
 import com.yoloc.app.features.scans.ScanFileStore
@@ -39,6 +40,9 @@ class CameraViewModel(
     library: ScanLibrary,
     private val permissions: PermissionHistory,
     private val photos: CapturedPhotos,
+    /** The photo pipeline, for "Preparing model…". */
+    val modelState: StateFlow<ModelState> = MutableStateFlow(ModelState.Ready),
+    private val prepareModel: () -> Unit = {},
 ) : ViewModel() {
     enum class Notice { CaptureFailed, GalleryFailed }
 
@@ -79,6 +83,9 @@ class CameraViewModel(
         }
         _state.update { it.copy(latestImage = image) }
     }
+
+    /** Compiling starts here, not at app launch, and again on return from the background. */
+    fun onScreenResumed() = prepareModel()
 
     /** On start and on every ON_RESUME, so access granted in system settings applies at once. */
     fun onPermissionChecked(granted: Boolean, showRationale: Boolean) =
@@ -176,7 +183,10 @@ class CameraViewModel(
         val Factory = viewModelFactory {
             initializer {
                 val c = container
-                CameraViewModel(c.scanSession, c.scanRepository, c.files, c.scanLibrary, c.permissionHistory, c.capturedPhotos)
+                CameraViewModel(
+                    c.scanSession, c.scanRepository, c.files, c.scanLibrary, c.permissionHistory, c.capturedPhotos,
+                    c.modelLoader.state, c.modelLoader::prepare,
+                )
             }
         }
     }

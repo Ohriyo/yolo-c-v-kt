@@ -1,6 +1,7 @@
 package com.yoloc.app.screens.settings
 
 import com.yoloc.app.db.repositories.ThemeSetting
+import com.yoloc.app.features.detection.DetectionSensitivity
 import com.yoloc.app.features.export.ExportScope
 import com.yoloc.app.features.export.ExportSummary
 import com.yoloc.app.features.export.SPACE_MARGIN_BYTES
@@ -14,9 +15,9 @@ import org.junit.Test
 
 /** The pure parts of the Step 4.4 part 3 ViewModels; the rest runs on the phone. */
 class SettingsHelpersTest {
-    private fun settings(gps: Boolean, access: LocationAccess?, refused: Boolean = false, threshold: Double = 0.25) =
+    private fun settings(gps: Boolean, access: LocationAccess?, refused: Boolean = false, level: DetectionSensitivity = DetectionSensitivity.Standard) =
         SettingsViewModel.State(
-            SettingsViewModel.Local(locationAccess = access, locationRefused = refused), threshold, 0.25, ThemeSetting.System, gps,
+            SettingsViewModel.Local(locationAccess = access, locationRefused = refused), level, ThemeSetting.System, gps,
         )
 
     @Test
@@ -33,9 +34,17 @@ class SettingsHelpersTest {
     }
 
     @Test
-    fun resetIsOfferedOnlyAwayFromTheDefault() {
-        assertTrue(settings(gps = false, access = null, threshold = 0.25).isDefaultThreshold)
-        assertFalse(settings(gps = false, access = null, threshold = 0.4).isDefaultThreshold)
+    fun resetIsOfferedOnlyAwayFromTheRecommendedLevel() {
+        assertTrue(settings(gps = false, access = null).isRecommended)
+        assertFalse(settings(gps = false, access = null, level = DetectionSensitivity.Sensitive).isRecommended)
+    }
+
+    @Test
+    fun anySliderPositionLandsOnALevel() {
+        assertEquals(DetectionSensitivity.Strict, sensitivityAt(0.0))
+        assertEquals(DetectionSensitivity.Standard, sensitivityAt(0.7))
+        assertEquals(DetectionSensitivity.Sensitive, sensitivityAt(2.0))
+        assertEquals(DetectionSensitivity.Sensitive, sensitivityAt(9.0))
     }
 
     @Test

@@ -157,7 +157,7 @@ private fun scanManifest(scan: ScanWithDetections): JsonObject {
         put("imageHeight", s.imageHeight)
         put("source", s.source.key)
         put("modelVersionId", s.modelVersionId)
-        put("confThreshold", jsNumber(s.confThreshold))
+        put("confThresholds", buildJsonObject { s.confThresholds.forEach { (key, value) -> put(key, jsNumber(value)) } })
         put("iouThreshold", jsNumber(s.iouThreshold))
         put("verdict", s.verdict.key)
         put("plot", s.plotName)

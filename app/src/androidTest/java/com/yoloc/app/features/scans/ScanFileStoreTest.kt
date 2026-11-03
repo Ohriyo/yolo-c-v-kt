@@ -25,7 +25,7 @@ class ScanFileStoreTest {
 
     @Test
     fun copiesAPhotoAndMakesAThumbnailWithA240PxShortSide() = runBlocking {
-        val photo = GoldenSamples(context).file("golden_01.jpg") // 1024 x 1024
+        val photo = GoldenSamples(context).file(GoldenSamples.FILES[0]) // 1024 x 1024
         store.copyIn(photo, scanImagePath("t1"))
         store.makeThumbnail(scanImagePath("t1"), scanThumbnailPath("t1"), 1024, 1024)
 
@@ -40,7 +40,7 @@ class ScanFileStoreTest {
     @Test
     fun removeIgnoresMissingFilesAndRemoveAllEmptiesTheStore() = runBlocking {
         store.remove("scans/missing.jpg")
-        store.copyIn(GoldenSamples(context).file("golden_02.jpg"), scanImagePath("t2"))
+        store.copyIn(GoldenSamples(context).file(GoldenSamples.FILES[1]), scanImagePath("t2"))
         assertTrue(store.sizeOf(scanImagePath("t2")) > 0)
         store.removeAll()
         assertEquals(0L, store.sizeOf(scanImagePath("t2")))

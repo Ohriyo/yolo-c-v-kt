@@ -1,6 +1,7 @@
 package com.yoloc.app.db
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.yoloc.app.features.detection.DetectionSensitivity
 import com.yoloc.app.db.repositories.ClassRepository
 import com.yoloc.app.db.repositories.SettingCodecs
 import com.yoloc.app.db.repositories.SettingsRepository
@@ -18,7 +19,7 @@ import org.junit.runner.RunWith
 /**
  * RN: __tests__/db.migrations.test.ts. RN's runMigrations tests (schema_migrations, rollback of a
  * broken migration, version ordering) have no Room equivalent: Room versions the schema itself.
- * MigrationTestHelper comes with the first schema change (Room version 2).
+ * The schema change itself is covered by MigrationTest.
  */
 @RunWith(AndroidJUnit4::class)
 class DatabaseTest {
@@ -99,7 +100,7 @@ class DatabaseTest {
             holder.get().rows("SELECT id, file_name, input_size, num_classes, is_active FROM model_versions"),
         )
         val settings = SettingsRepository(holder).getSettings()
-        assertEquals(config.confThreshold, settings.confThreshold, 0.0)
+        assertEquals(DetectionSensitivity.Standard, settings.sensitivity)
         assertEquals(config.iouThreshold, settings.iouThreshold, 0.0)
         assertEquals(config.id, settings.activeModelId)
     }
@@ -110,22 +111,22 @@ class DatabaseTest {
     }
 
     @Test
-    fun switchesTheActiveModelWhenTheConfigChangesKeepingUserThresholds() = runBlocking {
+    fun aNewModelBecomesActiveAndKeepsTheUsersSensitivity() = runBlocking {
         val settings = SettingsRepository(holder)
-        settings.setSetting(SettingCodecs.confThreshold, 0.5)
+        settings.setSetting(SettingCodecs.sensitivity, DetectionSensitivity.Strict)
         val retrained = config.copy(
-            id = "yolo-c-v3-640",
-            displayName = "YOLO-C v3 (640)",
-            file = "yolo_c_v3_640_fp16.tflite",
-            confThreshold = 0.3,
+            id = "yolo-c-v9-640",
+            displayName = "YOLO-C v9 (640)",
+            file = "yolo_c_v9_640.tflite",
         )
         assertTrue(seedFromModelConfig(holder.get(), retrained, classCatalog(TestDb.context)))
         assertEquals(
-            listOf(listOf("yolo-c-v2-640", "0"), listOf("yolo-c-v3-640", "1")),
+            listOf(listOf(config.id, "0"), listOf("yolo-c-v9-640", "1")),
             holder.get().rows("SELECT id, is_active FROM model_versions ORDER BY id"),
         )
-        assertEquals(0.5, settings.getSettings().confThreshold, 0.0)
-        assertEquals("yolo-c-v3-640", settings.getSettings().activeModelId)
+        // A level means the same for any model: Standard is always that model's own thresholds.
+        assertEquals(DetectionSensitivity.Strict, settings.getSettings().sensitivity)
+        assertEquals("yolo-c-v9-640", settings.getSettings().activeModelId)
     }
 
     @Test

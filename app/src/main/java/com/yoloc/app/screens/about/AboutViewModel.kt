@@ -19,7 +19,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 /**
- * RN: app/about.tsx. Everything about the model comes from model.config.json and the classes
+ * RN: app/about.tsx. Everything about the model comes from model_config.json and the classes
  * table, so a retrained model updates this screen with no code change. The headline is the
  * weakest number that matters most: early-stage recall.
  */

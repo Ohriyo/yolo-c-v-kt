@@ -3,9 +3,8 @@ package com.yoloc.app.features.live
 import com.yoloc.app.features.detection.Detection
 import com.yoloc.app.features.detection.Letterbox
 import com.yoloc.app.features.detection.ModelSpec
-import com.yoloc.app.features.detection.Thresholds
 import com.yoloc.app.features.detection.computeLetterbox
-import com.yoloc.app.features.detection.postprocess
+import com.yoloc.app.features.detection.postprocessByClass
 import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.min
@@ -30,11 +29,11 @@ fun liveDetections(
     spec: ModelSpec,
     frameWidth: Int,
     frameHeight: Int,
-    confThreshold: Double,
+    confThresholds: DoubleArray,
     iouThreshold: Double,
 ): List<Detection> {
     val lb = frameLetterbox(frameWidth, frameHeight, spec.inputSize)
-    return postprocess(output, spec, lb, Thresholds(confThreshold, iouThreshold, LIVE_MAX_DETECTIONS)).detections
+    return postprocessByClass(output, spec, lb, confThresholds, iouThreshold, LIVE_MAX_DETECTIONS).detections
 }
 
 data class PreviewTransform(val scale: Double, val offsetX: Double, val offsetY: Double)

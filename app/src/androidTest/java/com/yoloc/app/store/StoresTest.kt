@@ -1,6 +1,7 @@
 package com.yoloc.app.store
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.yoloc.app.features.detection.DetectionSensitivity
 import com.yoloc.app.db.MemoryFileStore
 import com.yoloc.app.db.TestDb
 import com.yoloc.app.db.repositories.NewDetection
@@ -57,11 +58,11 @@ class StoresTest {
             imageWidth = 800,
             imageHeight = 600,
             source = ScanSource.Camera,
-            confThreshold = 0.25,
+            confThresholds = mapOf("early_stage" to 0.25),
             iouThreshold = 0.45,
             detections = listOf(NewDetection(2, 0.9, 0.1, 0.1, 0.2, 0.2)),
         ),
-        config.lowConfidenceThreshold,
+        config.uncertainBelow,
     )
 
     // ScanLibrary
@@ -115,9 +116,9 @@ class StoresTest {
     @Test
     fun startsIdleWithTheModelDefaultThenHydratesFromTheTable() = runBlocking {
         settings.setSetting(SettingCodecs.theme, ThemeSetting.Dark)
-        val store = SettingsStore(settings, config, scope)
+        val store = SettingsStore(settings, scope)
         assertEquals(SettingsStore.Status.Idle, store.state.value.status)
-        assertEquals(config.confThreshold, store.state.value.confThreshold, 0.0)
+        assertEquals(DetectionSensitivity.Standard, store.state.value.sensitivity)
 
         // Several callers at once share one load and all see it finish.
         (1..3).map { async { store.hydrate() } }.awaitAll()
@@ -127,23 +128,38 @@ class StoresTest {
 
     @Test
     fun settersUpdateTheCacheThenPersistTheLatestValue() = runBlocking {
-        val store = SettingsStore(settings, config, scope)
+        val store = SettingsStore(settings, scope)
         store.hydrate()
         store.setTheme(ThemeSetting.Light)
         store.completeOnboarding()
         store.setGpsOptIn(true)
         // A slider drag: many quick changes, written concurrently.
-        coroutineScope { listOf(0.3, 0.35, 0.4, 0.45).forEach { v -> launch { store.setConfThreshold(v) } } }
+        coroutineScope { DetectionSensitivity.entries.forEach { v -> launch { store.setSensitivity(v) } } }
 
         val cached = store.state.value
         val saved = settings.getSettings()
         assertEquals(ThemeSetting.Light, saved.theme)
         assertEquals(true, saved.onboardingDone)
         assertEquals(true, saved.gpsOptIn)
-        assertEquals(cached.confThreshold, saved.confThreshold, 0.0)
+        assertEquals(cached.sensitivity, saved.sensitivity)
 
         store.resetOnboarding()
         assertEquals(false, store.state.value.onboardingDone)
         assertEquals(false, settings.getSettings().onboardingDone)
+    }
+
+    @Test
+    fun snapTipsSeenPersistsAndViewIntroductionKeepsIt() = runBlocking {
+        val store = SettingsStore(settings, scope)
+        store.hydrate()
+        assertEquals(false, store.state.value.snapTipsSeen)
+
+        store.markSnapTipsSeen()
+        assertEquals(true, settings.getSettings().snapTipsSeen)
+
+        store.resetOnboarding()
+        val reloaded = SettingsStore(settings, scope)
+        reloaded.hydrate()
+        assertEquals(true, reloaded.state.value.snapTipsSeen)
     }
 }

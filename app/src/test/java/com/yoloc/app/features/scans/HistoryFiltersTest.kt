@@ -40,7 +40,7 @@ class HistoryFiltersTest {
     private fun scanAt(id: String, createdAt: Long) = ScanSummary(
         id = id, plotId = null, plotName = null, modelVersionId = "m", imagePath = "scans/$id.jpg",
         thumbnailPath = null, imageWidth = 1, imageHeight = 1, source = ScanSource.Camera,
-        confThreshold = 0.25, iouThreshold = 0.45, inferenceMs = null, totalPods = 0,
+        confThresholds = mapOf("early_stage" to 0.25), iouThreshold = 0.45, inferenceMs = null, totalPods = 0,
         verdict = Verdict.NoPod, lowConfidence = false, latitude = null, longitude = null,
         notes = null, createdAt = createdAt,
     )

@@ -2,6 +2,7 @@ package com.yoloc.app.db.repositories
 
 import com.yoloc.app.db.AppDatabaseHolder
 import com.yoloc.app.db.SettingEntity
+import com.yoloc.app.features.detection.DetectionSensitivity
 import com.yoloc.app.util.toJsString
 
 enum class ThemeSetting(val key: String) {
@@ -13,7 +14,7 @@ enum class ThemeSetting(val key: String) {
 /** Typed view of the key/value settings table. */
 data class AppSettings(
     val onboardingDone: Boolean,
-    val confThreshold: Double,
+    val sensitivity: DetectionSensitivity,
     val iouThreshold: Double,
     val theme: ThemeSetting,
     val gpsOptIn: Boolean,
@@ -21,6 +22,8 @@ data class AppSettings(
     val activeModelId: String,
     /** Redesign 2026-10-28 (Kotlin only): the first name Home greets; empty when not given. */
     val userName: String = "",
+    /** Redesign 2026-10-31 (Kotlin only): the camera's Snap tips sheet has opened once by itself. */
+    val snapTipsSeen: Boolean = false,
 )
 
 /** How one setting is stored: its key, how a raw value parses (with fallback), how it formats. */
@@ -40,7 +43,10 @@ private fun text(key: String, fallback: String) = SettingCodec(key, { raw -> raw
  */
 object SettingCodecs {
     val onboardingDone = bool("onboarding_done", false)
-    val confThreshold = num("conf_threshold", 0.25)
+
+    /** Kotlin only: the Settings slider. Replaces RN's conf_threshold; a new key, no schema change. */
+    val sensitivity = SettingCodec("detection_sensitivity", { DetectionSensitivity.fromKey(it) }, { it.key })
+
     val iouThreshold = num("iou_threshold", 0.45)
     val theme = SettingCodec(
         "theme",
@@ -53,6 +59,9 @@ object SettingCodecs {
 
     /** Kotlin only (redesign 2026-10-28). A new key in the key/value table: no schema change. */
     val userName = text("user_name", "")
+
+    /** Kotlin only (redesign 2026-10-31): the Snap tips sheet opened by itself once. No schema change. */
+    val snapTipsSeen = bool("snap_tips_seen", false)
 }
 
 /** RN: src/db/repositories/settingsRepository.ts. */
@@ -63,13 +72,14 @@ class SettingsRepository(private val database: AppDatabaseHolder) {
         fun <T> read(codec: SettingCodec<T>) = codec.parse(raw[codec.key])
         return AppSettings(
             onboardingDone = read(SettingCodecs.onboardingDone),
-            confThreshold = read(SettingCodecs.confThreshold),
+            sensitivity = read(SettingCodecs.sensitivity),
             iouThreshold = read(SettingCodecs.iouThreshold),
             theme = read(SettingCodecs.theme),
             gpsOptIn = read(SettingCodecs.gpsOptIn),
             keepOriginalImages = read(SettingCodecs.keepOriginalImages),
             activeModelId = read(SettingCodecs.activeModelId),
             userName = read(SettingCodecs.userName),
+            snapTipsSeen = read(SettingCodecs.snapTipsSeen),
         )
     }
 

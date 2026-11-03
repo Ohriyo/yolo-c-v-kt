@@ -1,5 +1,6 @@
 package com.yoloc.app.db
 
+import com.yoloc.app.features.detection.DetectionSensitivity
 import com.yoloc.app.db.repositories.SettingCodecs
 import com.yoloc.app.db.repositories.ThemeSetting
 import com.yoloc.app.db.repositories.escapeLike
@@ -50,9 +51,10 @@ class DataLayerLogicTest {
         assertTrue(SettingCodecs.onboardingDone.parse("1"))
         assertFalse(SettingCodecs.onboardingDone.parse("0"))
         assertEquals("1", SettingCodecs.onboardingDone.format(true))
-        assertEquals(0.25, SettingCodecs.confThreshold.parse(null), 0.0)
-        assertEquals(0.25, SettingCodecs.confThreshold.parse("abc"), 0.0)
-        assertEquals("0.5", SettingCodecs.confThreshold.format(0.5))
+        assertEquals(DetectionSensitivity.Standard, SettingCodecs.sensitivity.parse(null))
+        assertEquals(DetectionSensitivity.Standard, SettingCodecs.sensitivity.parse("abc"))
+        assertEquals(DetectionSensitivity.Strict, SettingCodecs.sensitivity.parse("strict"))
+        assertEquals("sensitive", SettingCodecs.sensitivity.format(DetectionSensitivity.Sensitive))
         assertEquals(ThemeSetting.Dark, SettingCodecs.theme.parse("dark"))
         assertEquals(ThemeSetting.System, SettingCodecs.theme.parse("purple"))
         assertTrue(SettingCodecs.keepOriginalImages.parse(null))

@@ -100,11 +100,11 @@ class ScanFlowScreensTest {
     private fun twoPods(photo: PendingPhoto, lowConfidence: Boolean = false) = ScanResult(
         photo, 1024, 768,
         listOf(ResultDetection(0, 0.91, 0.1, 0.2, 0.3, 0.4), ResultDetection(2, 0.8, 0.5, 0.2, 0.3, 0.4)),
-        Verdict.EarlyStage, 2, lowConfidence, config.id, 0.25, 0.45, 1375, 3800, 0,
+        Verdict.EarlyStage, 2, lowConfidence, config.id, mapOf("early_stage" to 0.25), 0.45, 1375, 3800, 0,
     )
 
     private fun noPods(photo: PendingPhoto) =
-        ScanResult(photo, 1024, 768, emptyList(), Verdict.NoPod, 0, false, config.id, 0.25, 0.45, 900, 1200, 0)
+        ScanResult(photo, 1024, 768, emptyList(), Verdict.NoPod, 0, false, config.id, mapOf("early_stage" to 0.25), 0.45, 900, 1200, 0)
 
     private class Exits {
         var discarded = 0

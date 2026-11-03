@@ -42,6 +42,12 @@ android {
         compose = true
         buildConfig = true
     }
+    // The dev Model test runs the golden test's reference set; a release build has none of it.
+    sourceSets {
+        getByName("debug") {
+            assets.directories.add("src/androidTest/assets")
+        }
+    }
     // openFd() on an asset only works if it is stored uncompressed.
     androidResources {
         noCompress += "tflite"
@@ -66,6 +72,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)

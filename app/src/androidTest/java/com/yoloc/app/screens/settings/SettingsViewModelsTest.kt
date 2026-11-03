@@ -2,6 +2,7 @@ package com.yoloc.app.screens.settings
 
 import android.app.Application
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.yoloc.app.features.detection.DetectionSensitivity
 import com.yoloc.app.db.MemoryFileStore
 import com.yoloc.app.db.TestDb
 import com.yoloc.app.db.repositories.ClassRepository
@@ -55,7 +56,7 @@ class SettingsViewModelsTest {
     private val requests = HistoryRequests()
     private val config = TestDb.config
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    private val store = SettingsStore(settingsRepo, config, scope)
+    private val store = SettingsStore(settingsRepo, scope)
 
     @Before
     fun open() = runBlocking {
@@ -82,11 +83,11 @@ class SettingsViewModelsTest {
             imageWidth = 800,
             imageHeight = 600,
             source = ScanSource.Camera,
-            confThreshold = 0.25,
+            confThresholds = mapOf("early_stage" to 0.25),
             iouThreshold = 0.45,
             detections = listOf(NewDetection(0, 0.9, 0.1, 0.1, 0.2, 0.2)),
         ),
-        config.lowConfidenceThreshold,
+        config.uncertainBelow,
     )
 
     private suspend fun <T> StateFlow<T>.await(what: String, predicate: (T) -> Boolean): T =
@@ -97,20 +98,20 @@ class SettingsViewModelsTest {
         }
 
     private fun settingsVm() =
-        SettingsViewModel(application, store, scans, plots, files, library, PermissionHistory(context), config.confThreshold)
+        SettingsViewModel(application, store, scans, plots, files, library, PermissionHistory(context))
 
     @Test
     fun theSliderSnapsAndSavesOnReleaseAndResetGoesBackToTheDefault(): Unit = runBlocking {
         val vm = settingsVm()
-        vm.onThresholdChange(0.4123)
+        vm.onSensitivityChange(0.2)
         // state is combined on the main thread, so it is awaited rather than read at once.
-        vm.state.await("shown 0.4123") { it.shownThreshold == 0.4123 }
-        vm.onThresholdChangeEnd(0.4123)
-        vm.state.await("saved 0.4") { it.confThreshold == 0.4 && it.local.thresholdDraft == null }
-        store.state.await("stored") { it.confThreshold == 0.4 }
-        assertEquals(0.4, settingsRepo.getSettings().confThreshold, 0.0)
-        vm.resetThreshold()
-        vm.state.await("default") { it.isDefaultThreshold }
+        vm.state.await("shown strict") { it.shownSensitivity == DetectionSensitivity.Strict }
+        vm.onSensitivityChangeEnd(0.2)
+        vm.state.await("saved strict") { it.sensitivity == DetectionSensitivity.Strict && it.local.sensitivityDraft == null }
+        store.state.await("stored") { it.sensitivity == DetectionSensitivity.Strict }
+        assertEquals(DetectionSensitivity.Strict, settingsRepo.getSettings().sensitivity)
+        vm.resetSensitivity()
+        vm.state.await("recommended") { it.isRecommended }
     }
 
     @Test

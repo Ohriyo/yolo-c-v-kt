@@ -3,4 +3,12 @@
     <style name="Theme.Yoloc" parent="android:Theme.Material.NoActionBar">
         <item name="android:windowBackground">@color/window_background</item>
     </style>
+
+    <!-- The launcher foreground's Forest pod is 1.2:1 on the dark ground, so the dark splash uses
+         the same mark in the logo's dark-tile colors (Cream pod, Sage leaves). -->
+    <style name="Theme.Yoloc.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/window_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_dark</item>
+        <item name="postSplashScreenTheme">@style/Theme.Yoloc</item>
+    </style>
 </resources>

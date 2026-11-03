@@ -1,6 +1,8 @@
 package com.yoloc.app
 
+import android.content.ComponentCallbacks2
 import android.content.Context
+import android.content.res.Configuration
 import com.yoloc.app.db.AppDatabaseHolder
 import com.yoloc.app.db.repositories.ClassRepository
 import com.yoloc.app.db.repositories.DevRepository
@@ -35,7 +37,8 @@ class AppContainer(private val context: Context) {
     val database: AppDatabaseHolder by lazy { AppDatabaseHolder(context, modelConfig) } // getDb()
     val files: ScanFileStore by lazy { AndroidScanFileStore(context) } // expoScanFileStore
     val tempImages: TempImages by lazy { TempImages(context) } // tempImage.ts
-    val modelLoader: ModelLoader by lazy { ModelLoader(context, modelConfig) } // modelLoader.ts
+    private val modelLoaderLazy = lazy { ModelLoader(context, modelConfig, appScope) } // modelLoader.ts
+    val modelLoader: ModelLoader by modelLoaderLazy
     val scanRepository: ScanRepository by lazy { ScanRepository(database) }
     val plotRepository: PlotRepository by lazy { PlotRepository(database) }
     val classRepository: ClassRepository by lazy { ClassRepository(database) }
@@ -52,10 +55,32 @@ class AppContainer(private val context: Context) {
      * IO: what runs here opens the database and reads assets.
      */
     val appScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    val settingsStore: SettingsStore by lazy { SettingsStore(settingsRepository, modelConfig, appScope) } // settingsStore.ts
+    val settingsStore: SettingsStore by lazy { SettingsStore(settingsRepository, appScope) } // settingsStore.ts
     val scanLibrary: ScanLibrary by lazy { ScanLibrary(scanRepository) } // scanLibraryStore.ts
     val scanSession: ScanSession by lazy { ScanSession(tempImages) } // scanSessionStore.ts
     val historyRequests: HistoryRequests by lazy { HistoryRequests() } // History's route params
     val permissionHistory: PermissionHistory by lazy { PermissionHistory(context) } // Expo's canAskAgain
     val capturedPhotos: CapturedPhotos by lazy { CapturedPhotos(context) } // takePictureAsync / pickGalleryPhoto
+
+    init {
+        // The model takes real memory: it goes when the app is in the background or the system is
+        // about to start killing things. The Scan screen loads it again when it next opens.
+        context.registerComponentCallbacks(object : ComponentCallbacks2 {
+            override fun onTrimMemory(level: Int) {
+                @Suppress("DEPRECATION")
+                if (level >= ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN || level == ComponentCallbacks2.TRIM_MEMORY_RUNNING_CRITICAL) {
+                    releaseModel()
+                }
+            }
+
+            override fun onConfigurationChanged(newConfig: Configuration) = Unit
+
+            @Deprecated("Deprecated in Java")
+            override fun onLowMemory() = releaseModel()
+        })
+    }
+
+    private fun releaseModel() {
+        if (modelLoaderLazy.isInitialized()) modelLoader.release()
+    }
 }

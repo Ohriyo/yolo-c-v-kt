@@ -24,7 +24,9 @@ data class FakeScanOptions(
     val plotIds: List<String?>,
     val imageWidth: Int,
     val imageHeight: Int,
-    val confThreshold: Double,
+    /** The lowest confidence a fake pod gets. */
+    val minConfidence: Double,
+    val confThresholds: Map<String, Double>,
     val iouThreshold: Double,
     /** Same seed, same scans: makes History screenshots and tests repeatable. */
     val seed: Long = 42,
@@ -47,7 +49,7 @@ fun buildFakeScans(o: FakeScanOptions, sourceImage: File): List<SaveScanInput> {
             val w = 0.1 + random.next() * 0.3
             val h = 0.15 + random.next() * 0.35
             val classId = pick(o.classIds)
-            val confidence = round4(o.confThreshold + random.next() * (0.99 - o.confThreshold))
+            val confidence = round4(o.minConfidence + random.next() * (0.99 - o.minConfidence))
             val x = round4(random.next() * (1 - w))
             val y = round4(random.next() * (1 - h))
             NewDetection(classId, confidence, x, y, round4(w), round4(h))
@@ -64,7 +66,7 @@ fun buildFakeScans(o: FakeScanOptions, sourceImage: File): List<SaveScanInput> {
             imageWidth = o.imageWidth,
             imageHeight = o.imageHeight,
             source = source,
-            confThreshold = o.confThreshold,
+            confThresholds = o.confThresholds,
             iouThreshold = o.iouThreshold,
             inferenceMs = inferenceMs,
             notes = "$FAKE_SCAN_TAG Fake scan ${i + 1}",

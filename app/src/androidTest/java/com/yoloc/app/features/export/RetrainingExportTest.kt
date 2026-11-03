@@ -59,7 +59,7 @@ class RetrainingExportTest {
             imageWidth = 4000,
             imageHeight = 3000,
             source = ScanSource.Camera,
-            confThreshold = 0.25,
+            confThresholds = mapOf("early_stage" to 0.25),
             iouThreshold = 0.45,
             notes = notes,
             createdAt = NOW,
@@ -70,7 +70,7 @@ class RetrainingExportTest {
 
     private suspend fun correct(scanId: String, modelClass: Int, to: Int) {
         val detection = scans.getScan(scanId)!!.detections.first { it.classId == modelClass }
-        scans.correctDetection(detection.id, to)
+        scans.correctDetection(detection.id, to, config.uncertainBelow)
     }
 
     private class Unzipped(val result: ExportResult, val entries: Map<String, ByteArray>, val methods: Map<String, Int>) {
@@ -129,7 +129,7 @@ class RetrainingExportTest {
         assertEquals("Tree 7", scan["notes"]!!.jsonPrimitive.content)
         assertEquals(4000, scan["imageWidth"]!!.jsonPrimitive.int)
         assertEquals("null", scan["location"].toString())
-        assertEquals("0.25", scan["confThreshold"].toString()) // JSON.stringify form
+        assertEquals("0.25", scan["confThresholds"]!!.jsonObject["early_stage"].toString()) // JSON.stringify form
         val dets = scan["detections"]!!.jsonArray.map { it.jsonObject }
         assertTrue(
             dets.any {
@@ -172,7 +172,7 @@ class RetrainingExportTest {
     }
 
     private companion object {
-        // Class ids follow model.config.json order.
+        // Class ids follow model_config.json order.
         const val EARLY = 0
         const val INFECTED = 1
         const val HEALTHY = 2

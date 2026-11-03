@@ -33,6 +33,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.update
@@ -90,18 +91,27 @@ class LiveViewModel(
     private val _state = MutableStateFlow(State(now = clock()))
     val state: StateFlow<State> = _state.asStateFlow()
 
-    /** Spec from the CPU model, which reads the same file as the GPU runner. */
     private class Model(val runner: LiveRunner, val spec: ModelSpec)
 
     @Volatile
     private var model: Model? = null
+    private val started = MutableStateFlow(true)
     private val frameCount = AtomicLong(0)
     private val lastRunEnd = AtomicLong(Long.MIN_VALUE / 2)
     private val stats = LiveStats()
     private var lastLog = Long.MIN_VALUE / 2
 
+    /** True while something covers the preview (Snap tips): frames are counted but not run. */
+    @Volatile
+    private var paused = false
+
     init {
-        viewModelScope.launch { _state.map { it.backend }.distinctUntilChanged().collectLatest { load(it) } }
+        // Loads again if the model was released while this screen stayed on show (memory ran out).
+        viewModelScope.launch {
+            combine(_state.map { it.backend }, started, loader.generation) { backend, on, generation ->
+                Triple(backend, on, generation)
+            }.distinctUntilChanged().collectLatest { (backend, on) -> if (on) load(backend) else unload() }
+        }
         viewModelScope.launch {
             try {
                 val rows = classRepository.listClasses()
@@ -123,29 +133,30 @@ class LiveViewModel(
 
     /** Load the model for the chosen backend; if the GPU cannot start, fall back to the CPU. */
     private suspend fun load(backend: Backend) {
-        model = null
-        _state.update { it.copy(loaded = false) }
-        // The CPU model comes first either way (it gives the tensor layout); if it fails, the GPU
-        // cannot help, so that is a load error, not a GPU fallback.
-        val cpu = try {
-            loader.loadCpu()
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: Exception) {
-            Log.w(TAG, "Live model failed to load", e)
-            _state.update { it.copy(loadError = true) }
-            return
-        }
+        unload()
         try {
-            val runner = if (backend == Backend.Gpu) loader.loadGpu().runner else cpu
-            model = Model(runner, cpu.spec)
+            val spec = config.modelSpec()
+            val runner = if (backend == Backend.Gpu) loader.loadGpu().runner else loader.loadCpu()
+            model = Model(runner, spec)
             _state.update { it.copy(loaded = true) }
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
             Log.w(TAG, "Live model failed on ${backend.key}", e)
-            _state.update { it.copy(notice = Notice.GpuFallback, backend = Backend.Cpu) }
+            _state.update {
+                if (backend == Backend.Gpu) it.copy(notice = Notice.GpuFallback, backend = Backend.Cpu) else it.copy(loadError = true)
+            }
         }
+    }
+
+    private fun unload() {
+        model = null
+        _state.update { it.copy(loaded = false) }
+    }
+
+    /** The screen is on show or not. Stopped, it holds no model and loads none. */
+    fun setStarted(value: Boolean) {
+        started.value = value
     }
 
     /**
@@ -156,6 +167,7 @@ class LiveViewModel(
      */
     fun analyze(frame: () -> Bitmap) {
         frameCount.incrementAndGet()
+        if (paused) return
         val m = model ?: return
         // Battery throttle: a gap between the end of one run and the start of the next.
         if (clock() - lastRunEnd.get() < MIN_INTERVAL_MS) return
@@ -164,12 +176,13 @@ class LiveViewModel(
             val bitmap = frame()
             val lb = frameLetterbox(bitmap.width, bitmap.height, m.spec.inputSize)
             // The photo pipeline's own letterbox and pad value, so live boxes map back exactly.
-            val input = buildInputTensor(resizedPixels(bitmap, lb.resizedWidth, lb.resizedHeight), lb, config.letterboxPadValue, m.spec.inputLayout)
+            val input = buildInputTensor(resizedPixels(bitmap, lb.resizedWidth, lb.resizedHeight), lb, config.letterboxPad, m.spec.inputLayout)
             val t1 = System.nanoTime()
             val output = m.runner.run(input)
             val t2 = System.nanoTime()
             lastRunEnd.set(clock())
-            val detections = liveDetections(output, m.spec, bitmap.width, bitmap.height, settings.state.value.confThreshold, config.iouThreshold)
+            val confThresholds = config.confThresholdsFor(settings.state.value.sensitivity)
+            val detections = liveDetections(output, m.spec, bitmap.width, bitmap.height, confThresholds, config.iouThreshold)
             val t3 = System.nanoTime()
             val at = clock()
             synchronized(stats) { stats.addSample(LiveSample(at, ms(t0, t1), ms(t1, t2), ms(t2, t3))) }
@@ -192,6 +205,15 @@ class LiveViewModel(
             lastLog = at
             Log.i(BENCH_TAG, "[live-bench] ${benchLine(_state.value.backend, snap)}")
         }
+    }
+
+    /**
+     * Stop or restart running the model on frames (the camera keeps running). Pausing drops the
+     * last result, so no old boxes show when detection resumes.
+     */
+    fun setPaused(value: Boolean) {
+        paused = value
+        if (value) _state.update { it.copy(result = null) }
     }
 
     /** Dev HUD: switch backend to compare GPU and CPU. */

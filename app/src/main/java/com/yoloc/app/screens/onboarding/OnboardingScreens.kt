@@ -1,16 +1,21 @@
 package com.yoloc.app.screens.onboarding
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.ui.input.pointer.pointerInput
+import com.yoloc.app.features.onboarding.ClassLegend
+import com.yoloc.app.features.onboarding.FeatureRows
+import com.yoloc.app.features.onboarding.PanelChip
+import com.yoloc.app.features.onboarding.PanelFeature
+import com.yoloc.app.features.onboarding.ScanOverlay
+import com.yoloc.app.util.rememberReduceMotion
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -38,7 +43,6 @@ import com.yoloc.app.features.onboarding.OnboardingFrame
 import com.yoloc.app.features.onboarding.OnboardingSlide
 import com.yoloc.app.features.onboarding.RecallIllustration
 import com.yoloc.app.features.onboarding.ViewfinderIllustration
-import com.yoloc.app.theme.Radii
 import com.yoloc.app.theme.Spacing
 import com.yoloc.app.theme.TypeVariant
 import com.yoloc.app.theme.YoloCTheme
@@ -52,6 +56,8 @@ import com.yoloc.app.theme.YoloCTheme
 fun WelcomeScreen(onToPrimer: () -> Unit, vm: OnboardingViewModel = viewModel(factory = OnboardingViewModel.Factory)) {
     val s by vm.state.collectAsStateWithLifecycle()
     BackHandler(enabled = s.index > 0) { vm.back() }
+    val reduceMotion = rememberReduceMotion()
+    val forward = if (s.isLast) onToPrimer else vm::next
     OnboardingFrame(
         step = s.index,
         total = s.total,
@@ -62,15 +68,76 @@ fun WelcomeScreen(onToPrimer: () -> Unit, vm: OnboardingViewModel = viewModel(fa
         } else {
             FrameAction(stringResource(R.string.onboarding_next), vm::next)
         },
+        // Redesign 2026-10-31: the slides also swipe, like the buttons (and Android back).
+        modifier = Modifier.swipeSteps(onForward = forward, onBack = { vm.back() }),
         onSkip = if (s.isLast) null else onToPrimer,
         illustration = { SlideIllustration(s.slide, s.aidFound) },
+        pebble = true,
+        chips = slideChips(s.slide),
+        overlay = { if (s.slide == OnboardingSlide.Scan) ScanOverlay(reduceMotion) },
+        features = slideFeatures(s.slide, s.aidFound),
     ) {
-        if (s.slide == OnboardingSlide.Tips) PhotoTipsPanel()
-        val found = s.aidFound
-        if (s.slide == OnboardingSlide.Aid && found != null) {
-            AppText(stringResource(R.string.onboarding_aid_detail, 10 - found), variant = TypeVariant.BodyStrong)
-        }
+        if (s.slide == OnboardingSlide.Tips) PhotoTipsPanel(reduceMotion)
+        if (s.slide == OnboardingSlide.Aid) ClassLegend(reduceMotion, Modifier.padding(top = Spacing.xs))
     }
+}
+
+/** A horizontal fling past [SWIPE_DISTANCE]: left goes forward, right goes back. */
+private fun Modifier.swipeSteps(onForward: () -> Unit, onBack: () -> Unit) = pointerInput(Unit) {
+    var dragged = 0f
+    detectHorizontalDragGestures(
+        onDragStart = { dragged = 0f },
+        onDragEnd = {
+            val distance = SWIPE_DISTANCE.toPx()
+            if (dragged < -distance) onForward() else if (dragged > distance) onBack()
+        },
+        onHorizontalDrag = { _, dx -> dragged += dx },
+    )
+}
+
+private val SWIPE_DISTANCE = 56.dp
+
+/** Neutral facts over the photo's lower edge; never a result class. */
+@Composable
+private fun slideChips(slide: OnboardingSlide): List<PanelChip> = when (slide) {
+    OnboardingSlide.Scan -> listOf(
+        PanelChip(IconName.Cpu, stringResource(R.string.onboarding_chip_on_device)),
+        PanelChip(IconName.Crosshair, stringResource(R.string.onboarding_chip_one_pod)),
+    )
+    OnboardingSlide.Offline -> listOf(
+        PanelChip(IconName.WifiOff, stringResource(R.string.onboarding_chip_offline)),
+        PanelChip(IconName.Lock, stringResource(R.string.onboarding_chip_private)),
+    )
+    OnboardingSlide.Tips, OnboardingSlide.Aid -> emptyList()
+}
+
+/**
+ * The short lines under each slide's text. The tips slide has its photo tips instead. On the aid
+ * slide the measured miss rate leads (the body already says it can miss early signs); without a
+ * recall in the model config, the plain limit does.
+ */
+@Composable
+private fun slideFeatures(slide: OnboardingSlide, found: Int?): List<PanelFeature> = when (slide) {
+    OnboardingSlide.Scan -> listOf(
+        PanelFeature(IconName.Crosshair, stringResource(R.string.onboarding_scan_point)),
+        PanelFeature(IconName.Camera, stringResource(R.string.onboarding_scan_shutter)),
+        PanelFeature(IconName.Clock, stringResource(R.string.onboarding_scan_seconds)),
+    )
+    OnboardingSlide.Offline -> listOf(
+        PanelFeature(IconName.WifiOff, stringResource(R.string.onboarding_offline_signal)),
+        PanelFeature(IconName.MapPin, stringResource(R.string.onboarding_offline_plots)),
+        PanelFeature(IconName.Share2, stringResource(R.string.onboarding_offline_csv)),
+    )
+    OnboardingSlide.Tips -> emptyList()
+    OnboardingSlide.Aid -> listOf(
+        if (found == null) {
+            PanelFeature(IconName.Eye, stringResource(R.string.onboarding_aid_limit))
+        } else {
+            PanelFeature(IconName.BarChart2, stringResource(R.string.onboarding_aid_detail, 10 - found))
+        },
+        PanelFeature(IconName.Layers, stringResource(R.string.onboarding_aid_verdict)),
+        PanelFeature(IconName.Sliders, stringResource(R.string.onboarding_aid_confidence)),
+    )
 }
 
 @Composable
@@ -78,7 +145,11 @@ private fun SlideIllustration(slide: OnboardingSlide, found: Int?) {
     when (slide) {
         OnboardingSlide.Scan -> PhotoIllustration(R.drawable.photo_cacao_cluster)
         OnboardingSlide.Offline -> PhotoIllustration(R.drawable.photo_cacao_column)
-        OnboardingSlide.Tips -> ViewfinderIllustration()
+        // Scaled with the print, so its umbrella never meets the pebble's corner.
+        OnboardingSlide.Tips -> BoxWithConstraints(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            val scale = (maxHeight / VIEWFINDER_ROOM).coerceAtMost(1f)
+            Box(Modifier.graphicsLayer { scaleX = scale; scaleY = scale }) { ViewfinderIllustration() }
+        }
         OnboardingSlide.Aid -> if (found == null) {
             PhotoIllustration(R.drawable.photo_cacao_cluster)
         } else {
@@ -87,26 +158,17 @@ private fun SlideIllustration(slide: OnboardingSlide, found: Int?) {
     }
 }
 
+/** The viewfinder drawing's height with its umbrella and some air around it. */
+private val VIEWFINDER_ROOM = 232.dp
+
+/** The four photo tips, as feature rows. All four stay when space runs out: they are the slide. */
 @Composable
-private fun PhotoTipsPanel() {
-    val colors = YoloCTheme.colors
-    Column(
-        Modifier
-            .fillMaxWidth()
-            .padding(top = Spacing.xs)
-            .background(colors.surface, RoundedCornerShape(Radii.md))
-            .padding(Spacing.md),
-        verticalArrangement = Arrangement.spacedBy(Spacing.sm),
-    ) {
-        for (tip in onboardingTipPicks.mapNotNull { photoTips.getOrNull(it) }) {
-            Row(horizontalArrangement = Arrangement.spacedBy(Spacing.sm), verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.size(40.dp).background(colors.surfaceRaised, CircleShape), contentAlignment = Alignment.Center) {
-                    Icon(tip.icon, size = 20.dp, color = colors.icon)
-                }
-                AppText(stringResource(tip.text), Modifier.weight(1f))
-            }
-        }
-    }
+private fun PhotoTipsPanel(reduceMotion: Boolean) {
+    FeatureRows(
+        onboardingTipPicks.mapNotNull { photoTips.getOrNull(it) }.map { PanelFeature(it.icon, stringResource(it.text)) },
+        reduceMotion,
+        Modifier.padding(top = Spacing.xs),
+    )
 }
 
 /**

@@ -21,7 +21,7 @@ data class ModelSpec(
 )
 
 /**
- * Inspects the model's actual input/output tensors and checks them against model.config.json,
+ * Inspects the model's actual input/output tensors and checks them against model_config.json,
  * so a swapped model with a different layout still works, and a mismatched one fails clearly
  * at load time instead of producing wrong boxes.
  */
@@ -49,7 +49,7 @@ fun describeModel(inputs: List<TensorInfo>, outputs: List<TensorInfo>, config: M
         throw IllegalArgumentException("Unsupported input shape $shape")
     }
     require(height == width && height == config.inputSize) {
-        "Model input is ${width}x$height but model.config.json says inputSize ${config.inputSize}"
+        "Model input is ${width}x$height but model_config.json says inputSize ${config.inputSize}"
     }
 
     val features = 4 + config.classes.size
@@ -66,7 +66,7 @@ fun describeModel(inputs: List<TensorInfo>, outputs: List<TensorInfo>, config: M
     } else {
         throw IllegalArgumentException(
             "Output $out does not fit ${config.classes.size} classes " +
-                "(expected a dimension of $features); check the class list in model.config.json",
+                "(expected a dimension of $features); check the class list in model_config.json",
         )
     }
 
